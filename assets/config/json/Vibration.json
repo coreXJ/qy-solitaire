@@ -1,0 +1,29 @@
+{
+	"rows":[
+		{
+			"desc":"基础轻微震动",
+			"id":1,
+			"name":"vibration_slight",
+			"range":1,
+			"time":100,
+			"type":"基础"
+		},
+		{
+			"desc":"基础强烈震动",
+			"id":2,
+			"name":"vibration_heavy",
+			"range":2,
+			"time":100,
+			"type":"基础"
+		},
+		{
+			"desc":"香水消除震动",
+			"id":3,
+			"name":"vibration_booster_eli",
+			"range":1,
+			"time":100,
+			"type":"道具"
+		}
+	],
+	"server_use":[]
+}

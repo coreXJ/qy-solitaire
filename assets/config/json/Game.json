@@ -1,0 +1,13 @@
+{
+	"rows":[
+		{
+			"config":"1000",
+			"dataType":"int32",
+			"desc":"基础金币数量",
+			"id":1,
+			"name":"InitialCoin",
+			"type":"Basic"
+		}
+	],
+	"server_use":[]
+}
