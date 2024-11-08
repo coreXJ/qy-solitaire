@@ -13,6 +13,7 @@ import AudioMgr from '../manager/AudioMgr';
 import { game } from 'cc';
 import { Game } from 'cc';
 import GameLoader from './GameLoader';
+import GameData from '../data/GameData';
 const { ccclass, property } = _decorator;
 
 @ccclass('Launch')
@@ -57,6 +58,7 @@ export class Launch extends Component {
     private initGame(){
         Promise.all([
             ConfigMgr.instance.loadAllConfig(),
+            GameData.loadAllLevelData(),
             GameLoader.loadAllGameRes(),
             // this.initServerConfig(),
             // this.initGameRoot(),

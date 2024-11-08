@@ -58,9 +58,9 @@ export class ResKeeper extends Component {
      * 释放资源，组件销毁时自动调用
      */
     public releaseAssets() {
-        this.resCache.forEach(element => {
+        this.resCache?.forEach(element => {
             element.decRef();
         });
-        this.resCache.clear();
+        this.resCache?.clear();
     }
 }

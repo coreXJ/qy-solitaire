@@ -1,6 +1,7 @@
 export const GameConst = {
     CARD_WIDTH : 96,
     CARD_HEIGHT : 144,
+
 }
 export const CardJoker = 0xff;
 export const CardValues = [
@@ -64,6 +65,7 @@ export enum UIID {
     UILoading,
     UIHall,
     UIGame,
+    UIResult,
 }
 
 
@@ -77,6 +79,7 @@ export const UIConfig: { [key: number]: IUiConf } = {
     [UIID.UILoading]: { prefab: 'prefab/load/UILoading', bundle: 'res'},
     [UIID.UIHall]: { prefab: 'prefab/hall/UIHall', bundle: 'res'},
     [UIID.UIGame]: { prefab: 'prefab/game/UIGame', bundle: 'res'},
+    [UIID.UIResult]: { prefab: 'prefab/game/UIResult', bundle: 'res'},
 }
 
 //事件类型

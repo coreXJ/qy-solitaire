@@ -165,38 +165,41 @@ export namespace XUtils{
         Tween.stopAllByTarget(opa);
     }
 
-    /* 绑定按钮点击事件
-    * @param node 按钮节点
-    * @param listener 监听方法
-    * @param thisArg this实例
-    * 必须先关闭事件，否则有可能多次注册点击事件
-    */
-    export function onButtonClick(node: Node, listener: Function, thisArg: any = null, soundType: EButtonSoundType = EButtonSoundType.COMMON, playAnimation = true, ...args) {
-        const button = XUtils.bindClick(node, listener, thisArg, soundType, ...args)
-        if(playAnimation){
-            button.transition = Button.Transition.SCALE;
-            button.zoomScale = 0.95;
-            button.duration = 0.06;
-        }
-        return button;
-    }
+    // /* 绑定按钮点击事件
+    // * @param node 按钮节点
+    // * @param listener 监听方法
+    // * @param thisArg this实例
+    // * 必须先关闭事件，否则有可能多次注册点击事件
+    // */
+    // export function onButtonClick(node: Node, listener: Function, thisArg: any = null, soundType: EButtonSoundType = EButtonSoundType.COMMON, playAnimation = true, ...args) {
+    //     const button = XUtils.bindClick(node, listener, thisArg, soundType, ...args)
+    //     if(playAnimation){
+    //         button.transition = Button.Transition.SCALE;
+    //         button.zoomScale = 0.95;
+    //         button.duration = 0.06;
+    //     }
+    //     return button;
+    // }
 
     /**
      * 没点击反馈的点击事件
      */
-    export function bindClick(node: Node, listener: Function, thisArg: any = null, soundType: EButtonSoundType = EButtonSoundType.COMMON, ...args) {
+    export function bindClick(node: Node, listener: Function, target = null, ...args:any[]) {
         node.off('click');
         node.on('click', (btn:Button) => {
             if (!btnClickValid()) {
                 return;
             }
-            listener.apply(thisArg, args)
-            AudioMgr.instance.playButtonSound(soundType);
+            listener.apply(target, args)
+            // AudioMgr.instance.playButtonSound(soundType);
             if (btn) {
                 setLastClickPosition(btn.node.getWorldPosition());
             }
-        }, thisArg);
+        }, target);
         return node.getComponent(Button) || node.addComponent(Button);
+    }
+    export function unbindClick(node: Node) {
+        node.off('click');
     }
     
     let LastClickPosition: Vec3;

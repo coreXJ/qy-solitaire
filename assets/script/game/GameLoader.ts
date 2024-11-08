@@ -29,14 +29,15 @@ class GameLoader {
         })
     }
     public setCardFrame(sp: Sprite, cardValue: number){
-        let frame = this._cardSprites.find(ele=>ele.name == `Card_${cardValue}`);
+        let frame = this._cardSprites.find(ele=>ele.name == `card_${cardValue}`);
         if(isValid(frame)){
             sp.spriteFrame = frame;
         }
     }
-    public addCard(){
+    public addCard(parent?: Node){
         if (this._cardNodePool.size() > 0) {
             let card = this._cardNodePool.get();
+            card.parent = parent;
             card.active = true;
             card.scale = v3(1, 1, 1);
             card.eulerAngles = v3(0, 0, 0);

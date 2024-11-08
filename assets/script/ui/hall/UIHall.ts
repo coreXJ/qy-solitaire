@@ -10,10 +10,15 @@ export default class UIHall extends UIView {
 
     public init(...args: any): void {
         console.log('hall init');
+        
+    }
+
+    public onOpen(fromUI: number, ...args: any): void {
+        // this.toGame();
     }
 
     public toGame() {
-        UIMgr.instance.open(UIID.UIGame);
+        UIMgr.instance.open(UIID.UIGame,{levelId: 0});
     }
 
 }

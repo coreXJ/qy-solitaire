@@ -521,9 +521,9 @@ export class UIMgr extends Component {
             return;
         }
         this.isClosing = true;
-        if(LocalConfigMgr.instance.isInPopUpSeq(uiInfo.uiId)){
-            AutoPopViewMgr.instance.popView(); 
-        }
+        // if(LocalConfigMgr.instance.isInPopUpSeq(uiInfo.uiId)){
+        //     AutoPopViewMgr.instance.popView(); 
+        // }
         let preUIInfo = this.UIStack[uiCount - 2];
         // 处理显示模式
         let closecb = () => {
@@ -645,7 +645,7 @@ export class UIMgr extends Component {
                     uiView.node.removeFromParent();
                 } else {
                     uiView.releaseAssets();
-                    uiView.node.destroy();
+                    uiView.node?.destroy();
                 }
             }
         }
