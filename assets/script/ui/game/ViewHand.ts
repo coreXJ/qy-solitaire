@@ -2,7 +2,6 @@ import { _decorator, Component, Label, Node, tween, Tween, v3, Vec3 } from "cc";
 import GameLoader from "../../game/GameLoader";
 import { Card, CardType } from "../../data/GameObjects";
 import CardView from "./CardView";
-import GameLogic from "../../game/GameLogic";
 import UIGame from "./UIGame";
 import { XUtils } from "../../comm/XUtils";
 import GameCtrl from "../../game/GameCtrl";
@@ -32,6 +31,18 @@ export default class ViewHand extends Component {
     private poolCards: CardView[] = [];
     private handCards: CardView[] = [];
 
+    //==viewmodel start==
+    public get poolCardValues(): number[] {
+        return this.poolCards.map(cardView => cardView.cardValue);
+    }
+    public get poolCardCount(): number {
+        return this.poolCards.length;
+    }
+    public get handCardValues(): number[] {
+        return this.handCards.map(cardView => cardView.cardValue);
+    }
+    //==viewmodel end==
+
     protected onLoad(): void {
         this.btnEndGame.active = false;
         this.ndPropAdd.active = false;
@@ -40,10 +51,16 @@ export default class ViewHand extends Component {
     protected start(): void {
         console.log('ViewHand start');
         XUtils.bindClick(this.btnEndGame, this.onClickEndGame, this);
+        setTimeout(() => {
+            this.insertTaskAwardCard([0xff],[10])
+        }, 1000);
     }
 
     public get topHandCardValue() {
         return this.handCards[this.handCards.length-1]?.cardValue || -10000;
+    }
+    public get topPoolCardValue() {
+        return this.topPoolCard?.cardValue || -10000;
     }
     
     public dealCards(poolCount: number, handCardValue: number) {
@@ -58,6 +75,45 @@ export default class ViewHand extends Component {
             this.drawPoolCard(handCardValue);
         }, 0.7);
     }
+
+    /**
+     * 往抽牌池插入牌，有几种业务情况
+     */
+    public insertTaskAwardCard(cardValues: number[],idxs: number[]) {
+        for (let i = 0; i < cardValues.length; i++) {
+            const value = cardValues[i];
+            const nd = GameLoader.addCard();
+            nd.parent = this.ndPoolRoot;
+            const cardView = nd.getComponent(CardView);
+            cardView.cardValue = value;
+            this.poolCards.splice(idxs[i], 0, cardView);
+            XUtils.bindClick(nd, this.onClickPoolCard, this, cardView);
+            const pos = this.view.top.getTaskCardWorldPosition();
+            cardView.node.worldPosition = pos;
+            tween(nd).set({scale: v3(0.2,0.2,1)})
+                .to(0.3,{scale: v3(1,1,1)},{easing:'backOut'}).start();
+        }
+        this.scheduleOnce(()=>{
+            this.tweenMovePoolCards();
+        },0.5);
+    }
+    // // * @param type 0task 1prodAdd 2blowCard
+    // // * @param cardValues 
+    // public insertPoolCards(type:0|1|2, ...cardValues: number[]) {
+    //     for (let i = 0; i < cardValues.length; i++) {
+    //         const value = cardValues[i];
+    //         const nd = GameLoader.addCard(this.ndPoolRoot);
+    //         const cardView = nd.getComponent(CardView);
+    //         cardView.data.value = value;
+    //         this.poolCards.push(cardView);
+    //         XUtils.bindClick(cardView.node, this.onClickPoolCard, this, cardView);
+    //         if (type == 0) { // task
+    //             const pos = this.view.top.getTaskCardWorldPosition();
+    //             cardView.node.worldPosition = pos;
+    //         }
+    //     }
+    //     this.tweenMovePoolCards();
+    // }
 
     public addPoolCardView(cardView?: CardView) {
         // const len = this.poolCards.length;
@@ -130,7 +186,7 @@ export default class ViewHand extends Component {
         if (idx == -1 || idx < this.poolCards.length - 1) {
             return;
         }
-        console.log('onClickHandCard', cardView);
+        console.log('onClickPoolCard', cardView);
         GameCtrl.drawPool();
     }
 
@@ -140,6 +196,7 @@ export default class ViewHand extends Component {
         const startX = -CardView.WIDTH * 0.5;
         for (let i = 0; i < len; i++) {
             const nd = this.poolCards[i].node;
+            nd.setSiblingIndex(i);
             const num = Math.min(len - i, POOL_VISIBLE_CARD_COUNT) - 1;
             const x = startX + num * POOL_OFFSET_X;
             Tween.stopAllByTarget(nd);

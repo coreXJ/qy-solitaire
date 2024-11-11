@@ -30,14 +30,35 @@ export default class CardView extends Component {
     public get cardType(): CardType {
         return this._data?.type || CardType.none;
     }
+    public set cardValue(value: number) {
+        this.data.value = value;
+        this.updateView();
+    }
     public set data(data: Card) {
         this._data = data;
         this.updateView();
     }
     public get data() {
+        this.initData();
         return this._data;
     }
+
+    protected onLoad(): void {
+        this.initData();
+    }
+    private initData() {
+        if (!this._data) {
+            const data = new Card();
+            data.type = CardType.none;
+            data.value = 0;
+            this._data = data;
+        }
+    }
+
     public updateView() {
+        if (this.cardValue >= 0x30) {
+            this._bFront = true;
+        }
         const cardValue = this._bFront ? this.cardValue : 0;
         GameLoader.setCardFrame(this.spCard, cardValue);
         this.spCard.color = COLOR_NONE;

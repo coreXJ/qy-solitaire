@@ -187,6 +187,7 @@ export namespace XUtils{
     export function bindClick(node: Node, listener: Function, target = null, ...args:any[]) {
         node.off('click');
         node.on('click', (btn:Button) => {
+            console.log('click',btn);
             if (!btnClickValid()) {
                 return;
             }

@@ -32,3 +32,39 @@ export class Level {
     poolCount: number;
     handCardValue: number;
 }
+
+export class Task {
+    linkCount: number;
+    awardType: TaskAwardType;
+    awardNum: number;
+}
+
+// 金币、牌、鬼牌、
+export enum TaskAwardType {
+    gold,
+    card,
+    joker
+}
+
+/**描述每次操作
+ * 包括：linkTable、drawPool、propJoker
+ * 以及每次操作后的任务数据
+ */
+export class GameAction {
+    type: GameActionType;
+    targetCard: Card;
+    task: Task;
+    taskColors: TaskColor[];
+    taskAwardGold: number;
+    taskAwardPoolCardIdxs: number[];
+}
+export enum GameActionType {
+    linkTable,
+    drawPool,
+    propJoker
+}
+/**0红 1黑 */
+export enum TaskColor {
+    red = 0,
+    black = 1
+};

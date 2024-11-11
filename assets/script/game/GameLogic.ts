@@ -2,6 +2,9 @@
  * 游戏逻辑模块
  */
 
+import { CardJoker } from "../data/GameConfig";
+import { TaskColor } from "../data/GameObjects";
+
 const value = 0x0F;
 const color = 0xF0;
 
@@ -79,12 +82,12 @@ class GameLogic {
     }
     private generateLinkCard(card: number) {
         card = this.getCardValue(card);
-        console.log('---0',card);
         card += Math.random() > 0.5 ? 1 : -1;
         if (card > 13) {
             card = 1;
+        } else if (card == 0) {
+            card = 13;
         }
-        console.log('---1',card);
         card = this.addSuit(card);
         console.log('generateLinkCard',card);
         return card;
@@ -107,6 +110,9 @@ class GameLogic {
 
     /**两张牌是否可以接龙 */
     public isCanLink(card0: number, card1: number) {
+        if (card0 == CardJoker || card1 == CardJoker) {
+            return true;
+        }
         card0 = this.getCardValue(card0);
         card1 = this.getCardValue(card1);
         const diff = Math.abs(card0 - card1);
@@ -128,6 +134,24 @@ class GameLogic {
         return card & color;
     }
 
+    public getCardTaskColor(card: number): TaskColor {
+        const color = this.getCardColor(card);
+        return color % 0x20 == 0 ? TaskColor.red : TaskColor.black;
+    }
+
+    /**随机生成往pool插入牌的idx */
+    public randomInsertPoolCardIdxs(poolCardCount: number,insertCount: number) {
+        const idxs:number[] = [];
+        for (let i = 0; i < insertCount; i++) {
+            let idx = Math.round(Math.random() * poolCardCount);
+            idxs.push(idx);
+        }
+        idxs.sort((a,b)=>a-b);
+        for (let i = 0; i < idxs.length; i++) {
+            idxs[i] = idxs[i] + i;
+        }
+        return idxs;
+    }
 }
 
 export default new GameLogic();
