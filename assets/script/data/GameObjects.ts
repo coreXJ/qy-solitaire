@@ -4,7 +4,7 @@ import { Vec3 } from "cc";
 export class Card {
     value: number; // 牌值 0为未知
     type: CardType;
-    tAngle: Vec3; // 角度
+    tAngle: number; // 角度
     tIdx: number;
     tLayer: number;
     tType: number;
@@ -31,6 +31,7 @@ export class Level {
     breakSwitchProb: number;
     poolCount: number;
     handCardValue: number;
+    minGuarantee: number;
 }
 
 export class Task {

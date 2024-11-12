@@ -1,11 +1,24 @@
 import { _decorator, Component, Node } from 'cc';
 const { ccclass, property } = _decorator;
 
+//事件类型
+export const EventName = {
+    // onNetConnectSuc: "onNetConnectSuc",
+    
+    // loginSuccess: "loginSuccess",
+    //切换多语言
+    ChangeLan: "ChangeLan",
+    // 玩家金币改变
+    onGoldChange: "onGoldChange",
+    // 玩家道具数量改变
+    onPropChange: "onPropChange",
+}
+
 @ccclass('EventMgr')
 export class EventMgr {
     public static readonly instance: EventMgr = new EventMgr(); 
-    private handles = {};
-    dispatch(eventName: string, ...data:any) {
+    private static handles = {};
+    public static emit(eventName: string, ...data:any) {
         // console.log('dispatch',eventName,...data);
         const returns = [];
         const handlers = this.handles[eventName];
@@ -18,13 +31,13 @@ export class EventMgr {
         }
         return returns;
     }
-    has(eventName: string, callback: Function): boolean {
+    public static has(eventName: string, callback: Function): boolean {
         if (!this.handles[eventName]) {
             return false;
         }
         return this.handles[eventName].some(item => item.callback === callback);
     }
-    on(eventName: string, callback: Function, target: any) {
+    public static on(eventName: string, callback: Function, target: any) {
         if (!this.handles[eventName]) {
             this.handles[eventName] = [];
         }
@@ -37,13 +50,13 @@ export class EventMgr {
             // console.log("重复注册事件:", eventName);
         }
     }
-    offAll(eventName: string) {
+    public static offAll(eventName: string) {
         if (this.handles[eventName]) {
             delete this.handles[eventName];
         }
     }
 
-    mulOn(eventName: string, callback: Function, target) {
+    public static mulOn(eventName: string, callback: Function, target) {
         if (!this.handles[eventName]) {
             this.handles[eventName] = [];
         }
@@ -53,7 +66,7 @@ export class EventMgr {
         }
         this.handles[eventName].push(data)
     }
-    off(eventName: string, callback: Function, target?: any) {
+    public static off(eventName: string, callback: Function, target?: any) {
         if (!this.handles[eventName]) {
             return;
         }
@@ -71,7 +84,7 @@ export class EventMgr {
             }
         }
     }
-    clearAll() {
+    public static clearAll() {
         this.handles = {};
     }
 }

@@ -1,6 +1,7 @@
 import { instantiate, isValid, NodePool, Prefab, Sprite, SpriteFrame,Node, v3 } from "cc";
 import { ResMgr } from "../manager/ResMgr";
 import CardView from "../ui/game/CardView";
+import { XUtils } from "../comm/XUtils";
 
 class GameLoader {
 
@@ -55,6 +56,7 @@ class GameLoader {
                 card.reset();
                 this._cardNodePool.put(cardNode);
             }
+            XUtils.unbindClick(cardNode);
         }
     }
     private async preloadPrefabs(){

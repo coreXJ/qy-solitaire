@@ -13,6 +13,11 @@ export const CardValues = [
     CardJoker,//赖子牌
 ];
 
+export enum PropID {
+    PropJoker = 1,
+    PropAdd = 2,
+    PropUndo = 3,
+}
 
 //音效类型
 export enum playAudioType {
@@ -81,15 +86,6 @@ export const UIConfig: { [key: number]: IUiConf } = {
     [UIID.UIHall]: { prefab: 'prefab/hall/UIHall', bundle: 'res'},
     [UIID.UIGame]: { prefab: 'prefab/game/UIGame', bundle: 'res'},
     [UIID.UIResult]: { prefab: 'prefab/game/UIResult', bundle: 'res'},
-}
-
-//事件类型
-export const EventName = {
-    // onNetConnectSuc: "onNetConnectSuc",
-    
-    // loginSuccess: "loginSuccess",
-    //切换多语言
-    ChangeLan: "ChangeLan",
 }
 
 //声音资源配置

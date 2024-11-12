@@ -123,6 +123,13 @@ class GameLogic {
         }
         return false;
     }
+    public isCanLinkAnyOne(card: number, cards: number[]) {
+        for (const e of cards) {
+            if (this.isCanLink(card, e)) {
+                return true;
+            }
+        }
+    }
 
     /**去掉花色后的值 */
     public getCardValue(card: number): number {
@@ -152,6 +159,7 @@ class GameLogic {
         }
         return idxs;
     }
+    
 }
 
 export default new GameLogic();

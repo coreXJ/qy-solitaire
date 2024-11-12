@@ -21,7 +21,7 @@ export default class UIGame extends UIView {
         // bind nodes
         this.bindNodes();
         GameCtrl.bind(this);
-        GameCtrl.startGame(params.levelId);
+        GameCtrl.startGame(params.level);
     }
 
     private bindNodes() {
@@ -47,6 +47,17 @@ export default class UIGame extends UIView {
             this.hand.linkTableCard(cardView, wpos);
         }
     }
+    public undoLinkTable(idxs: number[]) {
+        // console.log('undoLinkTable',idxs);
+        const cardView = this.hand.popHandCard();
+        if (cardView) {
+            this.table.undoCard(cardView);
+            cardView.node.worldPosition = this.hand.ndHandRoot.worldPosition;
+            if (idxs?.length > 0) {
+                this.hand.undoTaskAwardCards(idxs);
+            }
+        }
+    }
 
     public onClose() {
         GameCtrl.unbind();
@@ -54,5 +65,5 @@ export default class UIGame extends UIView {
 }
 
 interface IOpenParams {
-    levelId: number;
+    level: Level;
 }

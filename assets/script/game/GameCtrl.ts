@@ -1,6 +1,7 @@
-import { CardJoker, UIID } from "../data/GameConfig";
+import { CardJoker, PropID, UIID } from "../data/GameConfig";
 import GameData from "../data/GameData";
-import { GameAction, Level, Task, TaskAwardType, TaskColor } from "../data/GameObjects";
+import { GameAction, GameActionType, Level, Task, TaskAwardType, TaskColor } from "../data/GameObjects";
+import { EventMgr, EventName } from "../manager/EventMgr";
 import { UIMgr } from "../manager/UIMgr";
 import CardView from "../ui/game/CardView";
 import UIGame from "../ui/game/UIGame";
@@ -19,11 +20,19 @@ class GameCtrl {
     // private viewHand: GameHand;
     public bind(view: UIGame) {
         this.view = view;
+        this.lisEvents(true);
+        this.onGoldChange();
     }
 
-    public startGame(levelId: number) {
+    private lisEvents(bool: boolean) {
+        const func = bool ? 'on' : 'off';
+        EventMgr[func](EventName.onGoldChange,  this.onGoldChange, this);
+        EventMgr[func](EventName.onPropChange,  this.onPropChange, this);
+    }
+
+    public startGame(level: Level) {
         // 通过GameData的levelList读取一个关卡数据
-        this.level = GameData.getLevel(levelId);
+        this.level = level;
         let tableCards = this.level.tableCards.map(e => e.value);
         console.log('生成随机桌牌前',[...tableCards]);
         tableCards = GameLogic.generateTableCards(
@@ -40,6 +49,7 @@ class GameCtrl {
         }
         this.newTask();
         this.view.startGame(this.level);
+        this.actions = [];
     }
 
     public getFirstCardValue() {
@@ -54,6 +64,11 @@ class GameCtrl {
         // 判断是否能接龙
         const bCanLink = GameLogic.isCanLink(value0, value1);
         if (bCanLink) {
+            const action = new GameAction();
+            action.type = GameActionType.linkTable;
+            action.targetCard = cardView.data;
+            action.task = this.task;
+            action.taskColors = [...this.taskColors];
             this.view.linkTableCard(cardView);
             // addTaskColor，并更新top，如果满了，bFinished=true
             const finishType = this.addTaskColor(value0);
@@ -66,6 +81,7 @@ class GameCtrl {
                     cardValue = 0
                 } else if (this.task.awardType == TaskAwardType.gold) {
                     // 目前没这种奖励
+                    action.taskAwardGold = 0;//读配置
                 } else if (this.task.awardType == TaskAwardType.joker) {
                     cardValue = CardJoker;
                 }
@@ -75,31 +91,49 @@ class GameCtrl {
                 
                 const cardValues = finishType == 2 ? [cardValue,cardValue] : [cardValue];
                 this.view.hand.insertTaskAwardCard(cardValues,idxs);
+                action.taskAwardPoolCardIdxs = [...idxs];
                 this.newTask();
             }
             this.onTaskChange();
             if (this.view.table.getCardCount() == 0) {
                 // win
                 this.onGameEnd(true);
+            } else {
+                this.actions.push(action);
             }
         }
     }
 
     public onGameEnd(bWin: boolean) {
         UIMgr.instance.open(UIID.UIResult,{bWin});
+        if (bWin) {
+            GameData.nextLevel();
+        }
     }
-
+    private _guaranteeCount = 0;//摸牌保底计数
     public drawPool() {
         const handValue = this.view.hand.topPoolCardValue;
-        if (handValue == CardJoker) {
+        const action = new GameAction();
+        action.type = GameActionType.drawPool;
+        action.task = this.task;
+        action.taskColors = [...this.taskColors];
+        this.actions.push(action);
+        if (handValue > 0) {
             // 如果摸的是效果牌，就直接摸
             this.view.hand.drawPoolCard();
         } else {
             // 如果摸的这张牌是普通牌，就生成牌值
             const topValues = this.view.table.getTopCardValues();
-            let bLink = false;//xj====写到了这里 要加个摸牌保底
+            this.level.breakSwitchProb
+            let bLink = this._guaranteeCount >= this.level.minGuarantee;
             const cardValue = GameLogic.generateHandCardValue(bLink, topValues);
             this.view.hand.drawPoolCard(cardValue);
+            const tops = this.view.table.getTopCardValues();
+            if (GameLogic.isCanLinkAnyOne(cardValue, tops)) {
+                this._guaranteeCount = 0;
+            } else {
+                this._guaranteeCount++;
+            }
         }
         this.breakTaskColor();
     }
@@ -140,8 +174,58 @@ class GameCtrl {
     }
     public unbind() {
         this.view = null;
+        this.lisEvents(false);
+        this.actions = [];
     }
 
+    public useProp(id: PropID) {
+        // 暂时没有道具
+        if (id == PropID.PropUndo && this.actions.length == 0) {
+            return;
+        }
+        if (GameData.useProp(id)) {
+            console.log('使用道具');
+            this.onUseProp(id);
+        } else if (GameData.costGold(200)) { //读配置
+            console.log('花金币使用道具');
+            this.onUseProp(id, 200);
+        }
+    }
+    
+    private onUseProp(id: PropID, gold?: number) {
+        if (id == PropID.PropAdd) {
+            this.view.hand.addPropAddCards(5); //读配置
+        } else if (id == PropID.PropJoker) {
+            const action = new GameAction();
+            action.type = GameActionType.propJoker;
+            action.task = this.task;
+            action.taskColors = [...this.taskColors];
+            this.actions.push(action);
+            this.view.hand.addPropJokerCard();
+        } else if (id == PropID.PropUndo) {
+            const action = this.actions.pop();
+            console.log('action', action);
+            this.task = action.task;
+            this.taskColors = action.taskColors;
+            this.onTaskChange();
+            if (action.type == GameActionType.linkTable) {
+                this.view.undoLinkTable(action.taskAwardPoolCardIdxs);
+            } else if (action.type == GameActionType.drawPool) {
+                this.view.hand.undoDrawPoolCard();
+            } else if (action.type == GameActionType.propJoker) {
+                this.view.hand.undoPropJokerCard();
+                GameData.addProp(PropID.PropJoker, 1);
+            }
+        }
+    }
+
+    private onGoldChange() {
+        this.view.top.setGold(GameData.gold);
+    }
+
+    private onPropChange(id: PropID, count: number) {
+        this.view.hand.refreshProp();
+    }
 }
 
 export default new GameCtrl();

@@ -1,0 +1,95 @@
+{
+    "id": 0,
+    "name": "Level 1",
+    "group": "group1",
+    "tableComboRange": [
+        6,
+        7
+    ],
+    "minBreakDiff": 2,
+    "maxComboRedProb": 0.5,
+    "breakSwitchProb": 0.5,
+    "tableCards": [
+        {
+            "value": 0,
+            "type": 3,
+            "tIdx": 0,
+            "tType": 0,
+            "tPos": {
+                "x": -50.5,
+                "y": 80,
+                "z": 0
+            },
+            "tLayer": 0,
+            "tAngle": 0
+        },
+        {
+            "value": 0,
+            "type": 3,
+            "tIdx": 1,
+            "tType": 0,
+            "tPos": {
+                "x": 50.5,
+                "y": 80,
+                "z": 0
+            },
+            "tLayer": 0,
+            "tAngle": 0
+        },
+        {
+            "value": 0,
+            "type": 3,
+            "tIdx": 2,
+            "tType": 0,
+            "tPos": {
+                "x": 0,
+                "y": 160,
+                "z": 0
+            },
+            "tLayer": 0,
+            "tAngle": 0
+        },
+        {
+            "value": 0,
+            "type": 3,
+            "tIdx": 3,
+            "tType": 0,
+            "tPos": {
+                "x": -50.5,
+                "y": -80,
+                "z": 0
+            },
+            "tLayer": 0,
+            "tAngle": 0
+        },
+        {
+            "value": 0,
+            "type": 3,
+            "tIdx": 4,
+            "tType": 0,
+            "tPos": {
+                "x": 50.5,
+                "y": -80,
+                "z": 0
+            },
+            "tLayer": 0,
+            "tAngle": 0
+        },
+        {
+            "value": 0,
+            "type": 3,
+            "tIdx": 5,
+            "tType": 0,
+            "tPos": {
+                "x": 0,
+                "y": -160,
+                "z": 0
+            },
+            "tLayer": 0,
+            "tAngle": 0
+        }
+    ],
+    "poolCount": 10,
+    "handCardValue": 0,
+    "minGuarantee": 3
+}

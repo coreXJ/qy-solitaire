@@ -5,6 +5,8 @@ import CardView from "./CardView";
 import UIGame from "./UIGame";
 import { XUtils } from "../../comm/XUtils";
 import GameCtrl from "../../game/GameCtrl";
+import { CardJoker, PropID } from "../../data/GameConfig";
+import GameData from "../../data/GameData";
 const { ccclass, property } = _decorator;
 
 const POOL_VISIBLE_CARD_COUNT = 9;
@@ -51,16 +53,17 @@ export default class ViewHand extends Component {
     protected start(): void {
         console.log('ViewHand start');
         XUtils.bindClick(this.btnEndGame, this.onClickEndGame, this);
-        setTimeout(() => {
-            this.insertTaskAwardCard([0xff],[10])
-        }, 1000);
+        XUtils.bindClick(this.ndPropAdd, this.onClickProp, this, PropID.PropAdd);
+        XUtils.bindClick(this.ndPropJoker, this.onClickProp, this, PropID.PropJoker);
+        XUtils.bindClick(this.ndPropUndo, this.onClickProp, this, PropID.PropUndo);
+        this.refreshProp();
     }
 
     public get topHandCardValue() {
-        return this.handCards[this.handCards.length-1]?.cardValue || -10000;
+        return this.handCards[this.handCards.length-1]?.cardValue || 0;
     }
     public get topPoolCardValue() {
-        return this.topPoolCard?.cardValue || -10000;
+        return this.topPoolCard?.cardValue || 0;
     }
     
     public dealCards(poolCount: number, handCardValue: number) {
@@ -96,6 +99,65 @@ export default class ViewHand extends Component {
         this.scheduleOnce(()=>{
             this.tweenMovePoolCards();
         },0.5);
+    }
+    public undoTaskAwardCards(idxs: number[]) {
+        idxs.sort((id0,id1)=>id1-id0); // 从大到小排序
+        for (const idx of idxs) {
+            const cardView = this.poolCards.splice(idx, 1)[0];
+            if (cardView) {
+                const worldPosition = cardView.node.worldPosition;
+                cardView.node.parent = this.node;
+                tween(cardView.node).set({
+                    scale: v3(1,1,1),
+                    worldPosition
+                }).delay(0.2).to(0.5, {
+                    scale: v3(0.5,0.5,1),
+                    worldPosition: this.view.top.getTaskCardWorldPosition()
+                },{easing: 'quadOut'}).call(()=>{
+                    GameLoader.removeCard(cardView.node);
+                }).start();
+            }
+        }
+        this.tweenMovePoolCards();
+    }
+    public addPropAddCards(count: number) {
+        for (let i = 0; i < count; i++) {
+            const nd = GameLoader.addCard();
+            nd.parent = this.ndPoolRoot;
+            const cardView = nd.getComponent(CardView);
+            cardView.cardValue = 0;
+            this.poolCards.push(cardView);
+            XUtils.bindClick(nd, this.onClickPoolCard, this, cardView);
+        }
+        this.tweenMovePoolCards();
+    }
+    public addPropJokerCard() {
+        const nd = GameLoader.addCard();
+        nd.parent = this.node;
+        const cardView = nd.getComponent(CardView);
+        cardView.cardValue = CardJoker;
+        // this.poolCards.push(cardView);
+        nd.worldPosition = this.propJokerWorldPosition;
+        tween(nd).set({scale: v3(0.2,0.2,1)})
+            .to(0.3,{scale: v3(1,1,1)},{easing:'backOut'}).start();
+        this.scheduleOnce(()=>{
+            this.addHandCard(cardView, this.propJokerWorldPosition);
+            // this.tweenMovePoolCards();
+        },0.5);
+    }
+    private get propJokerWorldPosition() {
+        const pos = v3(this.ndPropJoker.worldPosition);
+        pos.y += 15;
+        return pos;
+    }
+    public undoPropJokerCard() {
+        const cardView = this.popHandCard();
+        cardView.node.parent = this.node;
+        tween(cardView.node).to(0.3, {
+            worldPosition: this.propJokerWorldPosition
+        },{ easing: 'quadOut' }).call(()=>{
+            GameLoader.removeCard(cardView.node);
+        }).start();
     }
     // // * @param type 0task 1prodAdd 2blowCard
     // // * @param cardValues 
@@ -140,6 +202,11 @@ export default class ViewHand extends Component {
             this.addHandCard(cardView, wpos);
         }
     }
+    public undoDrawPoolCard() {
+        const cardView = this.popHandCard();
+        cardView.isFront = false;
+        this.addPoolCardView(cardView);
+    }
 
     public addHandCard(cardView: CardView, fromWorldPosition?: Vec3) {
         cardView.node.parent = this.ndHandRoot;
@@ -153,6 +220,15 @@ export default class ViewHand extends Component {
                 cardView.isFront = true;
             }).start();
     }
+    public popHandCard() {
+        const cardView = this.handCards.pop();
+        if (cardView) {
+            cardView.node.removeFromParent();
+            XUtils.unbindClick(cardView.node);
+            cardView.node.worldPosition = this.ndHandRoot.worldPosition;
+            return cardView;
+        }
+    }
     public get topPoolCard() {
         return this.poolCards[this.poolCards.length - 1];
     }
@@ -162,7 +238,7 @@ export default class ViewHand extends Component {
             cardView.node.removeFromParent();
             XUtils.unbindClick(cardView.node);
             this.tweenMovePoolCards();
-            this.checkPoolEmpty();
+            // this.checkPoolEmpty();
             return cardView;
         }
     }
@@ -174,11 +250,30 @@ export default class ViewHand extends Component {
             cardView.node.worldPosition = fromWorldPosition;
         }
         this.handCards.push(cardView);
-        tween(cardView.node).to(0.3, { position: v3(0,0) },{ easing: 'quadOut' })
+        tween(cardView.node).to(0.3, { 
+            position: v3(0,0),
+            angle: 0,
+         },{ easing: 'quadOut' })
             .delay(0.2)
             .call(()=>{
                 // cardView.isFront = true;
             }).start();
+    }
+
+    public refreshProp() {
+        const nds = [this.ndPropAdd, this.ndPropJoker, this.ndPropUndo];
+        const ids = [PropID.PropAdd, PropID.PropJoker, PropID.PropUndo];
+        for (let i = 0; i < nds.length; i++) {
+            const nd = nds[i];
+            const id = ids[i];
+            const count = GameData.getPropCount(id);
+            const lbGold = nd.getChildByPath('ndGold/lbGold').getComponent(Label);
+            const lbNum = nd.getChildByPath('ndNum/lbNum').getComponent(Label);
+            lbGold.node.parent.active = count == 0;
+            lbNum.node.parent.active = count > 0;
+            lbGold.string = '200'; //读配置
+            lbNum.string = count.toString();
+        }
     }
 
     private onClickPoolCard(cardView: CardView) {
@@ -207,6 +302,7 @@ export default class ViewHand extends Component {
         this.ndExtraNum.active = bExtra;
         const lb = this.ndExtraNum.getComponentInChildren(Label);
         lb.string = '+' + (len - POOL_VISIBLE_CARD_COUNT);
+        this.checkPoolEmpty();
     }
 
     private checkPoolEmpty() {
@@ -215,7 +311,9 @@ export default class ViewHand extends Component {
         this.btnEndGame.active = bEmpty;
         this.ndPropAdd.active = bEmpty;
     }
-
+    private onClickProp(id: PropID) {
+        GameCtrl.useProp(id);
+    }
     private onClickEndGame() {
         GameCtrl.onGameEnd(false);
     }

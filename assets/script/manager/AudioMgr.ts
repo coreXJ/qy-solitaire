@@ -50,8 +50,8 @@ export default class AudioMgr extends Component {
     }
 
     private init() {
-        EventMgr.instance.on(Game.EVENT_HIDE, this.onApplicationHide, this)
-        EventMgr.instance.on(Game.EVENT_SHOW, this.onApplicationShow, this)
+        EventMgr.on(Game.EVENT_HIDE, this.onApplicationHide, this)
+        EventMgr.on(Game.EVENT_SHOW, this.onApplicationShow, this)
         let data = LocalMgr.instance.getJson(this._localStorageTag)
         if (data) {
             try {

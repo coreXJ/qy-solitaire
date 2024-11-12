@@ -336,10 +336,12 @@ export class UIMgr extends Component {
      * @param uiArgs 界面初始化参数
      */
     private onUIOpen(uiId: number, uiView: UIView, uiInfo: IUiInfo, uiArgs: any, completeCallback:(m: UIView) => void = null) {
+        console.log('onUIOpen 11111');
         if (null == uiView) {
             completeCallback(null);
             return;
         }
+        console.log('onUIOpen 2222');
         // 激活界面
         uiInfo.uiView = uiView;
         uiView.node.active = true;
@@ -371,6 +373,7 @@ export class UIMgr extends Component {
             
             // 执行onOpen回调
             // this.resetExecAnimation(uiView);
+            console.log('onUIOpen 5555');
             uiView.onOpen(fromUIID, uiArgs);
             this.autoExecAnimation(uiInfo, "uiOpen", () => {
                 uiView.onOpenAniOver();
@@ -384,8 +387,10 @@ export class UIMgr extends Component {
             });
         }
         if(uiView.preventTouch || uiView.quickClose|| uiView.mask){
+            console.log('onUIOpen 3333');
             this.preventTouch(uiInfo,show);
         }else{
+            console.log('onUIOpen 4444');
             show();
         }
     }

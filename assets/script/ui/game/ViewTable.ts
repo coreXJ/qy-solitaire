@@ -1,10 +1,11 @@
-import { _decorator, Component, UITransform } from "cc";
+import { _decorator, Component, Intersection2D, tween, UITransform } from "cc";
 import GameLoader from "../../game/GameLoader";
 import { Card } from "../../data/GameObjects";
 import CardView from "./CardView";
 import UIGame from "./UIGame";
 import { XUtils } from "../../comm/XUtils";
 import GameCtrl from "../../game/GameCtrl";
+import { GameGeometry } from "../../game/GameGeometry";
 const { ccclass, property } = _decorator;
 
 @ccclass('ViewTable')
@@ -35,7 +36,7 @@ export default class ViewTable extends Component {
             const cardView = ndCard.getComponent(CardView);
             cardView.data = card;
             ndCard.position = card.tPos;
-            ndCard.eulerAngles = card.tAngle;
+            ndCard.angle = card.tAngle;
             cardViews.push(cardView);
         }
         // 当动画结束后
@@ -44,6 +45,14 @@ export default class ViewTable extends Component {
             this.setupCard(v);
         }
         this.updateCards();
+    }
+    
+    public undoCard(cardView: CardView) {
+        cardView.node.parent = this.node;
+        tween(cardView.node).to(0.3, { position: cardView.data.tPos },{ easing: 'quadOut' })
+            .call(()=>{
+                this.setupCard(cardView);
+            }).start();
     }
 
     private updateCards() {
@@ -76,14 +85,30 @@ export default class ViewTable extends Component {
 
     /**获得所有下层卡 */
     private findUnderCards(cardView: CardView) {
-        const box = cardView.getComponent(UITransform).getBoundingBox();
+        const trans = cardView.getComponent(UITransform);
+        const rect0 = {
+            x : cardView.node.position.x,
+            y : cardView.node.position.y,
+            width : trans.width,
+            height : trans.height,
+            angle:cardView.node.angle};
         const underCards:CardView[] = [];
         for (const e of this.cardViews) {
-            const tran = e.getComponent(UITransform);
-            const box1 = tran.getBoundingBox();
-            const bIntersects = box.intersects(box1);
-            if (bIntersects && e.data.tIdx < cardView.data.tIdx) {
-                underCards.push(e);
+            if (cardView != e) {
+                const tran = e.getComponent(UITransform);
+                const rect1 = {
+                    x : e.node.position.x,
+                    y : e.node.position.y,
+                    width : tran.width,
+                    height : tran.height,
+                    angle:e.node.angle
+                };
+                const bIntersects = GameGeometry.doRectsIntersect(rect0, rect1);
+                // console.log("doRectsIntersect",bIntersects,rect0,rect1);
+                // const bIntersects = box.intersects(box1);
+                if (bIntersects && e.data.tIdx < cardView.data.tIdx) {
+                    underCards.push(e);
+                }
             }
         }
         // console.log('findUnderCards', [...underCards]);
