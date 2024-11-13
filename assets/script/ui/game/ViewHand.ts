@@ -32,6 +32,8 @@ export default class ViewHand extends Component {
     public view: UIGame = null;
     private poolCards: CardView[] = [];
     private handCards: CardView[] = [];
+    
+    private _canDrawPoolTime: number;
 
     //==viewmodel start==
     public get poolCardValues(): number[] {
@@ -215,7 +217,7 @@ export default class ViewHand extends Component {
         }
         this.handCards.push(cardView);
         tween(cardView.node).to(0.3, { position: v3(0,0) },{ easing: 'quadOut' })
-            .delay(0.2)
+            .delay(0.1)
             .call(()=>{
                 cardView.isFront = true;
             }).start();
@@ -281,7 +283,11 @@ export default class ViewHand extends Component {
         if (idx == -1 || idx < this.poolCards.length - 1) {
             return;
         }
+        if (this._canDrawPoolTime > Date.now()) {
+            return;
+        }
         console.log('onClickPoolCard', cardView);
+        this._canDrawPoolTime = Date.now() + 500;
         GameCtrl.drawPool();
     }
 

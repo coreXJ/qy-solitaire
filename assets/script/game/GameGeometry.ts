@@ -1,3 +1,4 @@
+import { Node, UITransform } from 'cc';
 export namespace GameGeometry {
     
     interface Rect {
@@ -42,6 +43,19 @@ export namespace GameGeometry {
         const by = Math.max(y1, y2, y3, y4);
 
         return px >= ax && px <= bx && py >= ay && py <= by;
+    }
+    function node2rect(node: Node): Rect {
+        const trans = node.getComponent(UITransform);
+        return {
+            x: node.position.x,
+            y: node.position.y,
+            width: trans.width,
+            height: trans.height,
+            angle: node.angle
+        };
+    }
+    export function doNodesIntersect(node1: Node, node2: Node): boolean {
+        return doRectsIntersect(node2rect(node1), node2rect(node2));
     }
 
     export function doRectsIntersect(rect1: Rect, rect2: Rect): boolean {

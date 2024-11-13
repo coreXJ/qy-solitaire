@@ -29,5 +29,7 @@ export default class UIHall extends UIView {
     public toGame() {
         UIMgr.instance.open(UIID.UIGame,{level: this.level});
     }
-
+    public toEditor() {
+        UIMgr.instance.open(UIID.UIEditor);
+    }
 }

@@ -52,6 +52,7 @@ export default class ViewTable extends Component {
         tween(cardView.node).to(0.3, { position: cardView.data.tPos },{ easing: 'quadOut' })
             .call(()=>{
                 this.setupCard(cardView);
+                this.updateCards();
             }).start();
     }
 
@@ -62,8 +63,9 @@ export default class ViewTable extends Component {
     }
 
     private setupCard(cardView: CardView) {
-        // console.log('setupCard', cardView);
+        console.log('setupCard', cardView);
         const underCards = this.findUnderCards(cardView);
+        console.log('underCards', underCards);
         for (const e of underCards) {
             e.overlap ++;
             e.updateView();
@@ -86,12 +88,12 @@ export default class ViewTable extends Component {
     /**获得所有下层卡 */
     private findUnderCards(cardView: CardView) {
         const trans = cardView.getComponent(UITransform);
-        const rect0 = {
-            x : cardView.node.position.x,
-            y : cardView.node.position.y,
-            width : trans.width,
-            height : trans.height,
-            angle:cardView.node.angle};
+        // const rect0 = {
+        //     x : cardView.node.position.x,
+        //     y : cardView.node.position.y,
+        //     width : trans.width,
+        //     height : trans.height,
+        //     angle:cardView.node.angle};
         const underCards:CardView[] = [];
         for (const e of this.cardViews) {
             if (cardView != e) {
@@ -103,9 +105,9 @@ export default class ViewTable extends Component {
                     height : tran.height,
                     angle:e.node.angle
                 };
-                const bIntersects = GameGeometry.doRectsIntersect(rect0, rect1);
+                // const bIntersects = GameGeometry.doRectsIntersect(rect0, rect1);
+                const bIntersects = GameGeometry.doNodesIntersect(cardView.node, e.node);
                 // console.log("doRectsIntersect",bIntersects,rect0,rect1);
-                // const bIntersects = box.intersects(box1);
                 if (bIntersects && e.data.tIdx < cardView.data.tIdx) {
                     underCards.push(e);
                 }

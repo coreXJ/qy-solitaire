@@ -81,4 +81,11 @@ export default class CardView extends Component {
         this._data = null;
     }
 
+    public saveEditorData() {
+        // 把当前坐标和角度赋值到cardData中
+        const data = this.data;
+        data.tPos = this.node.position;
+        data.tAngle = this.node.angle;
+        return data;
+    }
 }

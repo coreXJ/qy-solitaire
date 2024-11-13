@@ -72,6 +72,7 @@ export enum UIID {
     UIHall,
     UIGame,
     UIResult,
+    UIEditor,
 }
 
 
@@ -86,6 +87,7 @@ export const UIConfig: { [key: number]: IUiConf } = {
     [UIID.UIHall]: { prefab: 'prefab/hall/UIHall', bundle: 'res'},
     [UIID.UIGame]: { prefab: 'prefab/game/UIGame', bundle: 'res'},
     [UIID.UIResult]: { prefab: 'prefab/game/UIResult', bundle: 'res'},
+    [UIID.UIEditor]: { prefab: 'prefab/editor/UIEditor', bundle: 'res'},
 }
 
 //声音资源配置
