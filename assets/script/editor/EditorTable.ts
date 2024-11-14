@@ -1,7 +1,8 @@
-import { _decorator, Node, Component, Graphics, Color, Vec3, instantiate, v3 } from "cc";
+import { _decorator, Node, Component, Graphics, Color, Vec3, instantiate, v3, UITransform } from "cc";
 import CardView from "../ui/game/CardView";
 import GameLoader from "../game/GameLoader";
-import { Card } from "../data/GameObjects";
+import { Card, CardType } from "../data/GameObjects";
+import { GameGeometry } from "../game/GameGeometry";
 
 const { ccclass, property } = _decorator;
 
@@ -25,7 +26,7 @@ export class EditorTable extends Component {
         if (Math.abs(pos.x) > Math.abs(this.drawStartX) || Math.abs(pos.y) > Math.abs(this.drawStartY)) {
             return;
         }
-
+        // 原本是计划在这里做个放置位置预览，有时间可以做。
     }
 
     public onNewCardDown(pos: Vec3) {
@@ -39,7 +40,45 @@ export class EditorTable extends Component {
         pos = this.pos2meshPos(pos);
         console.log('pos2',pos);
         ndCard.setPosition(pos);
-        this.cardViews.push(ndCard.getComponent(CardView));
+        this.setupCard(ndCard);
+    }
+    private setupCard(ndCard: Node) {
+        // 当setup的牌下面没有其它牌时，layer为1
+        // 当setup的牌下面有其它牌，layer=target。layer+1
+        const underCards = this.findUnderCards(ndCard);
+        const cardView = ndCard.getComponent(CardView);
+        cardView.data.tLayer = 1;
+        cardView.data.type = CardType.table;
+        for (const e of underCards) {
+            if (cardView.data.tLayer <= e.data.tLayer) {
+                cardView.data.tLayer = e.data.tLayer + 1;
+            }
+            e.overlap ++;
+            e.updateView();
+        }
+        this.cardViews.push(cardView);
+        // 通过layer和tId重新排序，layer越小越前
+        this.cardViews.sort((a,b)=> a.data.tLayer - b.data.tLayer);
+        for (let i = 0; i < this.cardViews.length; i++) {
+            const e = this.cardViews[i];
+            e.node.setSiblingIndex(i);
+        }
+        console.log('重新排序后', [...this.cardViews]);
+    }
+    /**获得所有下层卡 */
+    private findUnderCards(ndCard: Node) {
+        const underCards:CardView[] = [];
+        for (const e of this.cardViews) {
+            if (ndCard != e.node) {
+                const tran = e.getComponent(UITransform);
+                const bIntersects = GameGeometry.doNodesIntersect(ndCard, e.node);
+                if (bIntersects) {
+                    underCards.push(e);
+                }
+            }
+        }
+        // console.log('findUnderCards', [...underCards]);
+        return underCards;
     }
     private pos2meshPos(pos: Vec3) {
         let x = pos.x - this.drawStartX;

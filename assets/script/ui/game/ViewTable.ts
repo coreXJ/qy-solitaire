@@ -87,7 +87,7 @@ export default class ViewTable extends Component {
 
     /**获得所有下层卡 */
     private findUnderCards(cardView: CardView) {
-        const trans = cardView.getComponent(UITransform);
+        // const trans = cardView.getComponent(UITransform);
         // const rect0 = {
         //     x : cardView.node.position.x,
         //     y : cardView.node.position.y,
@@ -98,13 +98,13 @@ export default class ViewTable extends Component {
         for (const e of this.cardViews) {
             if (cardView != e) {
                 const tran = e.getComponent(UITransform);
-                const rect1 = {
-                    x : e.node.position.x,
-                    y : e.node.position.y,
-                    width : tran.width,
-                    height : tran.height,
-                    angle:e.node.angle
-                };
+                // const rect1 = {
+                //     x : e.node.position.x,
+                //     y : e.node.position.y,
+                //     width : tran.width,
+                //     height : tran.height,
+                //     angle:e.node.angle
+                // };
                 // const bIntersects = GameGeometry.doRectsIntersect(rect0, rect1);
                 const bIntersects = GameGeometry.doNodesIntersect(cardView.node, e.node);
                 // console.log("doRectsIntersect",bIntersects,rect0,rect1);

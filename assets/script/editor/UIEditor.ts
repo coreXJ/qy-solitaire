@@ -1,4 +1,4 @@
-import { _decorator, Node, Label, EventTouch, instantiate, v3, sys } from "cc";
+import { _decorator, Node, Label, EventTouch, instantiate, v3, sys, UIOpacity } from "cc";
 import { isFullScreen, UIView } from "../base/UIView";
 import { EditorTable } from "./EditorTable";
 import CardView from "../ui/game/CardView";
@@ -39,6 +39,8 @@ export default class UIEditor extends UIView {
     }
 
     private onCardTouchStart(e: EventTouch) {
+        const op = this.cardView.getComponent(UIOpacity) || this.cardView.addComponent(UIOpacity);
+        op.opacity = 127;
         this.cardView.node.setWorldPosition(e.getUILocation().toVec3());
         // this.touchCardNode = instantiate(this.cardView.node);
         // this.touchCardNode.parent = this.table.node;
@@ -59,6 +61,8 @@ export default class UIEditor extends UIView {
         const wpos = e.getUILocation().toVec3();
         this.table.onNewCardDown(wpos);
         this.cardView.node.setPosition(CardViewPos);
+        const op = this.cardView.getComponent(UIOpacity) || this.cardView.addComponent(UIOpacity);
+        op.opacity = 255;
     }
     private newLevel() {
         this.level = new Level();
