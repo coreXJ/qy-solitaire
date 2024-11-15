@@ -44,7 +44,7 @@ export namespace GameGeometry {
 
         return px >= ax && px <= bx && py >= ay && py <= by;
     }
-    function node2rect(node: Node): Rect {
+    export function node2rect(node: Node): Rect {
         const trans = node.getComponent(UITransform);
         return {
             x: node.position.x,
@@ -59,6 +59,7 @@ export namespace GameGeometry {
     }
 
     export function doRectsIntersect(rect1: Rect, rect2: Rect): boolean {
+        console.log('doRectsIntersect',rect1,rect2);
         const vertices1 = getRectVertices(rect1);
         const vertices2 = getRectVertices(rect2);
 

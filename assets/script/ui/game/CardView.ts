@@ -1,4 +1,4 @@
-import { _decorator, Color, Component, Sprite } from "cc";
+import { _decorator, Color, Component,Label,Node, Sprite } from "cc";
 import { Card, CardType } from "../../data/GameObjects";
 import GameLoader from "../../game/GameLoader";
 const { ccclass, property } = _decorator;
@@ -12,8 +12,12 @@ export default class CardView extends Component {
     public static HEIGHT = 144;
     @property(Sprite)
     spCard: Sprite = null;
+    @property(Node)
+    ndEditor: Node = null;
     private _data: Card;
     private _bFront: boolean = false;
+
+    private _bEditor: boolean = false;
 
     /**被重叠计数，table下有用 */
     public overlap = 0;
@@ -42,6 +46,10 @@ export default class CardView extends Component {
         this.initData();
         return this._data;
     }
+    public set isEditor(bool: boolean) {
+        this._bEditor = bool;
+        this.updateView();
+    }
 
     protected onLoad(): void {
         this.initData();
@@ -67,6 +75,10 @@ export default class CardView extends Component {
                 this.spCard.color = COLOR_OVERLAP;
             }
         }
+        this.ndEditor.active = this._bEditor;
+        if (this._bEditor) {
+            this.ndEditor.getChildByName('lbLayer').getComponent(Label).string = '' + (this.data.tLayer||0);
+        }
     }
     public animFront() {
         // 翻到正面的动画
@@ -79,6 +91,7 @@ export default class CardView extends Component {
         this.overlap = 0;
         this.isFront = false;
         this._data = null;
+        this._bEditor = false;
     }
 
     public saveEditorData() {

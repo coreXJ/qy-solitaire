@@ -20,14 +20,16 @@ class GameData {
     public loadUserData() {
         // 从local读取用户数据，目前用写死的数据
         this._gold = 1000;
-        this._curLevelId = 0;
+        this._curLevelId = this.firstLevelId;
         this._props = [
             {id:PropID.PropAdd,count:3},
             {id:PropID.PropJoker,count:3},
             {id:PropID.PropUndo,count:3}
         ];
     }
-    
+    public get firstLevelId() {
+        return this.levelList[0].id;
+    }
     public get gold() {
         return this._gold;
     }

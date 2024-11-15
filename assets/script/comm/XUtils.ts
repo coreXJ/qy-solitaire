@@ -378,4 +378,11 @@ export namespace XUtils{
     export function filterText(text: string): string {
         return text.replace(/[^\x00-\x7F\u0900-\u097F]/g, '');
     }
+    export function isPureNumber(str: string) {
+        // 定义正则表达式
+        const regex = /^\d+$/;
+      
+        // 测试字符串
+        return regex.test(str);
+      }
 }

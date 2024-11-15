@@ -1,9 +1,10 @@
-import { _decorator, Node, Label, EventTouch, instantiate, v3, sys, UIOpacity } from "cc";
+import { _decorator, Node, Label, EventTouch, instantiate, v3, sys, UIOpacity, Input, input, EventKeyboard, KeyCode, EditBox } from "cc";
 import { isFullScreen, UIView } from "../base/UIView";
 import { EditorTable } from "./EditorTable";
 import CardView from "../ui/game/CardView";
 import { Level } from "../data/GameObjects";
 import { XUtils } from "../comm/XUtils";
+import { EditorLayers } from "./EditorLayers";
 
 const { ccclass, property } = _decorator;
 const CardViewPos = v3(-277, -495);
@@ -16,26 +17,44 @@ export default class UIEditor extends UIView {
 
     @property(EditorTable)
     table: EditorTable = null;
+    @property(EditorLayers)
+    layers: EditorLayers = null;
+    @property(Node)
+    etLevel: Node = null;
     private level: Level;
+    private ndHelp: Node;
     public init(...args: any): void {
         console.log('UIEditor init');
-        this.lisCardTouch();
+        this.lisEvents();
         this.bindNodes();
+        this.layers.setListener(this.table);
     }
-
+    protected onEnable(): void {
+        input.on(Input.EventType.KEY_DOWN, this.onKeyDown, this);
+        input.on(Input.EventType.KEY_UP, this.onKeyUp, this);
+    }
+    protected onDisable(): void {
+        input.off(Input.EventType.KEY_DOWN, this.onKeyDown, this);
+        input.off(Input.EventType.KEY_UP, this.onKeyUp, this);
+    }
     public onOpen(fromUI: number, ...args: any): void {
         console.log('UIEditor onOpen');
         this.newLevel();
     }
     private bindNodes() {
+        this.ndHelp = this.node.getChildByName('popHelp');
         const btnExport = this.node.getChildByName('btnExport');
+        const btnHelp = this.node.getChildByName('btnHelp');
         XUtils.bindClick(btnExport, this.exportLevel, this);
+        XUtils.bindClick(this.ndHelp, this.onClickHelp, this);
+        XUtils.bindClick(btnHelp, this.onClickHelp, this);
     }
-    private lisCardTouch() {
+    private lisEvents() {
         this.cardView.node.on(Node.EventType.TOUCH_START, this.onCardTouchStart, this);
         this.cardView.node.on(Node.EventType.TOUCH_MOVE, this.onCardTouchMove, this);
         this.cardView.node.on(Node.EventType.TOUCH_END, this.onCardTouchEnd, this);
         this.cardView.node.on(Node.EventType.TOUCH_CANCEL, this.onCardTouchEnd, this);
+        this.etLevel.on('text-changed', this.onEditLevel, this);
     }
 
     private onCardTouchStart(e: EventTouch) {
@@ -67,6 +86,16 @@ export default class UIEditor extends UIView {
     private newLevel() {
         this.level = new Level();
         // 刷新table，和其它东西。
+        this.level.id = 1;
+        this.level.tableComboRange = [6,7];
+        this.level.minBreakDiff = 2;
+        this.level.maxComboRedProb = 0.5;
+        this.level.breakSwitchProb = 0.5;
+        this.level.poolCount = 10;
+        this.level.handCardValue = 0;
+        this.level.minGuarantee = 3;
+        this.level.group = 'group1';
+        this.etLevel.getComponent(EditBox).string = this.level.id+'';
     }
     private exportLevel() {
         if (sys.isBrowser) {
@@ -75,7 +104,7 @@ export default class UIEditor extends UIView {
                 return;
             }
             const content = JSON.stringify(this.level);
-            const filename = "level.json";
+            const filename = `level${this.level.id}.json`;
             // 创建一个 Blob 对象
             const blob = new Blob([content], { type: 'text/plain' });
             // 创建一个临时的 URL
@@ -94,5 +123,40 @@ export default class UIEditor extends UIView {
             // 释放 URL 对象
             URL.revokeObjectURL(url);
         }
+    }
+
+    private onKeyDown(event: EventKeyboard) {
+        console.log('onKeyDown', event);
+        if (event.keyCode == KeyCode.DELETE) {
+            this.table.removeSelCards();
+        } else if (event.keyCode == KeyCode.CTRL_LEFT ||
+            event.keyCode == KeyCode.CTRL_RIGHT
+        ) {
+            this.table.isMultipleMode = true;
+        } else if (event.keyCode == KeyCode.KEY_A) {
+            if (this.table.isMultipleMode) {
+                this.table.selectAll();
+            }
+        }
+    }
+    private onKeyUp(event: EventKeyboard) {
+        if (event.keyCode == KeyCode.CTRL_LEFT ||
+            event.keyCode == KeyCode.CTRL_RIGHT) {
+                this.table.isMultipleMode = false;
+        }
+    }
+    private onClickHelp() {
+        this.ndHelp.active = !this.ndHelp.active;
+    }
+
+    private onEditLevel(et: EditBox) {
+        console.log('onEditLevel',et.string);
+        let str = et.string.replace(/\D/g, '');
+        str = parseInt(str) + '';
+        if (str != et.string) {
+            et.string = str;
+        }
+        this.level.id = parseInt(str);
+        this.level.name = 'Level '+str;
     }
 }

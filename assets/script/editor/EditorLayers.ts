@@ -12,7 +12,7 @@ export class EditorLayers extends Component {
     private selItemIdx = -1;
     private toggles: Node[] = [];
     private toggleCheckeds: boolean[] = [];
-
+    private lis: IEditorLayersListener;
     protected onLoad(): void {
         // 初始化21个item
         const item0 = this.node.getChildByName('item');
@@ -54,12 +54,26 @@ export class EditorLayers extends Component {
             this.selItemIdx = idx;
             this.items[idx].getComponent(Sprite).color = COLOR_SELECT;
         }
+        this.lis?.onEditableLayer(this.selItemIdx+1);
     }
 
     private onClickToggle(idx: number) {
         this.toggleCheckeds[idx] = !this.toggleCheckeds[idx];
         console.log('onClickToggle',idx,this.toggleCheckeds[idx]);
         this.toggles[idx].children[0].active = this.toggleCheckeds[idx];
+        const ids: number[] = [];
+        for (let i = 0; i < this.toggleCheckeds.length; i++) {
+            if (this.toggleCheckeds[i]) {
+                ids.push(i+1);
+            }
+        }
+        this.lis?.onVisbibleLayers(ids);
     }
-
+    public setListener(lis: IEditorLayersListener) {
+        this.lis = lis;
+    }
+}
+export interface IEditorLayersListener {
+    onEditableLayer(layerId: number):void;
+    onVisbibleLayers(ids: number[]):void;
 }
