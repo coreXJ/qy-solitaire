@@ -1,10 +1,11 @@
-import { _decorator, Node, Label, EventTouch, instantiate, v3, sys, UIOpacity, Input, input, EventKeyboard, KeyCode, EditBox } from "cc";
+import { _decorator, Node, Label, EventTouch, instantiate, v3, sys, UIOpacity, Input, input, EventKeyboard, KeyCode, EditBox, Prefab } from "cc";
 import { isFullScreen, UIView } from "../base/UIView";
 import { EditorTable } from "./EditorTable";
 import CardView from "../ui/game/CardView";
 import { Level } from "../data/GameObjects";
 import { XUtils } from "../comm/XUtils";
 import { EditorLayers } from "./EditorLayers";
+import { ResMgr } from "../manager/ResMgr";
 
 const { ccclass, property } = _decorator;
 const CardViewPos = v3(-277, -495);
@@ -44,9 +45,11 @@ export default class UIEditor extends UIView {
     private bindNodes() {
         this.ndHelp = this.node.getChildByName('popHelp');
         const btnExport = this.node.getChildByName('btnExport');
+        const btnClear = this.node.getChildByName('btnClear');
         const btnHelp = this.node.getChildByName('btnHelp');
-        XUtils.bindClick(btnExport, this.exportLevel, this);
+        XUtils.bindClick(btnExport, this.showPopSave, this);
         XUtils.bindClick(this.ndHelp, this.onClickHelp, this);
+        XUtils.bindClick(btnClear, this.onClickClear, this);
         XUtils.bindClick(btnHelp, this.onClickHelp, this);
     }
     private lisEvents() {
@@ -145,6 +148,9 @@ export default class UIEditor extends UIView {
                 this.table.isMultipleMode = false;
         }
     }
+    private onClickClear() {
+        this.table.clearCards();
+    }
     private onClickHelp() {
         this.ndHelp.active = !this.ndHelp.active;
     }
@@ -158,5 +164,68 @@ export default class UIEditor extends UIView {
         }
         this.level.id = parseInt(str);
         this.level.name = 'Level '+str;
+    }
+
+    private async showPopSave() {
+        let node = this.node.getChildByName('popSave');
+        if (!node) {
+            let prefab: Prefab = await ResMgr.instance.load("prefab/editor/popSave", Prefab);
+            node = instantiate(prefab);
+            node.parent = this.node;
+            node.name = 'popSave';
+        }
+        node.active = true;
+        XUtils.bindClick(node, ()=>{
+            node.active = false;
+        });
+        const btnExport = node.getChildByName('btnExport');
+        const btnImport = node.getChildByName('btnImport');
+        XUtils.bindClick(btnExport, ()=>{
+            this.exportLevel();
+            node.active = false;
+        });
+        XUtils.bindClick(btnImport, ()=>{
+            console.log('import');
+            this.importJson();
+            node.active = false;
+        });
+    }
+
+    private importJson() {
+        if (sys.isBrowser) {
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = '.json';
+            // 为文件输入控件添加 change 事件监听器
+            fileInput.addEventListener('change', (event)=> {
+                // console.log('event',event.target['files']);
+                const file:File = event.target['files'][0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e)=> {
+                        try {
+                            const content = <string>e.target.result;
+                            console.log('content',content);
+                            if (content?.length > 0) {
+                                const level = JSON.parse(content);
+                                this.resumeLevel(level);
+                            }
+                        } catch (error) {
+                            console.error('Error reading or parsing the file:', error);
+                        }
+                    };
+                    reader.readAsText(file);
+                } else {
+                }
+                fileInput.remove();
+            });
+            fileInput.click();
+        }
+    }
+    private resumeLevel(level: Level) {
+        console.log('resumeLevel',level);
+        this.level = level;
+        this.etLevel.getComponent(EditBox).string = (this.level.id || 1) + '';
+        this.table.resume(this.level.tableCards);
     }
 }

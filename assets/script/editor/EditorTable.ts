@@ -262,18 +262,17 @@ export class EditorTable extends Component implements IEditorLayersListener {
             const pos = e.getUILocation();
             const diffX = pos.x - p0.x;
             const diffY = pos.y - p0.y;
-            console.log('diffX',diffX,this.isTouchClick);
-            console.log('diffY',diffY,this.isTouchMove);
+            // console.log('diffX',diffX,this.isTouchClick);
+            // console.log('diffY',diffY,this.isTouchMove);
             if (this.isTouchClick && (Math.abs(diffX) > 10 || Math.abs(diffY) > 10)) {
                 this.isTouchClick = false;
             } else if (this.isTouchMove) {
-                console.log('this.selCards',this.selCards.length);
                 for (const e of this.selCards) {
                     const cardPos = v3(e.data.tPos);
                     cardPos.x += diffX;
                     cardPos.y += diffY;
                     e.node.setPosition(cardPos);
-                    console.log('cardPos',cardPos.x,cardPos.y);
+                    // console.log('cardPos',cardPos.x,cardPos.y);
                 }
             }
         }
@@ -384,5 +383,26 @@ export class EditorTable extends Component implements IEditorLayersListener {
     public selectAll() {
         console.log('selectAll');
         this.setSelCards([...this.cardViews]);
+    }
+    public clearCards() {
+        this.setSelCards([]);
+        for (const e of this.cardViews) {
+            GameLoader.removeCard(e.node);
+        }
+        this.cardViews.length = 0;
+    }
+    public resume(cards: Card[]) {
+        this.clearCards();
+        cards.sort((a,b)=>a.tLayer-b.tLayer);
+        for (const e of cards) {
+            const ndCard = GameLoader.addCard();
+            const cardView = ndCard.getComponent(CardView);
+            cardView.data = e;
+            ndCard.parent = this.ndRoot;
+            ndCard.setPosition(e.tPos);
+            ndCard.angle = e.tAngle||0;
+            this.setupCard(cardView);
+            cardView.isEditor = true;
+        }
     }
 }
