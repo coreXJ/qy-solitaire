@@ -1,6 +1,7 @@
-import { _decorator, Color, Component,Label,Node, Sprite } from "cc";
+import { _decorator, Color, Component,Label,Node, Sprite, v3 } from "cc";
 import { Card, CardType } from "../../data/GameObjects";
 import GameLoader from "../../game/GameLoader";
+import { GameGeometry } from "../../game/GameGeometry";
 const { ccclass, property } = _decorator;
 
 const COLOR_NONE = new Color(0xff,0xff,0xff);
@@ -59,6 +60,8 @@ export default class CardView extends Component {
             const data = new Card();
             data.type = CardType.none;
             data.value = 0;
+            data.tAngle = 0;
+            data.tPos = v3();
             this._data = data;
         }
     }
@@ -100,5 +103,15 @@ export default class CardView extends Component {
         data.tPos = this.node.position;
         data.tAngle = this.node.angle;
         return data;
+    }
+
+    public getRect():GameGeometry.GameRect {
+        return {
+            x: this.data.tPos?.x || 0,
+            y: this.data.tPos?.y || 0,
+            width: CardView.WIDTH,
+            height: CardView.HEIGHT,
+            angle: this.data.tAngle || 0,
+        }
     }
 }

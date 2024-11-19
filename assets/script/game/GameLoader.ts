@@ -36,17 +36,18 @@ class GameLoader {
         }
     }
     public addCard(parent?: Node){
+        let card: Node = null;
         if (this._cardNodePool.size() > 0) {
-            let card = this._cardNodePool.get();
-            card.parent = parent;
+            card = this._cardNodePool.get();
             card.active = true;
             card.scale = v3(1, 1, 1);
             card.eulerAngles = v3(0, 0, 0);
             card.setPosition(0, 0, 0);
-            return card;
         } else {
-            return instantiate(this.getPrefab('CardView'));
+            card = instantiate(this.getPrefab('CardView'));
         }
+        card.parent = parent;
+        return card;
     }
 
     public removeCard(...cardNodes: Node[]){

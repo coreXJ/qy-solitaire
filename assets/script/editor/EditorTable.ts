@@ -5,12 +5,14 @@ import { Card, CardType } from "../data/GameObjects";
 import { GameGeometry } from "../game/GameGeometry";
 import { IEditorLayersListener } from "./EditorLayers";
 import { EditorCardBoxs } from "./EditorCardBoxs";
+import UIEditor from "./UIEditor";
+import { XUtils } from "../comm/XUtils";
 
 const { ccclass, property } = _decorator;
 
 @ccclass('EditorTable')
 export class EditorTable extends Component implements IEditorLayersListener {
-
+    view: UIEditor;
     @property(EditorCardBoxs)
     boxs: EditorCardBoxs;
     @property(Node)
@@ -30,7 +32,10 @@ export class EditorTable extends Component implements IEditorLayersListener {
     private visibleLayers: number[] = [];
     // 是否按下ctrl多选
     public isMultipleMode = false;
-
+    /**是否对齐网格 */
+    public isAlignMesh = false;
+    /**操作类型 0移动 1旋转 */
+    public touchType: 0|1 = 0;
     protected onLoad(): void {
         this.g = this.getComponent(Graphics);
         this.setCardDistance(this.distance);
@@ -68,19 +73,22 @@ export class EditorTable extends Component implements IEditorLayersListener {
         const cardView = ndCard.getComponent(CardView);
         ndCard.parent = this.ndRoot;
         console.log('pos1',pos);
-        pos = this.pos2meshPos(pos);
+        if (this.isAlignMesh) {
+            
+        }
+        pos = this.pos2meshPos(pos, this.isAlignMesh);
         console.log('pos2',pos);
         ndCard.setPosition(pos);
         cardView.data.tPos = pos;
         this.setupCard(cardView);
         cardView.isEditor = true;
-        
+        this.setSelCards([cardView]);
     }
     private setupCard(cardView: CardView) {
         // 当setup的牌下面没有其它牌时，layer为1
         // 当setup的牌下面有其它牌，layer=target。layer+1
         const ndCard = cardView.node;
-        const underCards = this.findUnderCards(ndCard);
+        const underCards = this.findIntersectCards(ndCard);
         cardView.data.tLayer = 1;
         cardView.data.type = CardType.table;
         for (const e of underCards) {
@@ -100,7 +108,7 @@ export class EditorTable extends Component implements IEditorLayersListener {
         console.log('重新排序后', [...this.cardViews]);
     }
     /**获得所有下层卡 */
-    private findUnderCards(ndCard: Node) {
+    private findIntersectCards(ndCard: Node) {
         const underCards:CardView[] = [];
         for (const e of this.cardViews) {
             if (ndCard != e.node) {
@@ -114,7 +122,7 @@ export class EditorTable extends Component implements IEditorLayersListener {
         // console.log('findUnderCards', [...underCards]);
         return underCards;
     }
-    private findUnderCardsByCardView(cardView: CardView) {
+    private findIntersectCardsByCardView(cardView: CardView,bUnder = false) {
         const rect0 = {
             x : cardView.data.tPos.x,
             y : cardView.data.tPos.y,
@@ -124,6 +132,9 @@ export class EditorTable extends Component implements IEditorLayersListener {
         };
         const underCards:CardView[] = [];
         for (const e of this.cardViews) {
+            if (bUnder && e.data.tLayer >= cardView.data.tLayer) {
+                continue;
+            }
             if (cardView != e) {
                 // const tran = e.getComponent(UITransform);
                 const rect1 = GameGeometry.node2rect(e.node);
@@ -136,21 +147,31 @@ export class EditorTable extends Component implements IEditorLayersListener {
         // console.log('findUnderCards', [...underCards]);
         return underCards;
     }
-    private pos2meshPos(pos: Vec3) {
-        let x = pos.x - this.drawStartX;
-        let y = pos.y - this.drawStartY;
-        const format = (num: number, unit: number) => {
-            let mul = num / unit;
-            if (mul % 1 > 0.5) {
-                mul = Math.ceil(mul);
-            } else {
-                mul = Math.floor(mul);
+    // private findUnderCards(cardView: CardView) {
+    //     const intersectCards = this.findIntersectCardsByCardView(cardView);
+    //     intersectCards.filter(e => e.data.tLayer < cardView.data.tLayer);
+    // }
+    private pos2meshPos(pos: Vec3, bAlignMesh: boolean) {
+        if (bAlignMesh) {
+            let x = pos.x - this.drawStartX;
+            let y = pos.y - this.drawStartY;
+            const format = (num: number, unit: number) => {
+                let mul = num / unit;
+                if (mul % 1 > 0.5) {
+                    mul = Math.ceil(mul);
+                } else {
+                    mul = Math.floor(mul);
+                }
+                return mul * unit;
             }
-            return mul * unit;
+            x = format(x, this.meshUnitX) + this.drawStartX;
+            y = format(y, this.meshUnitY) + this.drawStartY;
+            return v3(x,y);
+        } else {
+            let x = XUtils.numToFixed(pos.x);
+            let y = XUtils.numToFixed(pos.y);
+            return v3(x,y);
         }
-        x = format(x, this.meshUnitX) + this.drawStartX;
-        y = format(y, this.meshUnitY) + this.drawStartY;
-        return v3(x,y);
     }
 
     public setCardDistance(num: number) {
@@ -247,18 +268,26 @@ export class EditorTable extends Component implements IEditorLayersListener {
         this.touchStartPos = pos;
         if (this.selCards?.length > 0) {
             for (const e of this.selCards) {
-                const rect = e.getComponent(UITransform).getBoundingBoxToWorld();
-                if (rect.contains(pos)) {
+                const posLoc = v2(pos).subtract(this.node.worldPosition.toVec2());
+                console.log('posLoc',posLoc);
+                const bool = GameGeometry.isPointInRect([posLoc.x,posLoc.y],e.getRect());
+                console.log('isPointInRect',posLoc,e.getRect(),bool);
+                if (bool) {
                     this.isTouchMove = true;
                     return;
                 }
+                // const rect = e.getComponent(UITransform).getBoundingBoxToWorld();
+                // if (rect.contains(pos)) {
+                //     this.isTouchMove = true;
+                //     return;
+                // }
             }
         }
         this.isTouchClick = true;
     }
     private onTouchMove(e: EventTouch) {
         if (this.touchStartPos) {
-            const p0 = this.touchStartPos;
+            const p0 = v2(this.touchStartPos);
             const pos = e.getUILocation();
             const diffX = pos.x - p0.x;
             const diffY = pos.y - p0.y;
@@ -267,12 +296,34 @@ export class EditorTable extends Component implements IEditorLayersListener {
             if (this.isTouchClick && (Math.abs(diffX) > 10 || Math.abs(diffY) > 10)) {
                 this.isTouchClick = false;
             } else if (this.isTouchMove) {
-                for (const e of this.selCards) {
-                    const cardPos = v3(e.data.tPos);
-                    cardPos.x += diffX;
-                    cardPos.y += diffY;
-                    e.node.setPosition(cardPos);
-                    // console.log('cardPos',cardPos.x,cardPos.y);
+                if (this.touchType == 0) {
+                    for (const e of this.selCards) {
+                            const cardPos = v3(e.data.tPos);
+                            cardPos.x += diffX;
+                            cardPos.y += diffY;
+                            e.node.setPosition(cardPos);
+                            // console.log('cardPos',cardPos.x,cardPos.y);
+                            
+                    }
+                } else if (this.touchType == 1) {
+                    // 先计算弧度
+                    const targetCard = this.selCards[this.selCards.length-1];
+                    const targetPos = targetCard.node.worldPosition.toVec2();
+                    let pos0 = p0.subtract(targetPos);
+                    let pos1 = pos.subtract(targetPos);
+                    // console.log('pos0',pos0.x,pos0.y);
+                    // console.log('pos1',pos1.x,pos1.y);
+                    let radian0 = Math.atan2(pos0.x,pos0.y);
+                    let radian1 = Math.atan2(pos1.x,pos1.y);
+                    let radianDiff = radian1 - radian0;
+                    let angleDiff = radianDiff * (180 / Math.PI);
+                    // console.log('angle0',radian0,'angle1',radian1,);
+                    // console.log('angleDiff',angleDiff);
+                    for (const e of this.selCards) {
+                            const angle = e.data.tAngle || 0;
+                            e.node.angle = XUtils.numToFixed(angle - angleDiff);
+                            
+                    }
                 }
             }
         }
@@ -289,76 +340,92 @@ export class EditorTable extends Component implements IEditorLayersListener {
             // console.log('clickCard',clickCard);
             this.setSelCards(targetCard ? [targetCard] : []);
         } else if (this.isTouchMove) {
-            let isInMesh = true;
-            for (const e of this.selCards) {
-                const bool = this.isPosInMesh(e.node.position);
-                console.log('bool',bool);
-                if (!bool) {
-                    isInMesh = false;
-                    break;
-                }
-            }
-            if (isInMesh) {
+            if (this.touchType == 0) {
+                let isInMesh = true;
                 for (const e of this.selCards) {
-                    this.onMoveCardBefore(e);
-                    const meshPos = this.pos2meshPos(e.node.position);
-                    e.data.tPos = meshPos;
-                    e.node.setPosition(meshPos);
-                    this.onMoveCardAfter(e);
+                    const bool = this.isPosInMesh(e.node.position);
+                    console.log('bool',bool);
+                    if (!bool) {
+                        isInMesh = false;
+                        break;
+                    }
                 }
-            } else {
+                if (isInMesh) {
+                    for (const e of this.selCards) {
+                        // this.onMoveCardBefore(e);
+                        const meshPos = this.pos2meshPos(e.node.position, this.isAlignMesh);
+                        e.data.tPos = meshPos;
+                        e.node.setPosition(meshPos);
+                        // this.onMoveCardAfter(e);
+                    }
+                    this.refreshOverlap();
+                } else {
+                    for (const e of this.selCards) {
+                        e.node.setPosition(e.data.tPos);
+                    }
+                }
+            } else if (this.touchType == 1) {
                 for (const e of this.selCards) {
-                    e.node.setPosition(e.data.tPos);
+                    e.data.tAngle = e.node.angle;
                 }
+                this.refreshOverlap();
             }
             this.setSelCards();
         }
         this.isTouchClick = false;
         this.isTouchMove = false;
     }
-    private getTargetCard(pos: Vec2) {
+    private getTargetCard(worldPos: Vec2) {
+        const pos = v2(worldPos).subtract(this.node.worldPosition.toVec2());
         let targetCard: CardView = null;
         for (const cardView of this.cardViews) {
             if (this.isCanEditCard(cardView)) {
-                const rect = cardView.getComponent(UITransform).getBoundingBoxToWorld();
-                if (rect.contains(pos)) {
+                const bool = GameGeometry.isPointInRect([pos.x,pos.y],cardView.getRect());
+                if (bool) {
                     if (!targetCard || targetCard.data.tLayer < cardView.data.tLayer) {
                         targetCard = cardView;
                     }
                 }
+                // const rect = cardView.getComponent(UITransform).getBoundingBoxToWorld();
+                // if (rect.contains(pos)) {
+                //     if (!targetCard || targetCard.data.tLayer < cardView.data.tLayer) {
+                //         targetCard = cardView;
+                //     }
+                // }
             }
         }
         return targetCard;
     }
-    private onMoveCardBefore(cardView: CardView) {
-        console.log('onMoveCardBefore',{...cardView.data.tPos});
-        // 将压在下面的card overlap--
-        const cards = this.findUnderCardsByCardView(cardView);
-        console.log('underCards',cards);
-        for (const e of cards) {
-            if (e.data.tLayer < cardView.data.tLayer) {
-                e.overlap = Math.max(0, e.overlap-1);
-                e.updateView();
-            }
-        }
-    }
-    private onMoveCardAfter(cardView: CardView) {
-        // 将压在下面的card overlap++
-        cardView.overlap = 0;
-        const cards = this.findUnderCards(cardView.node);
-        for (const e of cards) {
-            if (e.data.tLayer < cardView.data.tLayer) {
-                e.overlap++;
-                e.updateView();
-            } else if (e.data.tLayer > cardView.data.tLayer) {
-                cardView.overlap++;
-            }
-        }
-        cardView.updateView();
-    }
+    // private onMoveCardBefore(cardView: CardView) {
+    //     console.log('onMoveCardBefore',{...cardView.data.tPos});
+    //     // 将压在下面的card overlap--
+    //     const cards = this.findIntersectCardsByCardView(cardView, true);
+    //     console.log('underCards',cards);
+    //     for (const e of cards) {
+    //         // if (e.data.tLayer < cardView.data.tLayer) {
+    //             e.overlap = Math.max(0, e.overlap-1);
+    //             e.updateView();
+    //         // }
+    //     }
+    // }
+    // private onMoveCardAfter(cardView: CardView) {
+    //     // 将压在下面的card overlap++
+    //     cardView.overlap = 0;
+    //     const cards = this.findIntersectCards(cardView.node);
+    //     for (const e of cards) {
+    //         if (e.data.tLayer < cardView.data.tLayer) {
+    //             e.overlap++;
+    //             e.updateView();
+    //         } else if (e.data.tLayer > cardView.data.tLayer) {
+    //             cardView.overlap++;
+    //         }
+    //     }
+    //     cardView.updateView();
+    // }
     private setSelCards(cards: CardView[] = this.selCards) {
         this.selCards = [...cards];
         this.boxs.drawSelCardBoxs(this.selCards);
+        this.view.onSelCards(this.selCards);
     }
     private isCanEditCard(cardView: CardView) {
         if (!cardView.node.active) {
@@ -371,7 +438,7 @@ export class EditorTable extends Component implements IEditorLayersListener {
     }
     public removeSelCards() {
         for (const e of this.selCards) {
-            this.onMoveCardBefore(e);
+            // this.onMoveCardBefore(e);
             const idx = this.cardViews.indexOf(e);
             if (idx >= 0) {
                 this.cardViews.splice(idx,1);
@@ -379,6 +446,7 @@ export class EditorTable extends Component implements IEditorLayersListener {
             }
         }
         this.setSelCards([]);
+        this.refreshOverlap();
     }
     public selectAll() {
         console.log('selectAll');
@@ -403,6 +471,47 @@ export class EditorTable extends Component implements IEditorLayersListener {
             ndCard.angle = e.tAngle||0;
             this.setupCard(cardView);
             cardView.isEditor = true;
+        }
+    }
+
+    public setCardPosition(cardView: CardView, pos: Vec3) {
+        if (!this.isPosInMesh(pos)) {
+            return false;
+        }
+        cardView.node.position = pos;
+        cardView.data.tPos = pos;
+        this.refreshOverlap();
+        this.setSelCards();
+        return true;
+    }
+
+    public setCardAngel(cardView: CardView, angel: number) {
+        cardView.node.angle = angel;
+        cardView.data.tAngle = angel;
+        this.refreshOverlap();
+        this.setSelCards();
+        return true;
+    }
+    public setCardLayer(cardView: CardView, layer: number) {
+        cardView.data.tLayer = layer;
+        this.refreshOverlap();
+    }
+    private refreshOverlap() {
+        // layer从小到大排序
+        // 然后遍历所有牌，检查有多少底下的牌，设置overlap
+        this.cardViews.sort((a,b)=>a.data.tLayer-b.data.tLayer);
+        for (let i = 0; i < this.cardViews.length; i++) {
+            const e = this.cardViews[i];
+            e.data.tIdx = i;
+            e.overlap = 0;
+            e.node.setSiblingIndex(i);
+            const unders = this.findIntersectCardsByCardView(e,true)
+            for (const e1 of unders) {
+                e1.overlap ++;
+            }
+        }
+        for (const e of this.cardViews) {
+            e.updateView();
         }
     }
 }

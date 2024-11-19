@@ -36,7 +36,7 @@ export class EditorLayers extends Component {
             XUtils.bindClick(nd, this.onClickItem, this, i);
             XUtils.bindClick(this.toggles[i], this.onClickToggle, this, i);
             if (i == 20) {
-                nd.getComponentInChildren(Label).string = '20+';
+                nd.getComponentInChildren(Label).string = '21+';
             } else {
                 nd.getComponentInChildren(Label).string = (i+1)+'层';
             }

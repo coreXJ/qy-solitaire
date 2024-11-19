@@ -1,4 +1,4 @@
-import { _decorator, Node, Label, EventTouch, instantiate, v3, sys, UIOpacity, Input, input, EventKeyboard, KeyCode, EditBox, Prefab } from "cc";
+import { _decorator, Node, Label, EventTouch, instantiate, v3, sys, UIOpacity, Input, input, EventKeyboard, KeyCode, EditBox, Prefab, ToggleComponent, Sprite, Color, Toggle } from "cc";
 import { isFullScreen, UIView } from "../base/UIView";
 import { EditorTable } from "./EditorTable";
 import CardView from "../ui/game/CardView";
@@ -6,6 +6,8 @@ import { Level } from "../data/GameObjects";
 import { XUtils } from "../comm/XUtils";
 import { EditorLayers } from "./EditorLayers";
 import { ResMgr } from "../manager/ResMgr";
+import { EdirotPopSelectCard } from "./EdirotPopSelectCard";
+import { EdirotPanelProperty } from "./EditorPanelProperty";
 
 const { ccclass, property } = _decorator;
 const CardViewPos = v3(-277, -495);
@@ -18,12 +20,17 @@ export default class UIEditor extends UIView {
 
     @property(EditorTable)
     table: EditorTable = null;
+    @property(EdirotPanelProperty)
+    panelProperty: EdirotPanelProperty = null;
     @property(EditorLayers)
     layers: EditorLayers = null;
     @property(Node)
     etLevel: Node = null;
+    @property(Toggle)
+    tgAlignMesh: Toggle = null;
     private level: Level;
     private ndHelp: Node;
+    private tabs: Sprite[] = [];
     public init(...args: any): void {
         console.log('UIEditor init');
         this.lisEvents();
@@ -41,16 +48,25 @@ export default class UIEditor extends UIView {
     public onOpen(fromUI: number, ...args: any): void {
         console.log('UIEditor onOpen');
         this.newLevel();
+        this.selectTab(0);
     }
     private bindNodes() {
+        this.table.view = this;
         this.ndHelp = this.node.getChildByName('popHelp');
         const btnExport = this.node.getChildByName('btnExport');
         const btnClear = this.node.getChildByName('btnClear');
         const btnHelp = this.node.getChildByName('btnHelp');
+        const tabs = this.node.getChildByName('tabs');
         XUtils.bindClick(btnExport, this.showPopSave, this);
         XUtils.bindClick(this.ndHelp, this.onClickHelp, this);
         XUtils.bindClick(btnClear, this.onClickClear, this);
         XUtils.bindClick(btnHelp, this.onClickHelp, this);
+        for (let i = 0; i < tabs.children.length; i++) {
+            const e = tabs.children[i];
+            this.tabs[i] = e.getComponent(Sprite);
+            XUtils.bindClick(e,this.selectTab,this,i);
+        }
+        this.tgAlignMesh.node.on('toggle',this.onAlignMesh,this);
     }
     private lisEvents() {
         this.cardView.node.on(Node.EventType.TOUCH_START, this.onCardTouchStart, this);
@@ -167,13 +183,7 @@ export default class UIEditor extends UIView {
     }
 
     private async showPopSave() {
-        let node = this.node.getChildByName('popSave');
-        if (!node) {
-            let prefab: Prefab = await ResMgr.instance.load("prefab/editor/popSave", Prefab);
-            node = instantiate(prefab);
-            node.parent = this.node;
-            node.name = 'popSave';
-        }
+        const node = await this.getPrefabNode('popSave');
         node.active = true;
         XUtils.bindClick(node, ()=>{
             node.active = false;
@@ -190,7 +200,22 @@ export default class UIEditor extends UIView {
             node.active = false;
         });
     }
-
+    public async showPopSelectCard(cardView?: CardView, callback?:(cardValue: number) => void) {
+        const node = await this.getPrefabNode('popSelectCard');
+        const comp = node.getComponent(EdirotPopSelectCard);
+        comp.show(cardView.cardValue, callback);
+    }
+    private async getPrefabNode(name: string) {
+        let node = this.node.getChildByName(name);
+        if (!node) {
+            const path = "prefab/editor/" + name;
+            let prefab: Prefab = await ResMgr.instance.load(path, Prefab);
+            node = instantiate(prefab);
+            node.parent = this.node;
+            node.name = name;
+        }
+        return node;
+    }
     private importJson() {
         if (sys.isBrowser) {
             const fileInput = document.createElement('input');
@@ -227,5 +252,25 @@ export default class UIEditor extends UIView {
         this.level = level;
         this.etLevel.getComponent(EditBox).string = (this.level.id || 1) + '';
         this.table.resume(this.level.tableCards);
+    }
+    public onSelCards(cards: CardView[]) {
+        this.panelProperty.view = this;
+        if (cards?.length == 1) {
+            this.panelProperty.show(cards[0]);
+        } else {
+            this.panelProperty.hide();
+        }
+    }
+    public selectTab(tab: 0|1) {
+        console.log('selectTab',tab);
+        this.table.touchType = tab;
+        for (let i = 0; i < this.tabs.length; i++) {
+            const e = this.tabs[i];
+            e.color = tab == i ? new Color(0x10,0x20,0x30) : Color.GRAY;
+        }
+    }
+    private onAlignMesh() {
+        console.log('onAlignMesh',this.tgAlignMesh.isChecked);
+        this.table.isAlignMesh = this.tgAlignMesh.isChecked;
     }
 }

@@ -379,10 +379,14 @@ export namespace XUtils{
         return text.replace(/[^\x00-\x7F\u0900-\u097F]/g, '');
     }
     export function isPureNumber(str: string) {
-        // 定义正则表达式
         const regex = /^\d+$/;
-      
-        // 测试字符串
         return regex.test(str);
-      }
+    }
+    export function isNumber(str: string) {
+        const regex = /^-?\d+(\.\d+)?$/;
+        return regex.test(str);
+    }
+    export function numToFixed(num: number, fractionDigits = 2) {
+        return parseFloat(num.toFixed(fractionDigits));
+    }
 }
