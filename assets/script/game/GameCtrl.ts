@@ -16,6 +16,7 @@ class GameCtrl {
     private task: Task;
     private taskColors: TaskColor[];
     private actions: GameAction[];
+    private isEditor: boolean;
     // private viewTable: GameTable;
     // private viewHand: GameHand;
     public bind(view: UIGame) {
@@ -30,7 +31,8 @@ class GameCtrl {
         EventMgr[func](EventName.onPropChange,  this.onPropChange, this);
     }
 
-    public startGame(level: Level) {
+    public startGame(level: Level,isEditor: boolean) {
+        this.isEditor = isEditor;
         // 通过GameData的levelList读取一个关卡数据
         this.level = level;
         let tableCards = this.level.tableCards.map(e => e.value);
@@ -105,7 +107,12 @@ class GameCtrl {
     }
 
     public onGameEnd(bWin: boolean) {
-        UIMgr.instance.open(UIID.UIResult,{bWin});
+        console.log('onGameEnd',this.isEditor);
+        UIMgr.instance.open(UIID.UIResult,{bWin,isEditor:this.isEditor});
+        if (this.isEditor) {
+            return;
+        }
+        // UIMgr.instance.open(UIID.UIResult,{bWin});
         if (bWin) {
             GameData.nextLevel();
         }
@@ -180,6 +187,10 @@ class GameCtrl {
 
     public useProp(id: PropID) {
         // 暂时没有道具
+        if (this.isEditor) {
+            this.onUseProp(id);
+            return;
+        }
         if (id == PropID.PropUndo && this.actions.length == 0) {
             return;
         }

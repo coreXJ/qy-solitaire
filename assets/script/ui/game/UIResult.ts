@@ -7,19 +7,25 @@ const { ccclass, property } = _decorator;
 
 @ccclass('UIResult')
 export default class UIResult extends UIView {
-
+    private isEditor: boolean;
     public init(params: IOpenParams): void {
         console.log('UIResult init',params);
+        this.isEditor = params.isEditor;
         XUtils.bindClick(this.node, this.close.bind(this))
     }
 
     public close() {
         UIMgr.instance.close(UIID.UIGame)
-        UIMgr.instance.replace(UIID.UIHall)
+        if (this.isEditor) {
+            UIMgr.instance.replace(UIID.UIEditor);
+        } else {
+            UIMgr.instance.replace(UIID.UIHall)
+        }
     }
 
 }
 
 interface IOpenParams {
     bWin: boolean,
+    isEditor: boolean
 }

@@ -21,7 +21,7 @@ export default class UIGame extends UIView {
         // bind nodes
         this.bindNodes();
         GameCtrl.bind(this);
-        GameCtrl.startGame(params.level);
+        GameCtrl.startGame(params.level,params.isEditor);
     }
 
     private bindNodes() {
@@ -66,4 +66,5 @@ export default class UIGame extends UIView {
 
 interface IOpenParams {
     level: Level;
+    isEditor?: boolean;
 }

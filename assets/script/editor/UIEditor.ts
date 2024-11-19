@@ -8,6 +8,8 @@ import { EditorLayers } from "./EditorLayers";
 import { ResMgr } from "../manager/ResMgr";
 import { EdirotPopSelectCard } from "./EdirotPopSelectCard";
 import { EdirotPanelProperty } from "./EditorPanelProperty";
+import { UIMgr } from "../manager/UIMgr";
+import { UIID } from "../data/GameConfig";
 
 const { ccclass, property } = _decorator;
 const CardViewPos = v3(-277, -495);
@@ -56,11 +58,13 @@ export default class UIEditor extends UIView {
         const btnExport = this.node.getChildByName('btnExport');
         const btnClear = this.node.getChildByName('btnClear');
         const btnHelp = this.node.getChildByName('btnHelp');
+        const btnPlay = this.node.getChildByName('btnPlay');
         const tabs = this.node.getChildByName('tabs');
         XUtils.bindClick(btnExport, this.showPopSave, this);
         XUtils.bindClick(this.ndHelp, this.onClickHelp, this);
         XUtils.bindClick(btnClear, this.onClickClear, this);
         XUtils.bindClick(btnHelp, this.onClickHelp, this);
+        XUtils.bindClick(btnPlay, this.onClickPlay, this);
         for (let i = 0; i < tabs.children.length; i++) {
             const e = tabs.children[i];
             this.tabs[i] = e.getComponent(Sprite);
@@ -272,5 +276,9 @@ export default class UIEditor extends UIView {
     private onAlignMesh() {
         console.log('onAlignMesh',this.tgAlignMesh.isChecked);
         this.table.isAlignMesh = this.tgAlignMesh.isChecked;
+    }
+    private onClickPlay() {
+        this.level.tableCards = this.table.getCards();
+        UIMgr.instance.open(UIID.UIGame,{level: this.level, isEditor: true});
     }
 }
