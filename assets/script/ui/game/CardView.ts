@@ -1,4 +1,4 @@
-import { _decorator, Color, Component,Label,Node, Sprite, v3 } from "cc";
+import { _decorator, Color, Component,Label,Node, Sprite, v3, Vec3 } from "cc";
 import { Card, CardType } from "../../data/GameObjects";
 import GameLoader from "../../game/GameLoader";
 import { GameGeometry } from "../../game/GameGeometry";
@@ -100,7 +100,7 @@ export default class CardView extends Component {
     public saveEditorData() {
         // 把当前坐标和角度赋值到cardData中
         const data = this.data;
-        data.tPos = this.node.position;
+        data.tPos = v3(this.node.position);
         data.tAngle = this.node.angle;
         return data;
     }
@@ -113,5 +113,10 @@ export default class CardView extends Component {
             height: CardView.HEIGHT,
             angle: this.data.tAngle || 0,
         }
+    }
+
+    public setPos(pos: Vec3) {
+        this.node.position = pos;
+        this.data.tPos = v3(pos);
     }
 }

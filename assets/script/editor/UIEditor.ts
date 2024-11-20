@@ -1,4 +1,4 @@
-import { _decorator, Node, Label, EventTouch, instantiate, v3, sys, UIOpacity, Input, input, EventKeyboard, KeyCode, EditBox, Prefab, ToggleComponent, Sprite, Color, Toggle } from "cc";
+import { _decorator, Node, Label, EventTouch, instantiate, v3, sys, UIOpacity, Input, input, EventKeyboard, KeyCode, EditBox, Prefab, Sprite, Color, Toggle } from "cc";
 import { isFullScreen, UIView } from "../base/UIView";
 import { EditorTable } from "./EditorTable";
 import CardView from "../ui/game/CardView";
@@ -10,6 +10,7 @@ import { EdirotPopSelectCard } from "./EdirotPopSelectCard";
 import { EdirotPanelProperty } from "./EditorPanelProperty";
 import { UIMgr } from "../manager/UIMgr";
 import { UIID } from "../data/GameConfig";
+import { EditorPopSave } from "./EditorPopSave";
 
 const { ccclass, property } = _decorator;
 const CardViewPos = v3(-277, -495);
@@ -120,33 +121,6 @@ export default class UIEditor extends UIView {
         this.level.group = 'group1';
         this.etLevel.getComponent(EditBox).string = this.level.id+'';
     }
-    private exportLevel() {
-        if (sys.isBrowser) {
-            this.level.tableCards = this.table.getCards();
-            if (this.level.tableCards.length == 0) {
-                return;
-            }
-            const content = JSON.stringify(this.level);
-            const filename = `level${this.level.id}.json`;
-            // 创建一个 Blob 对象
-            const blob = new Blob([content], { type: 'text/plain' });
-            // 创建一个临时的 URL
-            const url = URL.createObjectURL(blob);
-            // 创建一个隐藏的 <a> 元素
-            const a = document.createElement('a');
-            a.style.display = 'none';
-            a.href = url;
-            a.download = filename;
-            // 将 <a> 元素添加到 DOM 中
-            document.body.appendChild(a);
-            // 触发点击事件
-            a.click();
-            // 移除 <a> 元素
-            document.body.removeChild(a);
-            // 释放 URL 对象
-            URL.revokeObjectURL(url);
-        }
-    }
 
     private onKeyDown(event: EventKeyboard) {
         console.log('onKeyDown', event);
@@ -188,21 +162,7 @@ export default class UIEditor extends UIView {
 
     private async showPopSave() {
         const node = await this.getPrefabNode('popSave');
-        node.active = true;
-        XUtils.bindClick(node, ()=>{
-            node.active = false;
-        });
-        const btnExport = node.getChildByName('btnExport');
-        const btnImport = node.getChildByName('btnImport');
-        XUtils.bindClick(btnExport, ()=>{
-            this.exportLevel();
-            node.active = false;
-        });
-        XUtils.bindClick(btnImport, ()=>{
-            console.log('import');
-            this.importJson();
-            node.active = false;
-        });
+        node.getComponent(EditorPopSave).show(this, this.level);
     }
     public async showPopSelectCard(cardView?: CardView, callback?:(cardValue: number) => void) {
         const node = await this.getPrefabNode('popSelectCard');
@@ -220,38 +180,7 @@ export default class UIEditor extends UIView {
         }
         return node;
     }
-    private importJson() {
-        if (sys.isBrowser) {
-            const fileInput = document.createElement('input');
-            fileInput.type = 'file';
-            fileInput.accept = '.json';
-            // 为文件输入控件添加 change 事件监听器
-            fileInput.addEventListener('change', (event)=> {
-                // console.log('event',event.target['files']);
-                const file:File = event.target['files'][0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = (e)=> {
-                        try {
-                            const content = <string>e.target.result;
-                            console.log('content',content);
-                            if (content?.length > 0) {
-                                const level = JSON.parse(content);
-                                this.resumeLevel(level);
-                            }
-                        } catch (error) {
-                            console.error('Error reading or parsing the file:', error);
-                        }
-                    };
-                    reader.readAsText(file);
-                } else {
-                }
-                fileInput.remove();
-            });
-            fileInput.click();
-        }
-    }
-    private resumeLevel(level: Level) {
+    public resumeLevel(level: Level) {
         console.log('resumeLevel',level);
         this.level = level;
         this.etLevel.getComponent(EditBox).string = (this.level.id || 1) + '';
@@ -279,6 +208,7 @@ export default class UIEditor extends UIView {
     }
     private onClickPlay() {
         this.level.tableCards = this.table.getCards();
-        UIMgr.instance.open(UIID.UIGame,{level: this.level, isEditor: true});
+        const level = JSON.parse(JSON.stringify(this.level));
+        UIMgr.instance.open(UIID.UIGame,{level, isEditor: true});
     }
 }

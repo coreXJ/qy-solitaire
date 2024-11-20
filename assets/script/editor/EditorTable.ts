@@ -77,9 +77,7 @@ export class EditorTable extends Component implements IEditorLayersListener {
             
         }
         pos = this.pos2meshPos(pos, this.isAlignMesh);
-        console.log('pos2',pos);
-        ndCard.setPosition(pos);
-        cardView.data.tPos = pos;
+        cardView.setPos(pos);
         this.setupCard(cardView);
         cardView.isEditor = true;
         this.setSelCards([cardView]);
@@ -354,8 +352,7 @@ export class EditorTable extends Component implements IEditorLayersListener {
                     for (const e of this.selCards) {
                         // this.onMoveCardBefore(e);
                         const meshPos = this.pos2meshPos(e.node.position, this.isAlignMesh);
-                        e.data.tPos = meshPos;
-                        e.node.setPosition(meshPos);
+                        e.setPos(meshPos);
                         // this.onMoveCardAfter(e);
                     }
                     this.refreshOverlap();
@@ -478,8 +475,7 @@ export class EditorTable extends Component implements IEditorLayersListener {
         if (!this.isPosInMesh(pos)) {
             return false;
         }
-        cardView.node.position = pos;
-        cardView.data.tPos = pos;
+        cardView.setPos(pos);
         this.refreshOverlap();
         this.setSelCards();
         return true;
