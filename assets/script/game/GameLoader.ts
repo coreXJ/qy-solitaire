@@ -4,7 +4,7 @@ import CardView from "../ui/game/CardView";
 import { XUtils } from "../comm/XUtils";
 
 class GameLoader {
-
+    private _cardGeneralSprites: SpriteFrame[] = [];
     private _cardSprites: SpriteFrame[] = [];
     private _prefabs:Prefab[] = [];
     private _cardNodePool = new NodePool('CardPool');
@@ -15,11 +15,22 @@ class GameLoader {
 
     public async loadAllGameRes() {
         await Promise.all([
+            this.loadGeneralCardRes(),
             this.loadCardRes(),
             this.preloadPrefabs(),
         ]);
     }
-    private loadCardRes(skin = 'skin_jingdian'){
+    private loadGeneralCardRes(){
+        return ResMgr.instance.loadDir('img/card/general', SpriteFrame, (err: Error, data: SpriteFrame[])=>{
+            if(err){
+                console.log('### loadGeneralCardRes err', err)
+            }else{
+                this._cardGeneralSprites = data; 
+                console.log('### loadGeneralCardRes success',data);
+            }
+        })
+    }
+    private loadCardRes(skin = 'skin_hongse'){
         return ResMgr.instance.loadDir('img/card/'+skin, SpriteFrame, (err: Error, data: SpriteFrame[])=>{
             if(err){
                 console.log('### loadCardRes err', err)
@@ -30,7 +41,12 @@ class GameLoader {
         })
     }
     public setCardFrame(sp: Sprite, cardValue: number){
-        let frame = this._cardSprites.find(ele=>ele.name == `card_${cardValue}`);
+        let frame: SpriteFrame = null;
+        if (cardValue >= 0x40) {
+            frame = this._cardGeneralSprites.find(ele=>ele.name == `card_${cardValue}`);
+        } else {
+            frame = this._cardSprites.find(ele=>ele.name == `card_${cardValue}`);
+        }
         if(isValid(frame)){
             sp.spriteFrame = frame;
         }

@@ -50,6 +50,7 @@ export class EditorPopSave extends Component {
     private exportLevel() {
         if (sys.isBrowser) {
             this._level.tableCards = this._view.table.getCards();
+            this._level.name = 'Level '+ this._level.id;
             if (this._level.tableCards.length == 0) {
                 return;
             }
