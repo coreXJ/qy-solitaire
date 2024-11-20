@@ -463,12 +463,15 @@ export class EditorTable extends Component implements IEditorLayersListener {
             const ndCard = GameLoader.addCard();
             const cardView = ndCard.getComponent(CardView);
             cardView.data = e;
+            cardView._bFront = true;
             ndCard.parent = this.ndRoot;
             ndCard.setPosition(e.tPos);
             ndCard.angle = e.tAngle||0;
-            this.setupCard(cardView);
+            // this.setupCard(cardView);
             cardView.isEditor = true;
+            this.cardViews.push(cardView);
         }
+        this.refreshOverlap();
     }
 
     public setCardPosition(cardView: CardView, pos: Vec3) {

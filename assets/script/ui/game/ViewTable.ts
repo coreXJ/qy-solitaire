@@ -37,6 +37,7 @@ export default class ViewTable extends Component {
             cardView.data = card;
             ndCard.position = card.tPos;
             ndCard.angle = card.tAngle;
+            cardView._bFront = false;
             cardViews.push(cardView);
         }
         // 当动画结束后
@@ -63,9 +64,9 @@ export default class ViewTable extends Component {
     }
 
     private setupCard(cardView: CardView) {
-        console.log('setupCard', cardView);
+        // console.log('setupCard', cardView);
         const underCards = this.findUnderCards(cardView);
-        console.log('underCards', underCards);
+        // console.log('underCards', underCards);
         for (const e of underCards) {
             e.overlap ++;
             e.updateView();

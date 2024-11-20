@@ -16,7 +16,7 @@ export default class CardView extends Component {
     @property(Node)
     ndEditor: Node = null;
     private _data: Card;
-    private _bFront: boolean = false;
+    public _bFront: boolean = false;
 
     private _bEditor: boolean = false;
 
@@ -67,7 +67,7 @@ export default class CardView extends Component {
     }
 
     public updateView() {
-        if (this.cardValue >= 0x30) {
+        if (this.cardValue >= 0x40) {
             this._bFront = true;
         }
         const cardValue = this._bFront ? this.cardValue : 0;
