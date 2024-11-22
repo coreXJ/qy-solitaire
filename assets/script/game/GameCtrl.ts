@@ -1,16 +1,18 @@
-import { CardJoker, PropID, UIID } from "../data/GameConfig";
-import GameData from "../data/GameData";
-import { GameAction, GameActionType, Level, Task, TaskAwardType, TaskColor } from "../data/GameObjects";
+import { CardJoker, UIID } from "../data/GameConfig";
+import GameData from "./GameData";
+import { BoosterID, GameAction, GameActionType, Level, PropID, Task, TaskAwardType, TaskColor } from "../data/GameObjects";
 import { EventMgr, EventName } from "../manager/EventMgr";
 import { UIMgr } from "../manager/UIMgr";
 import CardView from "../ui/game/CardView";
 import UIGame from "../ui/game/UIGame";
 import GameLogic from "./GameLogic";
+import UserModel from "../data/UserModel";
 
 /**
  * 游戏控制类
  */
 class GameCtrl {
+    private params: IOpenGameParams;
     private view: UIGame;
     private level: Level;
     private task: Task;
@@ -19,6 +21,30 @@ class GameCtrl {
     private isEditor: boolean;
     // private viewTable: GameTable;
     // private viewHand: GameHand;
+    private usedBoosters: BoosterID[] = [];
+
+    public openGame(params: IOpenGameParams) {
+        console.log('openGame',params);
+        this.params = params;
+        this.useBoosters();
+        UIMgr.instance.open(UIID.UIGame, params, ()=> {
+            this.startGame(params);
+        });
+    }
+    private useBoosters() {
+        // 先找free
+        const freeIDs = UserModel.getFreeBoosters();
+        this.usedBoosters = freeIDs;
+        const useIDs = this.params.useBoosters;
+        for (const id of useIDs) {
+            if (this.usedBoosters.indexOf(id) >= 0) {
+                continue;
+            }
+            if (UserModel.useBooster(id)) {
+                this.usedBoosters.push(id);
+            }
+        }
+    }
     public bind(view: UIGame) {
         this.view = view;
         this.lisEvents(true);
@@ -31,10 +57,10 @@ class GameCtrl {
         EventMgr[func](EventName.onPropChange,  this.onPropChange, this);
     }
 
-    public startGame(level: Level,isEditor: boolean) {
-        this.isEditor = isEditor;
+    public startGame(params: IOpenGameParams) {
+        this.isEditor = params.isEditor;
         // 通过GameData的levelList读取一个关卡数据
-        this.level = level;
+        this.level = params.level;
         let tableCards = this.level.tableCards.map(e => e.value);
         console.log('生成随机桌牌前',[...tableCards]);
         tableCards = GameLogic.generateTableCards(
@@ -50,7 +76,7 @@ class GameCtrl {
             this.level.tableCards[i].value = card;
         }
         this.newTask();
-        this.view.startGame(this.level);
+        this.view.startGame(this.level,[],this.usedBoosters);
         this.actions = [];
     }
 
@@ -114,7 +140,7 @@ class GameCtrl {
         }
         // UIMgr.instance.open(UIID.UIResult,{bWin});
         if (bWin) {
-            GameData.nextLevel();
+            UserModel.nextLevel();
         }
     }
     private _guaranteeCount = 0;//摸牌保底计数
@@ -183,6 +209,7 @@ class GameCtrl {
         this.view = null;
         this.lisEvents(false);
         this.actions = [];
+        this.usedBoosters = [];
     }
 
     public useProp(id: PropID) {
@@ -194,10 +221,10 @@ class GameCtrl {
         if (id == PropID.PropUndo && this.actions.length == 0) {
             return;
         }
-        if (GameData.useProp(id)) {
+        if (UserModel.useProp(id)) {
             console.log('使用道具');
             this.onUseProp(id);
-        } else if (GameData.costGold(200)) { //读配置
+        } else if (UserModel.costGold(200)) { //读配置
             console.log('花金币使用道具');
             this.onUseProp(id, 200);
         }
@@ -225,13 +252,13 @@ class GameCtrl {
                 this.view.hand.undoDrawPoolCard();
             } else if (action.type == GameActionType.propJoker) {
                 this.view.hand.undoPropJokerCard();
-                GameData.addProp(PropID.PropJoker, 1);
+                UserModel.addProp(PropID.PropJoker, 1);
             }
         }
     }
 
     private onGoldChange() {
-        this.view.top.setGold(GameData.gold);
+        this.view.top.setGold(UserModel.gold);
     }
 
     private onPropChange(id: PropID, count: number) {
@@ -240,3 +267,10 @@ class GameCtrl {
 }
 
 export default new GameCtrl();
+
+
+export interface IOpenGameParams {
+    level: Level;
+    isEditor?: boolean;
+    useBoosters?: BoosterID[];
+}

@@ -3,5 +3,8 @@
   "uuid": "0f82af5b-e116-4bec-bddc-0e1859aa56db",
   "creator": {
     "version": "3.8.4"
+  },
+  "dependencies": {
+    "protobufjs": "^7.4.0"
   }
 }

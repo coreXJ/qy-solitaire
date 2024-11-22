@@ -1,12 +1,13 @@
 import { _decorator, Component, Label, Node, tween, Tween, v3, Vec3 } from "cc";
 import GameLoader from "../../game/GameLoader";
-import { Card, CardType } from "../../data/GameObjects";
+import { Card, CardType, PropID } from "../../data/GameObjects";
 import CardView from "./CardView";
 import UIGame from "./UIGame";
 import { XUtils } from "../../comm/XUtils";
 import GameCtrl from "../../game/GameCtrl";
-import { CardJoker, PropID } from "../../data/GameConfig";
-import GameData from "../../data/GameData";
+import { CardBlow, CardJoker } from "../../data/GameConfig";
+import GameData from "../../game/GameData";
+import UserModel from "../../data/UserModel";
 const { ccclass, property } = _decorator;
 
 const POOL_VISIBLE_CARD_COUNT = 9;
@@ -68,19 +69,61 @@ export default class ViewHand extends Component {
         return this.topPoolCard?.cardValue || 0;
     }
     
-    public dealCards(poolCount: number, handCardValue: number) {
-        console.log('ViewHand dealCards', poolCount,handCardValue);
-        // 先发pool牌 
-        for (let i = 0; i < poolCount + 1; i++) {
-            this.addPoolCardView();
-        }
-        // 再翻一张hand牌
-        this.scheduleOnce(() => {
-            handCardValue = handCardValue || GameCtrl.getFirstCardValue();
-            this.drawPoolCard(handCardValue);
-        }, 0.7);
+    public dealCards(poolCount: number) {
+        console.log('ViewHand dealCards', poolCount);
+        return new Promise<void>(resolve => {
+            // 先发pool牌 
+            for (let i = 0; i < poolCount + 1; i++) {
+                this.addPoolCardView();
+            }
+            // 再翻一张hand牌
+            this.scheduleOnce(() => {
+                resolve();
+            }, 0.7);
+        });
     }
-
+    public insertWinPoolCards(cardValues: number[],idxs: number[]) {
+        for (let i = 0; i < cardValues.length; i++) {
+            const value = cardValues[i];
+            const nd = GameLoader.addCard();
+            nd.parent = this.ndPoolRoot;
+            const cardView = nd.getComponent(CardView);
+            cardView.cardValue = value;
+            this.poolCards.splice(idxs[i], 0, cardView);
+            XUtils.bindClick(nd, this.onClickPoolCard, this, cardView);
+            const pos = this.view.top.getTaskCardWorldPosition();
+            cardView.node.worldPosition = pos;
+            tween(nd).set({scale: v3(0.2,0.2,1)})
+                .to(0.3,{scale: v3(1,1,1)},{easing:'backOut'}).start();
+        }
+        return new Promise<void>(resolve => {
+            this.scheduleOnce(async ()=>{
+                await this.tweenMovePoolCards();
+                resolve();
+            },0.5);
+        });
+    }
+    public insertBlowPoolCards(cardValues: number[],idxs: number[]) {
+        console.log('insertBlowPoolCards',cardValues);
+        for (let i = 0; i < cardValues.length; i++) {
+            const value = cardValues[i];
+            const nd = GameLoader.addCard();
+            nd.parent = this.ndPoolRoot;
+            const cardView = nd.getComponent(CardView);
+            cardView.cardValue = value;
+            this.poolCards.splice(idxs[i], 0, cardView);
+            XUtils.bindClick(nd, this.onClickPoolCard, this, cardView);
+            cardView.node.worldPosition = this.view.table.node.worldPosition;
+            tween(nd).set({scale: v3(0.2,0.2,1)})
+                .to(0.3,{scale: v3(1.2,1.2,1)},{easing:'backOut'}).start();
+        }
+        return new Promise<void>(resolve => {
+            this.scheduleOnce(async ()=>{
+                await this.tweenMovePoolCards();
+                resolve();
+            },0.5);
+        });
+    }
     /**
      * 往抽牌池插入牌，有几种业务情况
      */
@@ -201,8 +244,33 @@ export default class ViewHand extends Component {
             if (cardValue) {
                 cardView.data.value = cardValue;
             }
-            this.addHandCard(cardView, wpos);
+            if (cardView.cardValue == CardBlow) {
+                this.playBlowCardEffect(cardView, wpos);
+            } else {
+                this.addHandCard(cardView, wpos);
+            }
         }
+    }
+    private playBlowCardEffect(cardView: CardView, wpos: Vec3) {
+        console.log('playBlowCardEffect');
+        this.view.blockingTouch(1);
+        const pos = v3(this.node.worldPosition);
+        pos.y += 250;
+        cardView.node.parent = this.node;
+        cardView.node.worldPosition = wpos;
+        tween(cardView.node).to(0.4, {
+            worldPosition: pos,
+            scale: v3(1.2,1.2,1)
+        }, { easing: 'quadOut' }).delay(0.2).call(()=>{
+            console.log('吹走所有顶部牌');
+            this.view.table.blowTopCards();
+            this.scheduleOnce(()=>{
+                GameLoader.removeCard(cardView.node);
+            },0.4);
+        }).start();
+    }
+    private undoBlowCardEffect() {
+        // 撤回吹风卡
     }
     public undoDrawPoolCard() {
         const cardView = this.popHandCard();
@@ -268,7 +336,7 @@ export default class ViewHand extends Component {
         for (let i = 0; i < nds.length; i++) {
             const nd = nds[i];
             const id = ids[i];
-            const count = GameData.getPropCount(id);
+            const count = UserModel.getPropCount(id);
             const lbGold = nd.getChildByPath('ndGold/lbGold').getComponent(Label);
             const lbNum = nd.getChildByPath('ndNum/lbNum').getComponent(Label);
             lbGold.node.parent.active = count == 0;
@@ -301,7 +369,10 @@ export default class ViewHand extends Component {
             const num = Math.min(len - i, POOL_VISIBLE_CARD_COUNT) - 1;
             const x = startX + num * POOL_OFFSET_X;
             Tween.stopAllByTarget(nd);
-            tween(nd).to(0.5, { position: v3(x, 0, 0) }, { easing: 'quadOut' }).start();
+            tween(nd).to(0.5, {
+                position: v3(x, 0, 0),
+                scale: v3(1, 1, 1)
+            }, { easing: 'quadOut' }).start();
         }
         // 检查ndExtraNum是否大于0
         const bExtra = len > POOL_VISIBLE_CARD_COUNT;
@@ -309,6 +380,11 @@ export default class ViewHand extends Component {
         const lb = this.ndExtraNum.getComponentInChildren(Label);
         lb.string = '+' + (len - POOL_VISIBLE_CARD_COUNT);
         this.checkPoolEmpty();
+        return new Promise<void>((resolve, reject) => {
+            this.scheduleOnce(() => {
+                resolve();
+            }, 0.5);
+        });
     }
 
     private checkPoolEmpty() {

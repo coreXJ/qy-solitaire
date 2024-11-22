@@ -69,3 +69,27 @@ export enum TaskColor {
     red = 0,
     black = 1
 };
+
+export interface Booster {
+    id: BoosterID;
+    count: number;
+    freetime: number;
+}
+export interface Prop {
+    id: PropID;
+    count: number;
+}
+export enum BoosterID {
+    /**钩子，开局钩3张表层牌 */
+    hook = 1,
+    /**吹风，开局往储备牌区插入吹风卡 */
+    blow = 2,
+    /**赖子，开局替换桌子上3张牌变成赖子 */
+    joker = 3,
+}
+
+export enum PropID {
+    PropJoker = 1,
+    PropAdd = 2,
+    PropUndo = 3,
+}

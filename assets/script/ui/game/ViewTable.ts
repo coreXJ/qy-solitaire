@@ -1,11 +1,12 @@
-import { _decorator, Component, Intersection2D, tween, UITransform } from "cc";
+import { _decorator, Component, Intersection2D, tween, UITransform, v3 } from "cc";
 import GameLoader from "../../game/GameLoader";
-import { Card } from "../../data/GameObjects";
+import { Card, CardType } from "../../data/GameObjects";
 import CardView from "./CardView";
 import UIGame from "./UIGame";
 import { XUtils } from "../../comm/XUtils";
 import GameCtrl from "../../game/GameCtrl";
 import { GameGeometry } from "../../game/GameGeometry";
+import { CardJoker } from "../../data/GameConfig";
 const { ccclass, property } = _decorator;
 
 @ccclass('ViewTable')
@@ -75,7 +76,37 @@ export default class ViewTable extends Component {
         this.underCardsMap.set(cardView, underCards);
         XUtils.bindClick(cardView.node, this.onClickCard.bind(this,cardView));
     }
-
+    private setupInsertJokerCard(cardView: CardView) {
+        this.cardViews.push(cardView);
+        // 寻找上层的重合牌
+        const overCards = this.findOverCards(cardView);
+        for (const e of overCards) {
+            const unders = this.underCardsMap.get(e);
+            if (unders) {
+                unders.push(cardView);
+                cardView.overlap++;
+            }
+        }
+        cardView.updateView();
+        this.cardViews.sort((a,b)=>a.data.tIdx-b.data.tIdx);
+        this.cardViews.sort((a,b)=>a.data.tLayer-b.data.tLayer);
+        for (let i = 0; i < this.cardViews.length; i++) {
+            const e = this.cardViews[i];
+            e.node.setSiblingIndex(i);
+        }
+    }
+    public checkTopJoker() {
+        // 找到所有overlap为0的joker，并直接link，不走ctrl
+        for (const e of this.cardViews) {
+            if (e.cardValue == CardJoker && e.overlap == 0) {
+                this.view.blockingTouch(0.3);
+                this.scheduleOnce(()=>{
+                    this.view.linkTableCard(e);
+                }, 0.2);
+                return;
+            }
+        }
+    }
     private onClickCard(cardView: CardView) {
         console.log('onCardClick',cardView);
         if (this.cardViews.indexOf(cardView) == -1) {
@@ -88,34 +119,29 @@ export default class ViewTable extends Component {
 
     /**获得所有下层卡 */
     private findUnderCards(cardView: CardView) {
-        // const trans = cardView.getComponent(UITransform);
-        // const rect0 = {
-        //     x : cardView.node.position.x,
-        //     y : cardView.node.position.y,
-        //     width : trans.width,
-        //     height : trans.height,
-        //     angle:cardView.node.angle};
         const underCards:CardView[] = [];
         for (const e of this.cardViews) {
             if (cardView != e) {
-                const tran = e.getComponent(UITransform);
-                // const rect1 = {
-                //     x : e.node.position.x,
-                //     y : e.node.position.y,
-                //     width : tran.width,
-                //     height : tran.height,
-                //     angle:e.node.angle
-                // };
-                // const bIntersects = GameGeometry.doRectsIntersect(rect0, rect1);
                 const bIntersects = GameGeometry.doNodesIntersect(cardView.node, e.node);
-                // console.log("doRectsIntersect",bIntersects,rect0,rect1);
                 if (bIntersects && e.data.tIdx < cardView.data.tIdx) {
                     underCards.push(e);
                 }
             }
         }
-        // console.log('findUnderCards', [...underCards]);
         return underCards;
+    }
+    /**获得所有上层卡 */
+    private findOverCards(cardView: CardView) {
+        const overCards:CardView[] = [];
+        for (const e of this.cardViews) {
+            if (cardView != e) {
+                const bIntersects = GameGeometry.doNodesIntersect(cardView.node, e.node);
+                if (bIntersects && e.data.tIdx > cardView.data.tIdx) {
+                    overCards.push(e);
+                }
+            }
+        }
+        return overCards;
     }
 
     public getTopCardValues() {
@@ -127,7 +153,79 @@ export default class ViewTable extends Component {
         }
         return cardValues;
     }
-
+    /**随机勾走一张顶部卡 */
+    public async hookTopCard() {
+        const tops = this.cardViews.filter(e=>e.overlap==0);
+        if (tops.length == 0) {
+            return;
+        }
+        const idx = XUtils.getRandomInt(0, tops.length-1);
+        const cardView = tops[idx];
+        if (this.removeCard(cardView)) {
+            cardView.node.parent = this.node;
+            const startPos = cardView.node.position;
+            const endPos = v3(startPos);
+            startPos.x > 0 ? endPos.x += 400 : endPos.x -= 500;
+            tween(cardView.node).to(0.7, { position: endPos },{ easing: 'quadOut' })
+                .call(()=>{
+                    GameLoader.removeCard(cardView.node);
+                }).start();
+            return new Promise((resolve)=>{
+                this.scheduleOnce(()=>{
+                    resolve(cardView);
+                }, 1);
+            });
+        }
+    }
+    public blowTopCards() {
+        const tops = this.cardViews.filter(e=>e.overlap==0);
+        if (tops.length == 0) {
+            return;
+        }
+        for (const cardView of tops) {
+            if (this.removeCard(cardView)) {
+                cardView.node.parent = this.node;
+                const endPos = v3(cardView.node.position);
+                endPos.y += 900;
+                tween(cardView.node).to(0.7, { position: endPos },{ easing: 'quadOut' })
+                    .call(()=>{
+                        GameLoader.removeCard(cardView.node);
+                    }).start();
+            }
+        }
+    }
+    public insertBoosterJoker(count: number) {
+        const allPairs: [CardView,CardView][] = [];
+        for (const [cardView,unders] of this.underCardsMap) {
+            for (const e of unders) {
+                if (e.data.tLayer == cardView.data.tLayer - 1) {
+                    allPairs.push([cardView,e]);
+                    break;
+                }
+            }
+        }
+        console.log('allPairs',allPairs);
+        for (let i = 0; i < count; i++) {
+            const idx = XUtils.getRandomInt(0, allPairs.length-1);
+            const pair = allPairs.splice(idx,1)[0];
+            const e0 = pair[0];
+            const e1 = pair[1];
+            const pos0 = v3(e0.data.tPos);
+            const pos1 = v3(e1.data.tPos);
+            const pos = pos0.add(pos1).divide(v3(2,2,1));
+            const angle = (e0.data.tAngle + e1.data.tAngle) / 2;
+            const nd = GameLoader.addCard(this.node);
+            const cardView = nd.getComponent(CardView);
+            cardView.data.type = CardType.table;
+            const card = cardView.data;
+            card.tIdx = (e0.data.tIdx + e1.data.tIdx) / 2;
+            card.tLayer = (e0.data.tLayer + e1.data.tLayer) / 2;
+            cardView.cardValue = CardJoker;
+            cardView.setPos(pos);
+            cardView.setAngle(angle);
+            this.setupInsertJokerCard(cardView);
+        }
+    }
     public removeCard(cardView: CardView) {
         const idx = this.cardViews.indexOf(cardView);
         if (idx >= 0) {

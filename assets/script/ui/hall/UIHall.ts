@@ -1,10 +1,14 @@
-import { _decorator, Node, Label } from "cc";
+import { _decorator, Node, Label, instantiate } from "cc";
 import { isFullScreen, UIView } from "../../base/UIView";
 import { UIMgr } from "../../manager/UIMgr";
 import { UIID } from "../../data/GameConfig";
-import GameData from "../../data/GameData";
+import GameData from "../../game/GameData";
 import { XUtils } from "../../comm/XUtils";
-import { Level } from "../../data/GameObjects";
+import { BoosterID, Level } from "../../data/GameObjects";
+import UserModel from "../../data/UserModel";
+import BoosterView from "./BoosterView";
+import { EventMgr, EventName } from "../../manager/EventMgr";
+import GameCtrl from "../../game/GameCtrl";
 const { ccclass, property } = _decorator;
 
 @ccclass('UIHall')
@@ -12,24 +16,79 @@ const { ccclass, property } = _decorator;
 export default class UIHall extends UIView {
 
     @property(Node)
-    btnStart: Node = null;
+    private btnStart: Node = null;
+    @property(Node)
+    private ndBoosters: Node = null;
+
+    
     private level: Level;
-    public init(...args: any): void {
-        console.log('UIHall init');
+    // public init(...args: any): void {
+    //     console.log('UIHall init');
+    // }
+    protected onLoad(): void {
+        console.log('UIHall onLoad');
+        this.initBooster();
         XUtils.bindClick(this.btnStart, this.toGame, this);
     }
-
+    private listenEvent(bool: boolean) {
+        const func = bool ? 'on' : 'off';
+        EventMgr[func](EventName.onBoosterChange, this.updateBooster, this);
+    }
     public onOpen(fromUI: number, ...args: any): void {
-        
     }
     protected onEnable(): void {
-        this.level = GameData.getLevel();
+        console.log('UIHall onEnable');
+        this.level = GameData.getLevel(UserModel.curLevelId);
         this.node.getChildByName('lbLevel').getComponent(Label).string = '' + this.level.name;
+        this.listenEvent(true);
+        this.updateBooster();
+        this.compBoosters.forEach(e => {
+            e.isChecked = false;
+        });
+    }
+    protected onDisable(): void {
+        this.listenEvent(false);
     }
     public toGame() {
-        UIMgr.instance.open(UIID.UIGame,{level: this.level});
+        const useBoosters: BoosterID[] = [];
+        for (const e of this.compBoosters) {
+            if (e.isChecked) {
+                useBoosters.push(e.dataID);
+            }
+        }
+        GameCtrl.openGame({
+            level: this.level,
+            useBoosters
+        });
     }
     public toEditor() {
         UIMgr.instance.open(UIID.UIEditor);
     }
+    //---------Booster相关---------
+    private compBoosters: BoosterView[] = [];
+    private boosterIDs: BoosterID[] = [BoosterID.hook, BoosterID.blow, BoosterID.joker];
+    private initBooster() {
+        const posX = 185;
+        let startX = -posX;
+        const ndContainer = this.ndBoosters.getChildByName('container');
+        const item0 = ndContainer.children[0];
+        for (let i = 0; i < 3; i++) {
+            let nd = ndContainer.children[i];
+            if (!nd) {
+                nd = instantiate(item0);
+                nd.parent = ndContainer;
+            }
+            const comp = nd.getComponent(BoosterView);
+            this.compBoosters[i] = comp;
+            nd.setPosition(startX + (posX * i), 0);
+        }
+    }
+    private updateBooster() {
+        for (let i = 0; i < this.boosterIDs.length; i++) {
+            const id = this.boosterIDs[i];
+            const data = UserModel.getBooster(id);
+            this.compBoosters[i].setData(data);
+        }
+    }
+    //-------------end-------------
 }

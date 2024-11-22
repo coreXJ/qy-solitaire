@@ -61,6 +61,7 @@ class GameLoader {
             card.setPosition(0, 0, 0);
         } else {
             card = instantiate(this.getPrefab('CardView'));
+            card.getComponent(CardView).updateView();
         }
         card.parent = parent;
         return card;

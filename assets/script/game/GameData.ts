@@ -1,7 +1,5 @@
-import { JsonAsset, Vec3 } from "cc";
-import { CardType, Level } from "./GameObjects";
-import { PropID } from "./GameConfig";
-import { EventMgr, EventName } from "../manager/EventMgr";
+import { JsonAsset } from "cc";
+import { Level } from "../data/GameObjects";
 import { ResMgr } from "../manager/ResMgr";
 
 /**
@@ -11,71 +9,13 @@ class GameData {
     private levelList: Level[] = null;
     private levelMap: { [key: number]: Level } = null;
     private _level: Level = null;
-    //===userdata===
-    private _gold: number;
-    private _curLevelId: number;
-    private _props: {id:PropID,count:number}[];
-    //===end===
 
-    public loadUserData() {
-        // 从local读取用户数据，目前用写死的数据
-        this._gold = 1000;
-        this._curLevelId = this.firstLevelId;
-        this._props = [
-            {id:PropID.PropAdd,count:3},
-            {id:PropID.PropJoker,count:3},
-            {id:PropID.PropUndo,count:3}
-        ];
-    }
     public get firstLevelId() {
         return this.levelList[0].id;
     }
-    public get gold() {
-        return this._gold;
-    }
-    
-    public addGold(gold: number) {
-        this._gold += gold;
-        EventMgr.emit(EventName.onGoldChange, this._gold);
-    }
-    public costGold(gold: number) {
-        if (this.isEnoughGold(gold)) {
-            this._gold -= gold;
-            EventMgr.emit(EventName.onGoldChange, this._gold);
-            return true;
-        }
-        return false;
-    }
-    public isEnoughGold(gold: number) {
-        return this._gold >= gold;
-    }
-    public getPropCount(propId: PropID) {
-        return this._props.find(e=>e.id==propId)?.count || 0;
-    }
-    public useProp(propId: PropID) {
-        const prop = this._props.find(e=>e.id==propId);
-        if (prop?.count > 0) {
-            prop.count--;
-            EventMgr.emit(EventName.onPropChange, propId, prop.count);
-            return true;
-        }
-        return false;
-    }
-    public addProp(id: PropID, count: number) {
-        const prop = this._props.find(e=>e.id==id);
-        if (prop) {
-            prop.count += count;
-        } else {
-            this._props.push({id,count});
-        }
-        EventMgr.emit(EventName.onPropChange, id, prop.count);
-    }
-    public get curLevelId() { return this._curLevelId; }
-    public nextLevel() {
-        const level = this.levelList.find(e=>e.id>this._curLevelId);
-        if (level) {
-            this._curLevelId = level.id;
-        }
+    public getNextLevel(curLevelId: number) {
+        const level = this.levelList.find(e=>e.id>curLevelId);
+        return level;
     }
     
     public loadAllLevelData() {
@@ -123,7 +63,7 @@ class GameData {
         });
     }
 
-    public getLevel(levelId = this._curLevelId): Level {
+    public getLevel(levelId: number): Level {
         return JSON.parse(JSON.stringify(this.levelMap[levelId]));
     }
 

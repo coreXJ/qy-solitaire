@@ -1,19 +1,15 @@
-import { _decorator, Component, Node } from 'cc';
+import { _decorator, Component } from 'cc';
 import { ResMgr } from '../manager/ResMgr';
 import { UIMgr } from '../manager/UIMgr';
 import { GameConfig, UIConfig, UIID } from '../data/GameConfig';
 import { Prefab } from 'cc';
-import { instantiate } from 'cc';
-import { director } from 'cc';
 import ConfigMgr from '../manager/ConfigMgr';
 import HotUpdateMgr from '../manager/HotUpdateMgr';
-import { v3 } from 'cc';
-import AudioMgr from '../manager/AudioMgr';
-// import { ELoadingType } from './UILoading/UILoading';
 import { game } from 'cc';
 import { Game } from 'cc';
 import GameLoader from './GameLoader';
-import GameData from '../data/GameData';
+import GameData from './GameData';
+import UserModel from '../data/UserModel';
 const { ccclass, property } = _decorator;
 
 @ccclass('Launch')
@@ -64,7 +60,7 @@ export class Launch extends Component {
             // this.initGameRoot(),
             this.initUIMask()
         ]).then(()=>{
-            GameData.loadUserData()
+            UserModel.loadUserData()
         }).then(this.enterApp.bind(this));
     }
   

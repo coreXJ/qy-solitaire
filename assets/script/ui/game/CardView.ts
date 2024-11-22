@@ -119,4 +119,9 @@ export default class CardView extends Component {
         this.node.position = pos;
         this.data.tPos = v3(pos);
     }
+
+    public setAngle(angle: number) {
+        this.node.angle = angle;
+        this.data.tAngle = angle;
+    }
 }

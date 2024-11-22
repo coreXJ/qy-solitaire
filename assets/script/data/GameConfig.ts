@@ -13,11 +13,6 @@ export const CardValues = [
     CardJoker,//赖子牌
 ];
 
-export enum PropID {
-    PropJoker = 1,
-    PropAdd = 2,
-    PropUndo = 3,
-}
 
 //音效类型
 export enum playAudioType {

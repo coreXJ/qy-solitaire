@@ -1,0 +1,70 @@
+syntax = "proto3";
+package GPBClass.Message;
+
+//消息ID枚举
+enum MsgId {
+  NULL = 0; //占位
+  CHECK_VERSION = 1; //检查版本更新
+  LOGIN = 2; //用户登录
+  SAVE_DATA = 3; //保存用户数据
+  SYNC_DATA = 4; //同步用户数据
+  EVENT_REPORT = 5; //用户事件上报
+}
+
+//用户平台枚举
+enum Platform {
+  GUEST = 0;  //游客
+  GOOGLE = 1; //谷歌
+  FACEBOOK = 2; //facebook
+  APPLE = 3; //苹果
+  WECHAT = 4; //微信
+}
+
+//登陆消息接口
+message CSLogin {
+  string openId = 1; //openid
+  int32 platform = 2; //账号平台
+  string token = 3; //验证token
+  string version = 4; //客户端版本
+}
+message SCLogin {
+  int32 uid = 1; //用户UID
+  string openId = 2; //用户平台标识
+  string sessionId = 3; //sessionId
+  int64 regTime = 4; //注册时间戳(秒)
+  int32 loginType = 5; //登录类型 0-普通登录 1-新注册 2-今日首次登录
+}
+
+//保存数据接口
+message CSSaveData {
+  repeated UserData userData = 1; //用户数据
+}
+message SCSaveData {
+
+}
+
+//同步数据接口
+message CSSyncData {
+
+}
+message SCSyncData {
+  repeated UserData userData = 1; //用户数据
+}
+
+//事件上报接口
+message CSEventReport {
+  string event = 1; //事件名称
+  string data = 2; //事件属性数据(json格式)
+  string afid = 3; //归因平台UID(adjustId)
+  string version = 4; //客户端版本
+}
+message SCEventReport {
+
+}
+
+//用户数据结构
+message UserData {
+  string dataType = 1; //数据类型 1-UserBaseData 2-xxx
+  string seriType = 2; //序列化类型(json/proto/自定义) 1-json 2-proto
+  string content = 3; //数据内容(序列化后的)
+}

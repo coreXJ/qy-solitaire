@@ -389,4 +389,10 @@ export namespace XUtils{
     export function numToFixed(num: number, fractionDigits = 2) {
         return parseFloat(num.toFixed(fractionDigits));
     }
+    export function getRandomInt(start: number, end: number) {
+        if (end <= start) {
+            return start;
+        }
+        return Math.floor(Math.random() * (end - start + 1)) + start;
+    }
 }

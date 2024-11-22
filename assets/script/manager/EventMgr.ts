@@ -12,6 +12,7 @@ export const EventName = {
     onGoldChange: "onGoldChange",
     // 玩家道具数量改变
     onPropChange: "onPropChange",
+    onBoosterChange: "onBoosterChange",
 }
 
 @ccclass('EventMgr')
