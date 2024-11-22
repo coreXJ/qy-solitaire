@@ -4,7 +4,13 @@
   "creator": {
     "version": "3.8.4"
   },
+  "scripts": {
+    "build-proto": "pbjs --dependency protobufjs/minimal.js --target static-module --wrap commonjs --out ./assets/script/net/protobuf/Data.js ./assets/script/net/protobuf/*.proto && pbts --main --out ./assets/script/net/protobuf/Data.d.ts ./assets/script/net/protobuf/Data.js",
+    "build-proto:pbjs": "pbjs --dependency protobufjs/minimal.js --target static-module --wrap commonjs --out ./assets/script/net/protobuf/Data.js ./assets/script/net/protobuf/*.proto",
+    "build-proto:pbts": "pbts --main --out ./assets/script/net/protobuf/Data.d.ts ./assets/script/net/protobuf/Data.js"
+  },
   "dependencies": {
-    "protobufjs": "^7.4.0"
+    "protobufjs": "^7.4.0",
+    "protobufjs-cli": "^1.1.3"
   }
 }

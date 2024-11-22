@@ -2,9 +2,14 @@
  * fetch简单封装
  */
 
+import { HttpMsgID } from "../data/GameConfig";
+
 class MyFetch {
-    private static baseUrl: string = 'https://jsonplaceholder.typicode.com';
-  
+    private static baseUrl: string = 'http://solitaire.test.woohooslots.com:8080/';
+    private static sessionId: string = '';
+    public static setSessionId(sessionId: string) {
+        this.sessionId = sessionId;
+    }
     private static async handleResponse(response: Response): Promise<any> {
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -21,28 +26,34 @@ class MyFetch {
         return this.handleResponse(response);
     }
   
-    public static async post<T>(endpoint: string, body: Record<string, any>): Promise<T> {
-        const response = await fetch(this.baseUrl + endpoint, {
+    // public static async post<T>(endpoint: string, body: Record<string, any>): Promise<T> {
+    //     const response = await fetch(this.baseUrl + endpoint, {
+    //         method: 'POST',
+    //         headers: {
+    //         'Content-Type': 'application/json'
+    //         },
+    //         body: JSON.stringify(body)
+    //     });
+    //     return this.handleResponse(response);
+    // }
+    public static async post<T>(MSG_ID: HttpMsgID, data: any): Promise<T> {
+        const body: Record<string, any> = {
+            c: MSG_ID, // 消息ID[MSG_ID]
+            k: JSON.stringify(data), // API参数序列化字符串(pbuf需要转base64)
+            s: this.sessionId, // SessionId 登录后有
+            f: 'json', // 消息格式[json|pbuf]
+        }
+        const formData = new URLSearchParams(body);
+        const response = await fetch(this.baseUrl, {
             method: 'POST',
             headers: {
-            'Content-Type': 'application/json'
+                'Content-Type': 'application/x-www-form-urlencoded'
             },
-            body: JSON.stringify(body)
+            body: formData.toString()
         });
+
         return this.handleResponse(response);
     }
   }
   
   export default MyFetch;
-  
-  // MyFetch.get('/posts/1').then(res => {
-  //     console.log('fetch get',res);
-  // }).catch(e => {
-  //     console.log('fetch get error',e);
-  // });
-  
-  // MyFetch.post('/posts', {title: 'foo', body: 'bar', userId: 1}).then(res => {
-  //     console.log('fetch post',res);
-  // }).catch(e => {
-  //     console.log('fetch post error',e);
-  // });

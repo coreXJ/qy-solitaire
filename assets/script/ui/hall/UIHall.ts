@@ -1,7 +1,7 @@
 import { _decorator, Node, Label, instantiate } from "cc";
 import { isFullScreen, UIView } from "../../base/UIView";
 import { UIMgr } from "../../manager/UIMgr";
-import { UIID } from "../../data/GameConfig";
+import { LoginTypeID, UIID } from "../../data/GameConfig";
 import GameData from "../../game/GameData";
 import { XUtils } from "../../comm/XUtils";
 import { BoosterID, Level } from "../../data/GameObjects";
@@ -35,6 +35,18 @@ export default class UIHall extends UIView {
         EventMgr[func](EventName.onBoosterChange, this.updateBooster, this);
     }
     public onOpen(fromUI: number, ...args: any): void {
+        // ProtoCodec.test();
+        
+        // HttpApi.login({
+        //     openId: 123,
+        //     platform: LoginTypeID.Guest,
+        //     token: '',
+        //     version: 0
+        // }).then(res=>{
+        //     console.log('### HttpApi.login res:',res);
+        // }).catch(err=>{
+        //     console.log('### HttpApi.login err:',err);
+        // });
     }
     protected onEnable(): void {
         console.log('UIHall onEnable');

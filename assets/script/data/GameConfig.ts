@@ -32,21 +32,16 @@ export enum ItemType {
 }
 
 //HTTP消息ID
-export enum HttpMessageID {
-    fetchVersion = "/api/basic/fetchVersion",            //获取更新配置
-    login = "/api/basic/login",                          //登录
-    eventlog = "/api/basic/eventlog",                    //游戏打点
-    eventGameLog = "/api/basic/eventGameLog",                    //游戏log上报
+export enum HttpMsgID {
+    login = 2,
 }
 
 export enum LoginTypeID {
     Guest = 0,
-    Phone,
-    FaceBook,
-    Google,
-    Apple,
-    Auto = 10,
-    Internal = 11,
+    GOOGLE,
+    FACEBOOK,
+    APPLE,
+    WECHAT,
 }
 
 export enum EStoreType{

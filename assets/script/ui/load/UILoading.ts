@@ -4,6 +4,7 @@ import { UIView } from '../../base/UIView';
 import LocalMgr from '../../manager/LocalMgr';
 import { UIMgr } from '../../manager/UIMgr';
 import { IPreload, PreLoadRes } from './PreLoadRes';
+import HttpApi from '../../net/HttpApi';
 const { ccclass, property } = _decorator;
 
 export enum ELoadingType{
@@ -122,8 +123,9 @@ export class UILoading extends UIView implements IPreload {
     }
     //自动登录判断保存的token是否为非游客
     private checkAutoLogin() {
+        return true; // 目前只有游客自动登录
         const loginType: LoginTypeID = LocalMgr.instance.getNumber('login_type', 0);
-        if (loginType != LoginTypeID.Guest && loginType != LoginTypeID.Internal) {
+        if (loginType != LoginTypeID.Guest) {
             let token = LocalMgr.instance.getString('token', '');
             let uid = LocalMgr.instance.getNumber('uid', 0);
             if (token && uid) {
