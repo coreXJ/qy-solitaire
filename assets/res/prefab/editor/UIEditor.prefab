@@ -8307,8 +8307,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 331.15234375,
-      "height": 195.6
+      "width": 276.708984375,
+      "height": 210.39999999999998
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -8343,13 +8343,13 @@
       "b": 255,
       "a": 255
     },
-    "_string": "Ctrl+A = 全选\nCtrl+鼠标键 = 复选\nDel =  删除",
+    "_string": "Ctrl+A = 全选\nCtrl+鼠标键 = 复选\nDel =  删除\nCtrl+C/V = 复制/粘贴\nCtrl+D = 镜像复制",
     "_horizontalAlign": 0,
     "_verticalAlign": 1,
-    "_actualFontSize": 40,
-    "_fontSize": 40,
+    "_actualFontSize": 30,
+    "_fontSize": 30,
     "_fontFamily": "Arial",
-    "_lineHeight": 60,
+    "_lineHeight": 40,
     "_overflow": 0,
     "_enableWrapText": true,
     "_font": null,

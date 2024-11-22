@@ -36,7 +36,7 @@ class MyFetch {
     //     });
     //     return this.handleResponse(response);
     // }
-    public static async post<T>(MSG_ID: HttpMsgID, data: any): Promise<T> {
+    public static async post<T>(MSG_ID: HttpMsgID, data: any): Promise<IResp<T>> {
         const body: Record<string, any> = {
             c: MSG_ID, // 消息ID[MSG_ID]
             k: JSON.stringify(data), // API参数序列化字符串(pbuf需要转base64)
@@ -57,3 +57,10 @@ class MyFetch {
   }
   
   export default MyFetch;
+
+
+  export interface IResp<T> {
+    code: number;
+    data: T;
+    msg: string;
+}

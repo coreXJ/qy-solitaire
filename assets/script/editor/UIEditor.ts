@@ -124,22 +124,44 @@ export default class UIEditor extends UIView {
 
     private onKeyDown(event: EventKeyboard) {
         console.log('onKeyDown', event);
-        if (event.keyCode == KeyCode.DELETE) {
+        const keyCode = event.keyCode;
+        if (keyCode == KeyCode.DELETE) {
             this.table.removeSelCards();
-        } else if (event.keyCode == KeyCode.CTRL_LEFT ||
-            event.keyCode == KeyCode.CTRL_RIGHT
+        } else if (keyCode == KeyCode.CTRL_LEFT ||
+            keyCode == KeyCode.CTRL_RIGHT
         ) {
-            this.table.isMultipleMode = true;
-        } else if (event.keyCode == KeyCode.KEY_A) {
-            if (this.table.isMultipleMode) {
+            this.table.isKeyCtrl = true;
+        } else if (keyCode == KeyCode.KEY_A) {
+            if (this.table.isKeyCtrl) {
                 this.table.selectAll();
+            }
+        } else if (keyCode == KeyCode.ALT_LEFT ||
+            keyCode == KeyCode.ALT_RIGHT
+        ) {
+            this.table.isKeyAlt = true;
+        } else if (keyCode == KeyCode.KEY_C) {
+            if (this.table.isKeyCtrl) {
+                this.table.ctrlC();
+            }
+        } else if (keyCode == KeyCode.KEY_V) {
+            if (this.table.isKeyCtrl) {
+                this.table.ctrlV();
+            }
+        } else if (keyCode == KeyCode.KEY_D) {
+            if (this.table.isKeyCtrl) {
+                this.table.ctrlD();
             }
         }
     }
     private onKeyUp(event: EventKeyboard) {
-        if (event.keyCode == KeyCode.CTRL_LEFT ||
-            event.keyCode == KeyCode.CTRL_RIGHT) {
-                this.table.isMultipleMode = false;
+        const keyCode = event.keyCode;
+        if (keyCode == KeyCode.CTRL_LEFT ||
+            keyCode == KeyCode.CTRL_RIGHT) {
+                this.table.isKeyCtrl = false;
+        } else if (keyCode == KeyCode.ALT_LEFT ||
+            keyCode == KeyCode.ALT_RIGHT
+        ) {
+            this.table.isKeyAlt = false;
         }
     }
     private onClickClear() {

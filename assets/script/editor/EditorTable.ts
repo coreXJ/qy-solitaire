@@ -31,7 +31,9 @@ export class EditorTable extends Component implements IEditorLayersListener {
     // 当前显示的层
     private visibleLayers: number[] = [];
     // 是否按下ctrl多选
-    public isMultipleMode = false;
+    public isKeyCtrl = false;
+    // 按下alt复制
+    public isKeyAlt = false
     /**是否对齐网格 */
     public isAlignMesh = false;
     /**操作类型 0移动 1旋转 */
@@ -64,7 +66,7 @@ export class EditorTable extends Component implements IEditorLayersListener {
         }
         return true;
     }
-    public onNewCardDown(pos: Vec3) {
+    public onNewCardDown(pos: Vec3, bSel = true) {
         pos = pos.subtract(this.node.worldPosition);
         if (!this.isPosInMesh(pos)) {
             return;
@@ -73,14 +75,14 @@ export class EditorTable extends Component implements IEditorLayersListener {
         const cardView = ndCard.getComponent(CardView);
         ndCard.parent = this.ndRoot;
         console.log('pos1',pos);
-        if (this.isAlignMesh) {
-            
-        }
         pos = this.pos2meshPos(pos, this.isAlignMesh);
         cardView.setPos(pos);
         this.setupCard(cardView);
         cardView.isEditor = true;
-        this.setSelCards([cardView]);
+        if (bSel) {
+            this.setSelCards([cardView]);
+        }
+        return cardView;
     }
     private setupCard(cardView: CardView) {
         // 当setup的牌下面没有其它牌时，layer为1
@@ -249,7 +251,7 @@ export class EditorTable extends Component implements IEditorLayersListener {
     private onTouchStart(e: EventTouch) {
         console.log('onTouchStart');
         const pos = e.getUILocation();
-        if (this.isMultipleMode) {
+        if (this.isKeyCtrl) {
             // 选中/取消选中 当前pos的card
             const targetCard = this.getTargetCard(pos);
             if (targetCard) {
@@ -282,6 +284,70 @@ export class EditorTable extends Component implements IEditorLayersListener {
             }
         }
         this.isTouchClick = true;
+    }
+    private _copyCardsStr = '';
+    // 复制选中
+    public ctrlC() {
+        if (this.selCards.length == 0) {
+            this._copyCardsStr = '';
+            return;
+        }
+        const datas = this.selCards.map(e=>e.data);
+        datas.sort((a,b)=>a.tLayer - b.tLayer);
+        const str = JSON.stringify(datas);
+        this._copyCardsStr = str;
+    }
+    public ctrlV() {
+        if (!this._copyCardsStr) {
+            return;
+        }
+        const oriCards:Card[] = JSON.parse(this._copyCardsStr);
+        let newCards: CardView[] = [];
+        for (const e of oriCards) {
+            const card:Card = JSON.parse(JSON.stringify(e));
+            // 往右下角移动10
+            card.tPos.x += 10;
+            card.tPos.y -= 10;
+            // 要判断是否超出，超出就用最大值
+            const ndCard = GameLoader.addCard();
+            const cardView = ndCard.getComponent(CardView);
+            cardView.data = card;
+            ndCard.parent = this.ndRoot;
+            cardView.setPos(v3(card.tPos));
+            cardView.setAngle(card.tAngle);
+            cardView.isEditor = true;
+            cardView.updateView();
+            newCards.push(cardView);
+            this.cardViews.push(cardView);
+        }
+        this.refreshOverlap();
+        this.setSelCards(newCards);
+        this.ctrlC();
+    }
+    public ctrlD() { // 镜像复制
+        const datas = this.selCards.map(e=>e.data);
+        datas.sort((a,b)=>a.tLayer - b.tLayer);
+        const oriCards:Card[] = JSON.parse(JSON.stringify(datas));
+        let newCards: CardView[] = [];
+        for (const e of oriCards) {
+            const card:Card = JSON.parse(JSON.stringify(e));
+            // 往右下角移动10
+            card.tPos.x = -card.tPos.x;
+            card.tAngle = -card.tAngle;
+            const ndCard = GameLoader.addCard();
+            const cardView = ndCard.getComponent(CardView);
+            cardView.data = card;
+            ndCard.parent = this.ndRoot;
+            cardView.setPos(v3(card.tPos));
+            cardView.setAngle(card.tAngle);
+            cardView.isEditor = true;
+            cardView.updateView();
+            newCards.push(cardView);
+            this.cardViews.push(cardView);
+        }
+        this.refreshOverlap();
+        this.setSelCards(newCards);
+
     }
     private onTouchMove(e: EventTouch) {
         if (this.touchStartPos) {

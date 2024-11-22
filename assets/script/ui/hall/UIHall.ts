@@ -35,18 +35,6 @@ export default class UIHall extends UIView {
         EventMgr[func](EventName.onBoosterChange, this.updateBooster, this);
     }
     public onOpen(fromUI: number, ...args: any): void {
-        // ProtoCodec.test();
-        
-        // HttpApi.login({
-        //     openId: 123,
-        //     platform: LoginTypeID.Guest,
-        //     token: '',
-        //     version: 0
-        // }).then(res=>{
-        //     console.log('### HttpApi.login res:',res);
-        // }).catch(err=>{
-        //     console.log('### HttpApi.login err:',err);
-        // });
     }
     protected onEnable(): void {
         console.log('UIHall onEnable');

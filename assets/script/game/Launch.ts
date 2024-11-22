@@ -10,6 +10,7 @@ import { Game } from 'cc';
 import GameLoader from './GameLoader';
 import GameData from './GameData';
 import UserModel from '../data/UserModel';
+import UserCtrl from '../data/UserCtrl';
 const { ccclass, property } = _decorator;
 
 @ccclass('Launch')
@@ -36,6 +37,7 @@ export class Launch extends Component {
         this.initGame();
         // //播放背景音乐
         // AudioMgr.instance.playHallBgm();
+        UserCtrl.login();
     }
 
 
