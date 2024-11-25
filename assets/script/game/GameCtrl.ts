@@ -76,8 +76,23 @@ class GameCtrl {
             this.level.tableCards[i].value = card;
         }
         this.newTask();
-        this.view.startGame(this.level,[],this.usedBoosters);
+        const awardCards = this.getWinAwardCardValues();
+        this.view.startGame(this.level,awardCards,this.usedBoosters);
         this.actions = [];
+    }
+
+    private getWinAwardCardValues() {
+        //读配置 通过UserModel.winTimes 生成对应的奖励牌
+        const times = UserModel.winTimes;
+        let values: number[] = [];
+        if (times == 1) {
+            values = [0];
+        } else if (times == 2) {
+            values = [0,0,0,];
+        } else if (times >= 3) {
+            values = [0,0,0,0,CardJoker];
+        }
+        return values;
     }
 
     public getFirstCardValue() {
@@ -99,36 +114,41 @@ class GameCtrl {
             action.taskColors = [...this.taskColors];
             this.view.linkTableCard(cardView);
             // addTaskColor，并更新top，如果满了，bFinished=true
-            const finishType = this.addTaskColor(value0);
-            if (finishType > 0) {
-                // 通过下面2个值，确定奖励和数量，目前写死奖一张牌。
-                // this.task.awardType
-                // this.task.awardNum
-                let cardValue = 0;
-                if (this.task.awardType == TaskAwardType.card) {
-                    cardValue = 0
-                } else if (this.task.awardType == TaskAwardType.gold) {
-                    // 目前没这种奖励
-                    action.taskAwardGold = 0;//读配置
-                } else if (this.task.awardType == TaskAwardType.joker) {
+            if (value0 <= 0x3f) {
+                const finishType = this.addTaskColor(value0);
+                if (finishType > 0) {
+                    // 通过下面2个值，确定奖励和数量，目前写死奖一张牌。
+                    // this.task.awardType
+                    // this.task.awardNum
+                    let cardValue = 0;
+                    if (this.task.awardType == TaskAwardType.card) {
+                        cardValue = 0
+                    } else if (this.task.awardType == TaskAwardType.gold) {
+                        // 目前没这种奖励
+                        action.taskAwardGold = 0;//读配置
+                    } else if (this.task.awardType == TaskAwardType.joker) {
+                        cardValue = CardJoker;
+                    }
                     cardValue = CardJoker;
+                    // 通过poolCard的数量 生成idx
+                    const idxs = GameLogic.randomInsertPoolCardIdxs(this.view.hand.poolCardCount, finishType);
+                    
+                    const cardValues = finishType == 2 ? [cardValue,cardValue] : [cardValue];
+                    this.view.hand.insertTaskAwardCard(cardValues,idxs);
+                    action.taskAwardPoolCardIdxs = [...idxs];
+                    this.newTask();
                 }
-                cardValue = CardJoker;
-                // 通过poolCard的数量 生成idx
-                const idxs = GameLogic.randomInsertPoolCardIdxs(this.view.hand.poolCardCount, finishType);
-                
-                const cardValues = finishType == 2 ? [cardValue,cardValue] : [cardValue];
-                this.view.hand.insertTaskAwardCard(cardValues,idxs);
-                action.taskAwardPoolCardIdxs = [...idxs];
-                this.newTask();
+                this.onTaskChange();
             }
-            this.onTaskChange();
-            if (this.view.table.getCardCount() == 0) {
-                // win
-                this.onGameEnd(true);
-            } else {
-                this.actions.push(action);
-            }
+            this.actions.push(action);
+            this.checkTableCardCount();
+        }
+    }
+
+    public checkTableCardCount() {
+        if (this.view.table.getCardCount() == 0) {
+            // win
+            this.onGameEnd(true);
         }
     }
 
@@ -253,7 +273,13 @@ class GameCtrl {
             this.taskColors = action.taskColors;
             this.onTaskChange();
             if (action.type == GameActionType.linkTable) {
-                this.view.undoLinkTable(action.taskAwardPoolCardIdxs);
+                const targetCard = action.targetCard;
+                console.log('undo targetCard',targetCard);
+                this.view.undoLinkTable(action.taskAwardPoolCardIdxs).then(() => {
+                    if (targetCard?.value == CardJoker) {
+                        this.onUseProp(PropID.PropUndo, 0);
+                    }
+                });
             } else if (action.type == GameActionType.drawPool) {
                 if (action.targetCard?.value == CardBlow) {
                     this.view.undoDrawBlowCard(action.blowCards);

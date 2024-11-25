@@ -19,6 +19,7 @@ class UserModel {
         // 从local读取用户数据，目前用写死的数据
         this._gold = 1000;
         this._curLevelId = GameData.firstLevelId;
+        this._winTimes = 0;
         this._props = [
             {id:PropID.PropAdd,count:3},
             {id:PropID.PropJoker,count:3},

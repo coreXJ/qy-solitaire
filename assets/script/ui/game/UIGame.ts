@@ -137,6 +137,11 @@ export default class UIGame extends UIView {
                 this.hand.undoTaskAwardCards(idxs);
             }
         }
+        return new Promise<void>(resolve => {
+            this.scheduleOnce(()=>{
+                resolve();
+            }, 0.3);
+        });
     }
 
     public onClose() {

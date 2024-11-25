@@ -51,7 +51,11 @@ export default class ViewTable extends Component {
     
     public undoCard(cardView: CardView) {
         cardView.node.parent = this.node;
-        tween(cardView.node).to(0.3, { position: cardView.data.tPos },{ easing: 'quadOut' })
+        cardView.data.type = CardType.table;
+        tween(cardView.node).to(0.3, {
+            position: cardView.data.tPos,
+            angle: cardView.data.tAngle
+        },{ easing: 'quadOut' })
             .call(()=>{
                 this.setupCard(cardView);
                 this.updateCards();
@@ -101,7 +105,7 @@ export default class ViewTable extends Component {
             if (e.cardValue == CardJoker && e.overlap == 0) {
                 this.view.blockingTouch(0.3);
                 this.scheduleOnce(()=>{
-                    this.view.linkTableCard(e);
+                    GameCtrl.linkTable(e);
                 }, 0.2);
                 return;
             }
@@ -136,7 +140,7 @@ export default class ViewTable extends Component {
         for (const e of this.cardViews) {
             if (cardView != e) {
                 const bIntersects = GameGeometry.doCardsIntersect(cardView.data, e.data);
-                if (bIntersects && e.data.tIdx > cardView.data.tIdx) {
+                if (bIntersects && e.data.tLayer > cardView.data.tLayer) {
                     overCards.push(e);
                 }
             }
@@ -199,6 +203,10 @@ export default class ViewTable extends Component {
                     }).start();
             }
         }
+        this.scheduleOnce(()=>{
+            GameCtrl.checkTableCardCount();
+            this.checkTopJoker();
+        }, 0.3);
     }
     public undoBlowCards(blowCards: Card[]) {
         for (const e of blowCards) {
@@ -240,7 +248,6 @@ export default class ViewTable extends Component {
             const nd = GameLoader.addCard(this.node);
             const cardView = nd.getComponent(CardView);
             cardView.cardValue = CardJoker;
-            nd.setPosition(v3(startX + i * offsetX, 300));
             cardView.data.type = CardType.table;
             cardView.setAngle(0);
             const idx = XUtils.getRandomInt(0, allPairs.length-1);
@@ -253,15 +260,24 @@ export default class ViewTable extends Component {
             const angle = (e0.data.tAngle + e1.data.tAngle) / 2;
             const card = cardView.data;
             card.tIdx = (e0.data.tIdx + e1.data.tIdx) / 2;
+            console.log('e0.data.tIdx',e0.data.tIdx);
+            console.log('e1.data.tIdx',e1.data.tIdx);
+            console.log('card.tIdx',card.tIdx);
             card.tLayer = (e0.data.tLayer + e1.data.tLayer) / 2;
             // cardView.cardValue = CardJoker;
+            cardView.setPos(pos);
+            cardView.setAngle(angle);
+            cardView.data.type = CardType.none;
+            this.setupInsertJokerCard(cardView);
+            const startPos = v3(startX + i * offsetX, 300);
             tween(nd)
+                .set({ position : startPos,angle: 0 })
                 .delay(0.5)
-                .call(()=>{
-                    this.setupInsertJokerCard(cardView);
-                })
                 .to(0.5, { position : pos,angle },{ easing: 'quadOut' })
-                .start();
+                .call(()=>{
+                    cardView.data.type = CardType.table;
+                    cardView.updateView();
+                }).start();
         }
     }
     public removeCard(cardView: CardView) {

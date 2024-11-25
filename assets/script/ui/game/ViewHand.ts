@@ -83,6 +83,10 @@ export default class ViewHand extends Component {
         });
     }
     public insertWinPoolCards(cardValues: number[],idxs: number[]) {
+        const count = cardValues.length;
+        const y = 300;
+        const offsetX = 50;
+        const startX = -(count - 1) / 2 * offsetX;
         for (let i = 0; i < cardValues.length; i++) {
             const value = cardValues[i];
             const nd = GameLoader.addCard();
@@ -91,7 +95,8 @@ export default class ViewHand extends Component {
             cardView.cardValue = value;
             this.poolCards.splice(idxs[i], 0, cardView);
             XUtils.bindClick(nd, this.onClickPoolCard, this, cardView);
-            const pos = this.view.top.getTaskCardWorldPosition();
+            const pos = this.node.getWorldPosition();
+            pos.add(v3(startX + i * offsetX, y, 0));
             cardView.node.worldPosition = pos;
             tween(nd).set({scale: v3(0.2,0.2,1)})
                 .to(0.3,{scale: v3(1,1,1)},{easing:'backOut'}).start();

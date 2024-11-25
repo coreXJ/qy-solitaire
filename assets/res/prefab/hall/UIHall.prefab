@@ -2208,7 +2208,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "mspCard",
+    "_name": "mspWinAwards",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
@@ -3196,6 +3196,8 @@
       "__id__": 0
     },
     "fileId": "61ff3kDX9BoYZo8+uu1Nk8",
+    "instance": null,
+    "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
   },
   {
@@ -3280,6 +3282,8 @@
       "__id__": 0
     },
     "fileId": "08mmWI0wpCo7/ysPpAOv4N",
+    "instance": null,
+    "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
   },
   {
@@ -3369,6 +3373,9 @@
     },
     "ndBoosters": {
       "__id__": 61
+    },
+    "mspWinAwards": {
+      "__id__": 95
     },
     "_id": ""
   },

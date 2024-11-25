@@ -9,6 +9,7 @@ import UserModel from "../../data/UserModel";
 import BoosterView from "./BoosterView";
 import { EventMgr, EventName } from "../../manager/EventMgr";
 import GameCtrl from "../../game/GameCtrl";
+import { MySprite } from "../../components/MySprite";
 const { ccclass, property } = _decorator;
 
 @ccclass('UIHall')
@@ -20,6 +21,8 @@ export default class UIHall extends UIView {
     @property(Node)
     private ndBoosters: Node = null;
 
+    @property(MySprite)
+    private mspWinAwards: MySprite = null;
     
     private level: Level;
     // public init(...args: any): void {
@@ -45,6 +48,7 @@ export default class UIHall extends UIView {
         this.compBoosters.forEach(e => {
             e.isChecked = false;
         });
+        this.fullBtnStart();
     }
     protected onDisable(): void {
         this.listenEvent(false);
@@ -91,4 +95,8 @@ export default class UIHall extends UIView {
         }
     }
     //-------------end-------------
+    private fullBtnStart() {
+        // console.log('fullBtnStart',UserModel.winTimes);
+        this.mspWinAwards.spriteFrameIdx = UserModel.winTimes - 1;
+    }
 }
