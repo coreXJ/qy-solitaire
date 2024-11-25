@@ -1,4 +1,4 @@
-import { _decorator, Node, Label, instantiate } from "cc";
+import { _decorator, Node, Label, instantiate, Sprite } from "cc";
 import { isFullScreen, UIView } from "../../base/UIView";
 import { UIMgr } from "../../manager/UIMgr";
 import { LoginTypeID, UIID } from "../../data/GameConfig";
@@ -23,6 +23,9 @@ export default class UIHall extends UIView {
 
     @property(MySprite)
     private mspWinAwards: MySprite = null;
+
+    @property(Label)
+    private lbGold: Label = null;
     
     private level: Level;
     // public init(...args: any): void {
@@ -36,6 +39,7 @@ export default class UIHall extends UIView {
     private listenEvent(bool: boolean) {
         const func = bool ? 'on' : 'off';
         EventMgr[func](EventName.onBoosterChange, this.updateBooster, this);
+        EventMgr[func](EventName.onGoldChange,  this.updateGold, this);
     }
     public onOpen(fromUI: number, ...args: any): void {
     }
@@ -49,6 +53,7 @@ export default class UIHall extends UIView {
             e.isChecked = false;
         });
         this.fullBtnStart();
+        this.updateGold();
     }
     protected onDisable(): void {
         this.listenEvent(false);
@@ -98,5 +103,11 @@ export default class UIHall extends UIView {
     private fullBtnStart() {
         // console.log('fullBtnStart',UserModel.winTimes);
         this.mspWinAwards.spriteFrameIdx = UserModel.winTimes - 1;
+        const spWinTimes = this.btnStart.getChildByName('winbar').getComponent(Sprite);
+        spWinTimes.fillRange = UserModel.winTimes / 3;
+    }
+    private updateGold() {
+        // this.view.top.setGold(UserModel.gold);
+        this.lbGold.string = XUtils.formatGold(UserModel.gold);
     }
 }

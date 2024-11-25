@@ -2,6 +2,7 @@ import { _decorator, Component, Label, Node, UITransform, v3 } from "cc";
 import { MySprite } from "../../components/MySprite";
 import { Task, TaskColor } from "../../data/GameObjects";
 import GameCtrl from "../../game/GameCtrl";
+import { XUtils } from "../../comm/XUtils";
 const { ccclass, property } = _decorator;
 
 @ccclass('ViewTop')
@@ -70,7 +71,7 @@ export default class ViewTop extends Component {
 
     public setGold(gold: number) {
         // 刷新金币
-        this.lbGold.string = gold.toString();
+        this.lbGold.string = XUtils.formatGold(gold);
     }
 
     public getTaskCardWorldPosition() {

@@ -239,7 +239,9 @@ export namespace XUtils{
             return rep[number] || match;
         });
     }
-
+    export function formatGold(gold: number) {
+        return gold.toLocaleString();
+    }
     export function formatMoney(cash: number, symbol = false): string {
         let regex = /(?!^)(?=(\d{2})+\d{3}$)|(?!^)(?=\d{3}$)/g;
         let strMoney = cash.toString().replace(regex, ',');
