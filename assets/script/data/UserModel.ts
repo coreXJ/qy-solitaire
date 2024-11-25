@@ -8,6 +8,7 @@ import { Booster, BoosterID, PropID } from "./GameObjects";
 class UserModel {
     private _gold: number;
     private _curLevelId: number;
+    private _winTimes: number; // 连胜次数
     private _props: {
         id: PropID,
         count: number
@@ -24,7 +25,7 @@ class UserModel {
             {id:PropID.PropUndo,count:3}
         ];
         this._boosters = [
-            {id:BoosterID.hook,count:3,freetime:Date.now() + 60*1000},
+            {id:BoosterID.hook,count:3,freetime:0},
             {id:BoosterID.blow,count:3,freetime:0},
             {id:BoosterID.joker,count:3,freetime:0},
         ];
@@ -57,6 +58,15 @@ class UserModel {
     }
     public getPropCount(propId: PropID) {
         return this._props.find(e=>e.id==propId)?.count || 0;
+    }
+    public addWinTimes() {
+        this._winTimes++;
+    }
+    public breakWinTimes() {
+        this._winTimes = 0;
+    }
+    public get winTimes() {
+        return this._winTimes;
     }
     public useProp(propId: PropID) {
         const prop = this._props.find(e=>e.id==propId);

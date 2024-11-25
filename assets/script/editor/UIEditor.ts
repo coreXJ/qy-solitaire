@@ -11,6 +11,7 @@ import { EdirotPanelProperty } from "./EditorPanelProperty";
 import { UIMgr } from "../manager/UIMgr";
 import { UIID } from "../data/GameConfig";
 import { EditorPopSave } from "./EditorPopSave";
+import GameCtrl from "../game/GameCtrl";
 
 const { ccclass, property } = _decorator;
 const CardViewPos = v3(-277, -495);
@@ -231,6 +232,10 @@ export default class UIEditor extends UIView {
     private onClickPlay() {
         this.level.tableCards = this.table.getCards();
         const level = JSON.parse(JSON.stringify(this.level));
-        UIMgr.instance.open(UIID.UIGame,{level, isEditor: true});
+        GameCtrl.openGame({
+            level: level,
+            useBoosters: [],
+            isEditor: true
+        });
     }
 }

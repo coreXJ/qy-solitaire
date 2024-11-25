@@ -1,4 +1,6 @@
 import { Node, UITransform } from 'cc';
+import { Card } from '../data/GameObjects';
+import CardView from '../ui/game/CardView';
 // export namespace GameGeometry {
     
 //     function rotatePoint(x: number, y: number, cx: number, cy: number, angle: number): [number, number] {
@@ -150,8 +152,20 @@ export namespace GameGeometry {
             angle: node.angle
         };
     }
+    export function card2rect(card: Card): GameRect {
+        return {
+            x: card.tPos?.x || 0,
+            y: card.tPos?.y || 0,
+            width: CardView.WIDTH,
+            height: CardView.HEIGHT,
+            angle: card.tAngle || 0,
+        }
+    }
     export function doNodesIntersect(node1: Node, node2: Node): boolean {
         return doRectsIntersect(node2rect(node1), node2rect(node2));
+    }
+    export function doCardsIntersect(card1: Card, card2: Card): boolean {
+        return doRectsIntersect(card2rect(card1), card2rect(card2));
     }
     export function isPointInRect(point: [number, number], rect: GameRect): boolean {
         const { x, y, width, height, angle } = rect;

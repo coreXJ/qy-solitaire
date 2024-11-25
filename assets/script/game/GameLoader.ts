@@ -1,4 +1,4 @@
-import { instantiate, isValid, NodePool, Prefab, Sprite, SpriteFrame,Node, v3 } from "cc";
+import { instantiate, isValid, NodePool, Prefab, Sprite, SpriteFrame,Node, v3, Button } from "cc";
 import { ResMgr } from "../manager/ResMgr";
 import CardView from "../ui/game/CardView";
 import { XUtils } from "../comm/XUtils";
@@ -74,6 +74,7 @@ class GameLoader {
                 card.reset();
                 this._cardNodePool.put(cardNode);
             }
+            cardNode.getComponent(Button)?.destroy();
             XUtils.unbindClick(cardNode);
         }
     }

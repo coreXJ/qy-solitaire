@@ -3023,7 +3023,7 @@
         "__id__": 128
       }
     ],
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 134
@@ -3196,8 +3196,6 @@
       "__id__": 0
     },
     "fileId": "61ff3kDX9BoYZo8+uu1Nk8",
-    "instance": null,
-    "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
   },
   {
@@ -3282,8 +3280,6 @@
       "__id__": 0
     },
     "fileId": "08mmWI0wpCo7/ysPpAOv4N",
-    "instance": null,
-    "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
   },
   {

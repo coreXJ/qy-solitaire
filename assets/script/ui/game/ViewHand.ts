@@ -249,6 +249,7 @@ export default class ViewHand extends Component {
             } else {
                 this.addHandCard(cardView, wpos);
             }
+            return cardView.data;
         }
     }
     private playBlowCardEffect(cardView: CardView, wpos: Vec3) {
@@ -269,8 +270,24 @@ export default class ViewHand extends Component {
             },0.4);
         }).start();
     }
-    private undoBlowCardEffect() {
+    public undoDrawPoolBlowCard() {
         // 撤回吹风卡
+        const nd = GameLoader.addCard();
+        nd.parent = this.ndPoolRoot;
+        nd.setPosition(0, -400);
+        const cardView = nd.getComponent(CardView);
+        cardView.cardValue = CardBlow;
+        this.poolCards.push(cardView);
+        XUtils.bindClick(nd, this.onClickPoolCard, this, cardView);
+        cardView.node.worldPosition = this.view.table.node.worldPosition;
+        tween(nd).set({scale: v3(0.2,0.2,1)})
+            .to(0.3,{scale: v3(1.2,1.2,1)},{easing:'backOut'}).start();
+        return new Promise<void>(resolve => {
+            this.scheduleOnce(async ()=>{
+                await this.tweenMovePoolCards();
+                resolve();
+            },0.5);
+        });
     }
     public undoDrawPoolCard() {
         const cardView = this.popHandCard();

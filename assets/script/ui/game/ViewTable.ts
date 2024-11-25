@@ -135,7 +135,7 @@ export default class ViewTable extends Component {
         const overCards:CardView[] = [];
         for (const e of this.cardViews) {
             if (cardView != e) {
-                const bIntersects = GameGeometry.doNodesIntersect(cardView.node, e.node);
+                const bIntersects = GameGeometry.doCardsIntersect(cardView.data, e.data);
                 if (bIntersects && e.data.tIdx > cardView.data.tIdx) {
                     overCards.push(e);
                 }
@@ -177,8 +177,14 @@ export default class ViewTable extends Component {
             });
         }
     }
+    public getTopCardViews() {
+        return this.cardViews.filter(e=>e.overlap==0);
+    }
+    public getTopCards() {
+        return this.cardViews.filter(e=>e.overlap==0).map(e=>e.data);
+    }
     public blowTopCards() {
-        const tops = this.cardViews.filter(e=>e.overlap==0);
+        const tops = this.getTopCardViews();
         if (tops.length == 0) {
             return;
         }
@@ -194,6 +200,29 @@ export default class ViewTable extends Component {
             }
         }
     }
+    public undoBlowCards(blowCards: Card[]) {
+        for (const e of blowCards) {
+            const startPos = v3(e.tPos);
+            startPos.y += 900;
+            const endPos = v3(e.tPos);
+            const ndCard = GameLoader.addCard(this.node);
+            const cardView = ndCard.getComponent(CardView);
+            cardView.data = e;
+            ndCard.position = startPos;
+            ndCard.angle = e.tAngle;
+            cardView.isFront = true;
+            tween(cardView.node).to(0.7, { position: endPos },{ easing: 'quadOut' })
+                .call(()=>{
+                    this.setupCard(cardView);
+                }).start();
+        }
+        return new Promise<void>((resolve)=>{
+            this.scheduleOnce(()=>{
+                this.updateCards();
+                resolve();
+            }, 0.75);
+        });
+    }
     public insertBoosterJoker(count: number) {
         const allPairs: [CardView,CardView][] = [];
         for (const [cardView,unders] of this.underCardsMap) {
@@ -205,7 +234,15 @@ export default class ViewTable extends Component {
             }
         }
         console.log('allPairs',allPairs);
+        const offsetX = CardView.WIDTH + 10;
+        const startX = -(count - 1) / 2 * offsetX;
         for (let i = 0; i < count; i++) {
+            const nd = GameLoader.addCard(this.node);
+            const cardView = nd.getComponent(CardView);
+            cardView.cardValue = CardJoker;
+            nd.setPosition(v3(startX + i * offsetX, 300));
+            cardView.data.type = CardType.table;
+            cardView.setAngle(0);
             const idx = XUtils.getRandomInt(0, allPairs.length-1);
             const pair = allPairs.splice(idx,1)[0];
             const e0 = pair[0];
@@ -214,16 +251,17 @@ export default class ViewTable extends Component {
             const pos1 = v3(e1.data.tPos);
             const pos = pos0.add(pos1).divide(v3(2,2,1));
             const angle = (e0.data.tAngle + e1.data.tAngle) / 2;
-            const nd = GameLoader.addCard(this.node);
-            const cardView = nd.getComponent(CardView);
-            cardView.data.type = CardType.table;
             const card = cardView.data;
             card.tIdx = (e0.data.tIdx + e1.data.tIdx) / 2;
             card.tLayer = (e0.data.tLayer + e1.data.tLayer) / 2;
-            cardView.cardValue = CardJoker;
-            cardView.setPos(pos);
-            cardView.setAngle(angle);
-            this.setupInsertJokerCard(cardView);
+            // cardView.cardValue = CardJoker;
+            tween(nd)
+                .delay(0.5)
+                .call(()=>{
+                    this.setupInsertJokerCard(cardView);
+                })
+                .to(0.5, { position : pos,angle },{ easing: 'quadOut' })
+                .start();
         }
     }
     public removeCard(cardView: CardView) {

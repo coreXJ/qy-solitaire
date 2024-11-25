@@ -1,10 +1,10 @@
-import { _decorator, Node, v3 } from "cc";
+import { _decorator, instantiate, Node, tween, v3 } from "cc";
 import { isFullScreen, UIView } from "../../base/UIView";
 import ViewTable from "./ViewTable";
 import ViewHand from "./ViewHand";
 import GameCtrl from "../../game/GameCtrl";
 import ViewTop from "./ViewTop";
-import { BoosterID, Level } from "../../data/GameObjects";
+import { BoosterID, Card, Level } from "../../data/GameObjects";
 import CardView from "./CardView";
 import GameLogic from "../../game/GameLogic";
 import { CardBlow } from "../../data/GameConfig";
@@ -83,8 +83,22 @@ export default class UIGame extends UIView {
 
     private async playBooster1() {
         console.log('playBooster1');
+        // 展示一下，boosterHook
+        await new Promise((resolve, reject) => {
+            const nd = this.node.getChildByPath('anims/booster1');
+            nd.active = true;
+            nd.scale = v3(0.2,0.2,1);
+            tween(nd).to(0.2, { scale: v3(1.2,1.2,1)})
+                .delay(0.3)
+                .hide()
+                .delay(0.1)
+                .call(()=>{
+                    nd.active = false;
+                    resolve(null);
+                }).start();
+        });
         for (let i = 0; i < 3; i++) {//读配置（次数）
-            await this.table.hookTopCard()
+            await this.table.hookTopCard();
         }
     }
 
@@ -98,7 +112,13 @@ export default class UIGame extends UIView {
         console.log('playBooster3');
         await this.table.insertBoosterJoker(3); //读配置
     }
-
+    public async undoDrawBlowCard(blowCards: Card[]) {
+        // 撤回吹风卡
+        // 1.table把吹走的卡恢复
+        await this.table.undoBlowCards(blowCards);
+        // 2.hand把吹风卡恢复
+        this.hand.undoDrawPoolBlowCard();
+    }
     public linkTableCard(cardView: CardView) {
         const wpos = v3(cardView.node.worldPosition);
         const bSuccess = this.table.removeCard(cardView);

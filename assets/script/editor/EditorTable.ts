@@ -104,6 +104,7 @@ export class EditorTable extends Component implements IEditorLayersListener {
         for (let i = 0; i < this.cardViews.length; i++) {
             const e = this.cardViews[i];
             e.node.setSiblingIndex(i);
+            e.data.tIdx = i;
         }
         console.log('重新排序后', [...this.cardViews]);
     }
@@ -441,7 +442,9 @@ export class EditorTable extends Component implements IEditorLayersListener {
     private getTargetCard(worldPos: Vec2) {
         const pos = v2(worldPos).subtract(this.node.worldPosition.toVec2());
         let targetCard: CardView = null;
-        for (const cardView of this.cardViews) {
+        const len = this.cardViews.length
+        for (let i = len - 1; i >= 0; i--) {
+            const cardView = this.cardViews[i];
             if (this.isCanEditCard(cardView)) {
                 const bool = GameGeometry.isPointInRect([pos.x,pos.y],cardView.getRect());
                 if (bool) {
@@ -449,42 +452,10 @@ export class EditorTable extends Component implements IEditorLayersListener {
                         targetCard = cardView;
                     }
                 }
-                // const rect = cardView.getComponent(UITransform).getBoundingBoxToWorld();
-                // if (rect.contains(pos)) {
-                //     if (!targetCard || targetCard.data.tLayer < cardView.data.tLayer) {
-                //         targetCard = cardView;
-                //     }
-                // }
             }
         }
         return targetCard;
     }
-    // private onMoveCardBefore(cardView: CardView) {
-    //     console.log('onMoveCardBefore',{...cardView.data.tPos});
-    //     // 将压在下面的card overlap--
-    //     const cards = this.findIntersectCardsByCardView(cardView, true);
-    //     console.log('underCards',cards);
-    //     for (const e of cards) {
-    //         // if (e.data.tLayer < cardView.data.tLayer) {
-    //             e.overlap = Math.max(0, e.overlap-1);
-    //             e.updateView();
-    //         // }
-    //     }
-    // }
-    // private onMoveCardAfter(cardView: CardView) {
-    //     // 将压在下面的card overlap++
-    //     cardView.overlap = 0;
-    //     const cards = this.findIntersectCards(cardView.node);
-    //     for (const e of cards) {
-    //         if (e.data.tLayer < cardView.data.tLayer) {
-    //             e.overlap++;
-    //             e.updateView();
-    //         } else if (e.data.tLayer > cardView.data.tLayer) {
-    //             cardView.overlap++;
-    //         }
-    //     }
-    //     cardView.updateView();
-    // }
     private setSelCards(cards: CardView[] = this.selCards) {
         this.selCards = [...cards];
         this.boxs.drawSelCardBoxs(this.selCards);

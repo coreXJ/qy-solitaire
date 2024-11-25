@@ -58,6 +58,7 @@ export class GameAction {
     taskColors: TaskColor[];
     taskAwardGold: number;
     taskAwardPoolCardIdxs: number[];
+    blowCards: Card[];
 }
 export enum GameActionType {
     linkTable,

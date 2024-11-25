@@ -1,4 +1,4 @@
-import { CardJoker, UIID } from "../data/GameConfig";
+import { CardBlow, CardJoker, UIID } from "../data/GameConfig";
 import GameData from "./GameData";
 import { BoosterID, GameAction, GameActionType, Level, PropID, Task, TaskAwardType, TaskColor } from "../data/GameObjects";
 import { EventMgr, EventName } from "../manager/EventMgr";
@@ -141,6 +141,9 @@ class GameCtrl {
         // UIMgr.instance.open(UIID.UIResult,{bWin});
         if (bWin) {
             UserModel.nextLevel();
+            UserModel.addWinTimes();
+        } else {
+            UserModel.breakWinTimes();
         }
     }
     private _guaranteeCount = 0;//摸牌保底计数
@@ -153,7 +156,10 @@ class GameCtrl {
         this.actions.push(action);
         if (handValue > 0) {
             // 如果摸的是效果牌，就直接摸
-            this.view.hand.drawPoolCard();
+            const tops = this.view.table.getTopCards();
+            action.blowCards = JSON.parse(JSON.stringify(tops));
+            const targetCard = this.view.hand.drawPoolCard();
+            action.targetCard = targetCard;
         } else {
             // 如果摸的这张牌是普通牌，就生成牌值
             const topValues = this.view.table.getTopCardValues();
@@ -249,7 +255,11 @@ class GameCtrl {
             if (action.type == GameActionType.linkTable) {
                 this.view.undoLinkTable(action.taskAwardPoolCardIdxs);
             } else if (action.type == GameActionType.drawPool) {
-                this.view.hand.undoDrawPoolCard();
+                if (action.targetCard?.value == CardBlow) {
+                    this.view.undoDrawBlowCard(action.blowCards);
+                } else {
+                    this.view.hand.undoDrawPoolCard();
+                }
             } else if (action.type == GameActionType.propJoker) {
                 this.view.hand.undoPropJokerCard();
                 UserModel.addProp(PropID.PropJoker, 1);
