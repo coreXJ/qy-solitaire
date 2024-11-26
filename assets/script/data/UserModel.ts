@@ -27,7 +27,7 @@ class UserModel {
         ];
         this._boosters = [
             {id:BoosterID.hook,count:3,freetime:0},
-            {id:BoosterID.blow,count:3,freetime:0},
+            {id:BoosterID.blow,count:3,freetime:Date.now() + 60*1000},
             {id:BoosterID.joker,count:3,freetime:0},
         ];
     }

@@ -8,6 +8,8 @@ import { BoosterID, Card, Level } from "../../data/GameObjects";
 import CardView from "./CardView";
 import GameLogic from "../../game/GameLogic";
 import { CardBlow } from "../../data/GameConfig";
+import { XUtils } from "../../comm/XUtils";
+import ViewZanting from "./ViewZanting";
 const { ccclass, property } = _decorator;
 
 @ccclass('UIGame')
@@ -17,11 +19,12 @@ export default class UIGame extends UIView {
     public top: ViewTop;
     public table: ViewTable;
     public hand: ViewHand;
+    public zanting: ViewZanting;
 
     public isStarted: boolean = false;
     // public isAniming: boolean = false;
     private _canTouchTime = 0;
-    public blockingTouch(sec: number) {
+    public blockTouch(sec: number) {
         let time = (sec * 1000) + Date.now();
         if (time > this._canTouchTime) {
             this._canTouchTime = time;
@@ -36,14 +39,22 @@ export default class UIGame extends UIView {
         this.bindNodes();
         GameCtrl.bind(this);
     }
-
+    public bindClick(node: Node, listener: Function, target?:any, ...args:any[]) {
+        XUtils.bindClick(node, ()=>{
+            if (this.isCanTouch) {
+                listener.apply(target, args)
+            }
+        }, target, ...args);
+    }
     private bindNodes() {
         this.content = this.node.getChildByName('content');
         this.table = this.content.getComponentInChildren(ViewTable);
         this.hand = this.content.getComponentInChildren(ViewHand);
         this.top = this.content.getComponentInChildren(ViewTop);
+        this.zanting = this.getComponentInChildren(ViewZanting);
         this.table.view = this;
         this.hand.view = this;
+        this.top.view = this;
     }
 
     /**
@@ -113,6 +124,7 @@ export default class UIGame extends UIView {
         await this.table.insertBoosterJoker(3); //读配置
     }
     public async undoDrawBlowCard(blowCards: Card[]) {
+        this.blockTouch(1.3);
         // 撤回吹风卡
         // 1.table把吹走的卡恢复
         await this.table.undoBlowCards(blowCards);
@@ -129,6 +141,7 @@ export default class UIGame extends UIView {
     }
     public undoLinkTable(idxs: number[]) {
         // console.log('undoLinkTable',idxs);
+        this.blockTouch(0.3);
         const cardView = this.hand.popHandCard();
         if (cardView) {
             this.table.undoCard(cardView);
@@ -146,5 +159,11 @@ export default class UIGame extends UIView {
 
     public onClose() {
         GameCtrl.unbind();
+    }
+
+    public showZanting() {
+        this.zanting.show(()=>{
+            GameCtrl.onGameEnd(false);
+        });
     }
 }

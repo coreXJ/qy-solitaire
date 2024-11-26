@@ -3,25 +3,30 @@ import { MySprite } from "../../components/MySprite";
 import { Task, TaskColor } from "../../data/GameObjects";
 import GameCtrl from "../../game/GameCtrl";
 import { XUtils } from "../../comm/XUtils";
+import ViewZanting from "./ViewZanting";
+import UIGame from "./UIGame";
 const { ccclass, property } = _decorator;
 
 @ccclass('ViewTop')
 export default class ViewTop extends Component {
+    public view: UIGame;
+    @property(Node)
+    public btnSetting: Node;
     @property(Label)
-    lbGold: Label;
+    private lbGold: Label;
 
     @property(Node)
-    ndTaskBg: Node;
+    private ndTaskBg: Node;
     @property(Node)
-    ndTaskItemRoot: Node;
+    private ndTaskItemRoot: Node;
     @property(MySprite)
-    mspCard: MySprite;
+    private mspCard: MySprite;
     @property(Node)
-    ndMul2: Node;
+    private ndMul2: Node;
 
     protected start(): void {
         console.log('ViewTop start');
-        
+        XUtils.bindClick(this.btnSetting, this.onClickSetting, this);
     }
 
     public setTaskData(task: Task,colors: TaskColor[]) {
@@ -76,5 +81,9 @@ export default class ViewTop extends Component {
 
     public getTaskCardWorldPosition() {
         return v3(this.mspCard.node.worldPosition);
+    }
+
+    private onClickSetting() {
+        this.view.showZanting();
     }
 }

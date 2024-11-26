@@ -78,7 +78,7 @@ export default class ViewTable extends Component {
         }
         this.cardViews.push(cardView);
         this.underCardsMap.set(cardView, underCards);
-        XUtils.bindClick(cardView.node, this.onClickCard.bind(this,cardView));
+        this.view.bindClick(cardView.node, this.onClickCard.bind(this,cardView));
     }
     private setupInsertJokerCard(cardView: CardView) {
         this.cardViews.push(cardView);
@@ -103,7 +103,7 @@ export default class ViewTable extends Component {
         // 找到所有overlap为0的joker，并直接link，不走ctrl
         for (const e of this.cardViews) {
             if (e.cardValue == CardJoker && e.overlap == 0) {
-                this.view.blockingTouch(0.3);
+                this.view.blockTouch(0.3);
                 this.scheduleOnce(()=>{
                     GameCtrl.linkTable(e);
                 }, 0.2);

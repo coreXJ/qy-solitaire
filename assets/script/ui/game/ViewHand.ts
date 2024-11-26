@@ -55,10 +55,10 @@ export default class ViewHand extends Component {
 
     protected start(): void {
         console.log('ViewHand start');
-        XUtils.bindClick(this.btnEndGame, this.onClickEndGame, this);
-        XUtils.bindClick(this.ndPropAdd, this.onClickProp, this, PropID.PropAdd);
-        XUtils.bindClick(this.ndPropJoker, this.onClickProp, this, PropID.PropJoker);
-        XUtils.bindClick(this.ndPropUndo, this.onClickProp, this, PropID.PropUndo);
+        this.view.bindClick(this.btnEndGame, this.onClickEndGame, this);
+        this.view.bindClick(this.ndPropAdd, this.onClickProp, this, PropID.PropAdd);
+        this.view.bindClick(this.ndPropJoker, this.onClickProp, this, PropID.PropJoker);
+        this.view.bindClick(this.ndPropUndo, this.onClickProp, this, PropID.PropUndo);
         this.refreshProp();
     }
 
@@ -94,7 +94,7 @@ export default class ViewHand extends Component {
             const cardView = nd.getComponent(CardView);
             cardView.cardValue = value;
             this.poolCards.splice(idxs[i], 0, cardView);
-            XUtils.bindClick(nd, this.onClickPoolCard, this, cardView);
+            this.view.bindClick(nd, this.onClickPoolCard, this, cardView);
             const pos = this.node.getWorldPosition();
             pos.add(v3(startX + i * offsetX, y, 0));
             cardView.node.worldPosition = pos;
@@ -117,7 +117,7 @@ export default class ViewHand extends Component {
             const cardView = nd.getComponent(CardView);
             cardView.cardValue = value;
             this.poolCards.splice(idxs[i], 0, cardView);
-            XUtils.bindClick(nd, this.onClickPoolCard, this, cardView);
+            this.view.bindClick(nd, this.onClickPoolCard, this, cardView);
             cardView.node.worldPosition = this.view.table.node.worldPosition;
             tween(nd).set({scale: v3(0.2,0.2,1)})
                 .to(0.3,{scale: v3(1.2,1.2,1)},{easing:'backOut'}).start();
@@ -140,7 +140,7 @@ export default class ViewHand extends Component {
             const cardView = nd.getComponent(CardView);
             cardView.cardValue = value;
             this.poolCards.splice(idxs[i], 0, cardView);
-            XUtils.bindClick(nd, this.onClickPoolCard, this, cardView);
+            this.view.bindClick(nd, this.onClickPoolCard, this, cardView);
             const pos = this.view.top.getTaskCardWorldPosition();
             cardView.node.worldPosition = pos;
             tween(nd).set({scale: v3(0.2,0.2,1)})
@@ -177,7 +177,7 @@ export default class ViewHand extends Component {
             const cardView = nd.getComponent(CardView);
             cardView.cardValue = 0;
             this.poolCards.push(cardView);
-            XUtils.bindClick(nd, this.onClickPoolCard, this, cardView);
+            this.view.bindClick(nd, this.onClickPoolCard, this, cardView);
         }
         this.tweenMovePoolCards();
     }
@@ -236,7 +236,7 @@ export default class ViewHand extends Component {
         cardView.node.parent = this.ndPoolRoot;
         this.poolCards.push(cardView);
         this.tweenMovePoolCards();
-        XUtils.bindClick(cardView.node, this.onClickPoolCard, this, cardView);
+        this.view.bindClick(cardView.node, this.onClickPoolCard, this, cardView);
     }
 
     public drawPoolCard(cardValue?: number) {
@@ -259,7 +259,7 @@ export default class ViewHand extends Component {
     }
     private playBlowCardEffect(cardView: CardView, wpos: Vec3) {
         console.log('playBlowCardEffect');
-        this.view.blockingTouch(1);
+        this.view.blockTouch(1);
         const pos = v3(this.node.worldPosition);
         pos.y += 250;
         cardView.node.parent = this.node;
@@ -283,7 +283,7 @@ export default class ViewHand extends Component {
         const cardView = nd.getComponent(CardView);
         cardView.cardValue = CardBlow;
         this.poolCards.push(cardView);
-        XUtils.bindClick(nd, this.onClickPoolCard, this, cardView);
+        this.view.bindClick(nd, this.onClickPoolCard, this, cardView);
         cardView.node.worldPosition = this.view.table.node.worldPosition;
         tween(nd).set({scale: v3(0.2,0.2,1)})
             .to(0.3,{scale: v3(1.2,1.2,1)},{easing:'backOut'}).start();
@@ -416,9 +416,10 @@ export default class ViewHand extends Component {
         this.ndPropAdd.active = bEmpty;
     }
     private onClickProp(id: PropID) {
+        this.view.blockTouch(0.5);
         GameCtrl.useProp(id);
     }
     private onClickEndGame() {
-        GameCtrl.onGameEnd(false);
+        this.view.showZanting();
     }
 }
