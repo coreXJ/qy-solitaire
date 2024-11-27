@@ -10,6 +10,7 @@ import BoosterView from "./BoosterView";
 import { EventMgr, EventName } from "../../manager/EventMgr";
 import GameCtrl from "../../game/GameCtrl";
 import { MySprite } from "../../components/MySprite";
+import GMCtrl from "../../GM/GMCtrl";
 const { ccclass, property } = _decorator;
 
 @ccclass('UIHall')
@@ -40,13 +41,15 @@ export default class UIHall extends UIView {
         const func = bool ? 'on' : 'off';
         EventMgr[func](EventName.onBoosterChange, this.updateBooster, this);
         EventMgr[func](EventName.onGoldChange,  this.updateGold, this);
+        EventMgr[func](EventName.onCurLevelChange,  this.fullLevel, this);
+        EventMgr[func](EventName.onWinTimesChange,  this.fullBtnStart, this);
     }
     public onOpen(fromUI: number, ...args: any): void {
+        GMCtrl.init();
     }
     protected onEnable(): void {
         console.log('UIHall onEnable');
-        this.level = GameData.getLevel(UserModel.curLevelId);
-        this.node.getChildByName('lbLevel').getComponent(Label).string = '' + this.level.name;
+        this.fullLevel();
         this.listenEvent(true);
         this.updateBooster();
         this.compBoosters.forEach(e => {
@@ -109,5 +112,9 @@ export default class UIHall extends UIView {
     private updateGold() {
         // this.view.top.setGold(UserModel.gold);
         this.lbGold.string = XUtils.formatGold(UserModel.gold);
+    }
+    private fullLevel() {
+        this.level = GameData.getLevel(UserModel.curLevelId);
+        this.node.getChildByName('lbLevel').getComponent(Label).string = '' + this.level.name;
     }
 }

@@ -7,6 +7,7 @@ import CardView from "../ui/game/CardView";
 import UIGame from "../ui/game/UIGame";
 import GameLogic from "./GameLogic";
 import UserModel from "../data/UserModel";
+import GMCtrl from "../GM/GMCtrl";
 
 /**
  * 游戏控制类
@@ -22,6 +23,11 @@ class GameCtrl {
     // private viewTable: GameTable;
     // private viewHand: GameHand;
     private usedBoosters: BoosterID[] = [];
+
+    private bGaming = false;
+    public get isGaming() {
+        return this.bGaming;
+    }
 
     public openGame(params: IOpenGameParams) {
         console.log('openGame',params);
@@ -58,6 +64,7 @@ class GameCtrl {
     }
 
     public startGame(params: IOpenGameParams) {
+        GMCtrl.clearTopCardCount();
         this.isEditor = params.isEditor;
         // 通过GameData的levelList读取一个关卡数据
         this.level = params.level;
@@ -79,6 +86,7 @@ class GameCtrl {
         const awardCards = this.getWinAwardCardValues();
         this.view.startGame(this.level,awardCards,this.usedBoosters);
         this.actions = [];
+        this.bGaming = true;
     }
 
     private getWinAwardCardValues() {
@@ -142,6 +150,7 @@ class GameCtrl {
             }
             this.actions.push(action);
             this.checkTableCardCount();
+            GMCtrl.addTopCardCount(this.view.table.getTopCardViews().length);
         }
     }
 
@@ -154,6 +163,7 @@ class GameCtrl {
 
     public onGameEnd(bWin: boolean) {
         console.log('onGameEnd',this.isEditor);
+        this.bGaming = false;
         UIMgr.instance.open(UIID.UIResult,{bWin,isEditor:this.isEditor});
         if (this.isEditor) {
             return;
@@ -232,6 +242,7 @@ class GameCtrl {
         this.view.top.setTaskData(this.task, this.taskColors);
     }
     public unbind() {
+        this.bGaming = false;
         this.view = null;
         this.lisEvents(false);
         this.actions = [];
@@ -299,6 +310,14 @@ class GameCtrl {
 
     private onPropChange(id: PropID, count: number) {
         this.view.hand.refreshProp();
+    }
+    public replay() {
+        this.actions = [];
+        // this.usedBoosters = [];
+        this.view.reset();
+        setTimeout(() => {
+            this.startGame(this.params);
+        }, 1000);
     }
 }
 

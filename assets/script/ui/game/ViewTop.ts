@@ -46,6 +46,9 @@ export default class ViewTop extends Component {
         }
         this.ndMul2.active = bSameColor;
     }
+    public reset() {
+        
+    }
 
     // // 刷新任务
     // public refreshTask() {

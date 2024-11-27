@@ -1,6 +1,6 @@
 import { _decorator, native, sys, game, isValid } from 'cc';
 import { HotUpdateConfig } from '../data/HotUpdateConfig';
-import { ToastCtrl } from '../ui/UIToast/ToastCtrl';
+import { Toast } from '../components/Toast';
 const { ccclass, property } = _decorator;
 
 export enum HotUpdateType {
@@ -480,7 +480,7 @@ class HotUpdateHandler extends DownloadHanler {
         manifest.parseJSONString(content, this._storagePath)
         if (!this._am.getLocalManifest() || !this._am.getLocalManifest().isLoaded()) {
             console.log(`${this.bundle} Failed to load local manifest ....`);
-            ToastCtrl.showToast('Failed to load local manifest ....');
+            Toast.show('Failed to load local manifest ....');
             return false;
         }
         console.log(`${this.bundle} load local manifest success ....`);

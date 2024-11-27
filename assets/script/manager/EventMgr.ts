@@ -13,6 +13,8 @@ export const EventName = {
     // 玩家道具数量改变
     onPropChange: "onPropChange",
     onBoosterChange: "onBoosterChange",
+    onCurLevelChange: "onCurLevelChange",
+    onWinTimesChange: "onWinTimesChange",
 }
 
 @ccclass('EventMgr')

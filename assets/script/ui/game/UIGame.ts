@@ -166,4 +166,11 @@ export default class UIGame extends UIView {
             GameCtrl.onGameEnd(false);
         });
     }
+
+    public reset() {
+        this.isStarted = false;
+        this.top.reset();
+        this.hand.reset();
+        this.table.reset();
+    }
 }

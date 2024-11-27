@@ -13,6 +13,9 @@ class GameData {
     public get firstLevelId() {
         return this.levelList[0].id;
     }
+    public hasLevel(levelId: number) {
+        return !!this.levelMap[levelId];
+    }
     public getNextLevel(curLevelId: number) {
         const level = this.levelList.find(e=>e.id>curLevelId);
         return level;

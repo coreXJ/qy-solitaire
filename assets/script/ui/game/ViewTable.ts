@@ -305,5 +305,12 @@ export default class ViewTable extends Component {
     public getCardCount() {
         return this.cardViews.length;
     }
+    public reset() {
+        for (const e of this.cardViews) {
+            GameLoader.removeCard(e.node);
+        }
+        this.cardViews = [];
+        this.underCardsMap = new Map();
+    }
 
 }

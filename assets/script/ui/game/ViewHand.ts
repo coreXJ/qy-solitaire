@@ -422,4 +422,14 @@ export default class ViewHand extends Component {
     private onClickEndGame() {
         this.view.showZanting();
     }
+    public reset() {
+        for (const e of this.poolCards) {
+            GameLoader.removeCard(e.node);
+        }
+        for (const e of this.handCards) {
+            GameLoader.removeCard(e.node);
+        }
+        this.poolCards = [];
+        this.handCards = [];
+    }
 }

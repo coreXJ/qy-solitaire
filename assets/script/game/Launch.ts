@@ -11,6 +11,8 @@ import GameLoader from './GameLoader';
 import GameData from './GameData';
 import UserModel from '../data/UserModel';
 import UserCtrl from '../data/UserCtrl';
+import { Toast } from '../components/Toast';
+import { Dialog } from '../components/Dialog';
 const { ccclass, property } = _decorator;
 
 @ccclass('Launch')
@@ -60,6 +62,8 @@ export class Launch extends Component {
             GameLoader.loadAllGameRes(),
             // this.initServerConfig(),
             // this.initGameRoot(),
+            Toast.init(),
+            Dialog.init(),
             this.initUIMask()
         ]).then(()=>{
             UserModel.loadUserData()

@@ -1,13 +1,18 @@
+import { game } from "cc";
 
 
-class NativeHelper {
-  public static getInstance() {
-    return NativeHelper._instance;
-  }
+export default class NativeHelper {
 
-  private static _instance: NativeHelper = new NativeHelper();
+    private static _isNative: boolean = false;
+    private static _isIOS: boolean = false;
+    private static _isAndroid: boolean = false;
 
-  private _isNative: boolean = false;
-  private _isIOS: boolean = false;
-  private _isAndroid: boolean = false;
+    public static restart() {
+        if (this._isNative) {
+            game.restart();
+        } else {
+            location.reload();
+        }
+    }
+
 }
