@@ -105,7 +105,7 @@ export default class CardView extends Component {
         return data;
     }
 
-    public getRect():GameGeometry.GameRect {
+    public getRect():GameGeometry.IRect {
         return {
             x: this.data.tPos?.x || 0,
             y: this.data.tPos?.y || 0,

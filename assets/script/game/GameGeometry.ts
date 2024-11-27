@@ -72,14 +72,14 @@ import CardView from '../ui/game/CardView';
 
 export namespace GameGeometry {
     /**带旋转角度的Rect */
-    export interface GameRect {
+    export interface IRect {
         x: number; // 矩形的中心点 x 坐标
         y: number; // 矩形的中心点 y 坐标
         width: number;
         height: number;
         angle: number; // 旋转角度，单位为度
     }
-    export function getRectVertices(rect: GameRect): [number, number][] {
+    export function getRectVertices(rect: IRect): [number, number][] {
         const { x, y, width, height, angle } = rect;
         const halfWidth = width / 2;
         const halfHeight = height / 2;
@@ -116,7 +116,7 @@ export namespace GameGeometry {
         return [axis[0] / length, axis[1] / length];
     }
     
-    export function doRectsIntersect(rect1: GameRect, rect2: GameRect): boolean {
+    export function doRectsIntersect(rect1: IRect, rect2: IRect): boolean {
         const vertices1 = getRectVertices(rect1);
         const vertices2 = getRectVertices(rect2);
     
@@ -142,7 +142,7 @@ export namespace GameGeometry {
     
         return true;
     }
-    export function node2rect(node: Node): GameRect {
+    export function node2rect(node: Node): IRect {
         const trans = node.getComponent(UITransform);
         return {
             x: node.position.x,
@@ -152,7 +152,7 @@ export namespace GameGeometry {
             angle: node.angle
         };
     }
-    export function card2rect(card: Card): GameRect {
+    export function card2rect(card: Card): IRect {
         return {
             x: card.tPos?.x || 0,
             y: card.tPos?.y || 0,
@@ -167,7 +167,7 @@ export namespace GameGeometry {
     export function doCardsIntersect(card1: Card, card2: Card): boolean {
         return doRectsIntersect(card2rect(card1), card2rect(card2));
     }
-    export function isPointInRect(point: [number, number], rect: GameRect): boolean {
+    export function isPointInRect(point: [number, number], rect: IRect): boolean {
         const { x, y, width, height, angle } = rect;
         const halfWidth = width / 2;
         const halfHeight = height / 2;

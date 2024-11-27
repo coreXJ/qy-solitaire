@@ -8,6 +8,7 @@ import { LanguageSprite } from '../components/LanguageSprite';
 import { Node } from 'cc';
 import { Component } from 'cc';
 import { ResUtil } from '../comm/ResUtil';
+import { ConfigBoosters } from '../configs/ConfigBoosters';
 const { ccclass, property } = _decorator;
 
 @ccclass('ConfigMgr')
@@ -93,15 +94,19 @@ export default class ConfigMgr extends Component {
     }
     
     public loadAllConfig(){
-        return ResMgr.instance.loadDir('res','json',(err, jsonList: JsonAsset[])=>{
+        return ResMgr.instance.loadDir('config','excel',(err, jsonList: JsonAsset[])=>{
             if(!err){
                 console.log('####  loadAllConfig ', jsonList)
                 for(let i = 0; i < jsonList.length; ++i){
                     ResUtil.assignWith(jsonList[i], this.node, true);
-                    var cls = js.getClassByName(jsonList[i].name);
-                    let dataObj = new cls();
-                    dataObj['DataMap'] = jsonList[i].json;  
-                    this._dataObjMap[jsonList[i].name] = dataObj;
+                    var cls = js.getClassByName('Config'+jsonList[i].name);
+                    console.log('cls','Config'+jsonList[i].name);
+                    
+                    let config:any = new cls();
+                    config.initDatas(jsonList[i].json.rows);
+                    // dataObj['DataMap'] = jsonList[i].json;  
+                    // this._dataObjMap[jsonList[i].name] = config;
+                    this['_'+jsonList[i].name] = config;
                     console.log("localconfig 【%s】 加载成功---------------》", jsonList[i].name)
                 }
             }
@@ -115,5 +120,8 @@ export default class ConfigMgr extends Component {
     protected onDestroy(): void {
         this._dataObjMap = {}
     }
-
+    private _Boosters: ConfigBoosters;
+    public get Boosters() {
+        return this._Boosters;
+    }
 }
