@@ -132,7 +132,7 @@ export default class UIGame extends UIView {
         this.hand.undoDrawPoolBlowCard();
     }
     public linkTableCard(cardView: CardView) {
-        const wpos = v3(cardView.node.worldPosition);
+        const wpos = v3(cardView.vWorldPosition);
         const bSuccess = this.table.removeCard(cardView);
         if (bSuccess) {
             this.hand.linkTableCard(cardView, wpos);
@@ -145,7 +145,7 @@ export default class UIGame extends UIView {
         const cardView = this.hand.popHandCard();
         if (cardView) {
             this.table.undoCard(cardView);
-            cardView.node.worldPosition = this.hand.ndHandRoot.worldPosition;
+            cardView.vWorldPosition = this.hand.ndHandRoot.worldPosition;
             if (idxs?.length > 0) {
                 this.hand.undoTaskAwardCards(idxs);
             }

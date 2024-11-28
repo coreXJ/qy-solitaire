@@ -97,9 +97,9 @@ export default class ViewHand extends Component {
             this.view.bindClick(nd, this.onClickPoolCard, this, cardView);
             const pos = this.node.getWorldPosition();
             pos.add(v3(startX + i * offsetX, y, 0));
-            cardView.node.worldPosition = pos;
-            tween(nd).set({scale: v3(0.2,0.2,1)})
-                .to(0.3,{scale: v3(1,1,1)},{easing:'backOut'}).start();
+            cardView.vWorldPosition = pos;
+            tween(cardView).set({z: -0.8})
+                .to(0.3,{z: 0},{easing:'backOut'}).start();
         }
         return new Promise<void>(resolve => {
             this.scheduleOnce(async ()=>{
@@ -118,9 +118,9 @@ export default class ViewHand extends Component {
             cardView.cardValue = value;
             this.poolCards.splice(idxs[i], 0, cardView);
             this.view.bindClick(nd, this.onClickPoolCard, this, cardView);
-            cardView.node.worldPosition = this.view.table.node.worldPosition;
-            tween(nd).set({scale: v3(0.2,0.2,1)})
-                .to(0.3,{scale: v3(1.2,1.2,1)},{easing:'backOut'}).start();
+            cardView.vWorldPosition = this.view.table.node.worldPosition;
+            tween(cardView).set({z: -0.8})
+                .to(0.3,{z: 0.2},{easing:'backOut'}).start();
         }
         return new Promise<void>(resolve => {
             this.scheduleOnce(async ()=>{
@@ -142,9 +142,9 @@ export default class ViewHand extends Component {
             this.poolCards.splice(idxs[i], 0, cardView);
             this.view.bindClick(nd, this.onClickPoolCard, this, cardView);
             const pos = this.view.top.getTaskCardWorldPosition();
-            cardView.node.worldPosition = pos;
-            tween(nd).set({scale: v3(0.2,0.2,1)})
-                .to(0.3,{scale: v3(1,1,1)},{easing:'backOut'}).start();
+            cardView.vWorldPosition = pos;
+            tween(cardView).set({z: -0.8})
+                .to(0.3,{z: 0},{easing:'backOut'}).start();
         }
         this.scheduleOnce(()=>{
             this.tweenMovePoolCards();
@@ -155,14 +155,14 @@ export default class ViewHand extends Component {
         for (const idx of idxs) {
             const cardView = this.poolCards.splice(idx, 1)[0];
             if (cardView) {
-                const worldPosition = cardView.node.worldPosition;
+                const worldPosition = cardView.vWorldPosition;
                 cardView.node.parent = this.node;
-                tween(cardView.node).set({
-                    scale: v3(1,1,1),
-                    worldPosition
+                tween(cardView).set({
+                    z: 0,
+                    vWorldPosition:worldPosition
                 }).delay(0.2).to(0.5, {
-                    scale: v3(0.5,0.5,1),
-                    worldPosition: this.view.top.getTaskCardWorldPosition()
+                    z: -0.5,
+                    vWorldPosition: this.view.top.getTaskCardWorldPosition()
                 },{easing: 'quadOut'}).call(()=>{
                     GameLoader.removeCard(cardView.node);
                 }).start();
@@ -187,9 +187,9 @@ export default class ViewHand extends Component {
         const cardView = nd.getComponent(CardView);
         cardView.cardValue = CardJoker;
         // this.poolCards.push(cardView);
-        nd.worldPosition = this.propJokerWorldPosition;
-        tween(nd).set({scale: v3(0.2,0.2,1)})
-            .to(0.3,{scale: v3(1,1,1)},{easing:'backOut'}).start();
+        cardView.vWorldPosition = this.propJokerWorldPosition;
+        tween(cardView).set({z: -0.8})
+            .to(0.3,{z: 0},{easing:'backOut'}).start();
         this.scheduleOnce(()=>{
             this.addHandCard(cardView, this.propJokerWorldPosition);
             // this.tweenMovePoolCards();
@@ -242,7 +242,7 @@ export default class ViewHand extends Component {
     public drawPoolCard(cardValue?: number) {
         if (this.poolCards.length > 0) {
             const cardView = this.topPoolCard;
-            const wpos = v3(cardView.node.worldPosition);
+            const wpos = v3(cardView.vWorldPosition);
             this.popPoolCard();
             cardView.data = cardView.data || new Card();
             cardView.data.type = CardType.hand;
@@ -262,11 +262,12 @@ export default class ViewHand extends Component {
         this.view.blockTouch(1);
         const pos = v3(this.node.worldPosition);
         pos.y += 250;
+        pos.z = 0.2;
         cardView.node.parent = this.node;
-        cardView.node.worldPosition = wpos;
-        tween(cardView.node).to(0.4, {
-            worldPosition: pos,
-            scale: v3(1.2,1.2,1)
+        cardView.vWorldPosition = wpos;
+        tween(cardView).to(0.4, {
+            vWorldPosition: pos,
+            // z: 0.2
         }, { easing: 'quadOut' }).delay(0.2).call(()=>{
             console.log('吹走所有顶部牌');
             this.view.table.blowTopCards();
@@ -284,9 +285,9 @@ export default class ViewHand extends Component {
         cardView.cardValue = CardBlow;
         this.poolCards.push(cardView);
         this.view.bindClick(nd, this.onClickPoolCard, this, cardView);
-        cardView.node.worldPosition = this.view.table.node.worldPosition;
-        tween(nd).set({scale: v3(0.2,0.2,1)})
-            .to(0.3,{scale: v3(1.2,1.2,1)},{easing:'backOut'}).start();
+        cardView.vWorldPosition = this.view.table.node.worldPosition;
+        tween(cardView).set({z: -0.8})
+            .to(0.3,{z: 0.2},{easing:'backOut'}).start();
         return new Promise<void>(resolve => {
             this.scheduleOnce(async ()=>{
                 await this.tweenMovePoolCards();
@@ -303,7 +304,7 @@ export default class ViewHand extends Component {
     public addHandCard(cardView: CardView, fromWorldPosition?: Vec3) {
         cardView.node.parent = this.ndHandRoot;
         if (fromWorldPosition) {
-            cardView.node.worldPosition = fromWorldPosition;
+            cardView.vWorldPosition = fromWorldPosition;
         }
         this.handCards.push(cardView);
         tween(cardView.node).to(0.3, { position: v3(0,0) },{ easing: 'quadOut' })
@@ -317,7 +318,7 @@ export default class ViewHand extends Component {
         if (cardView) {
             cardView.node.removeFromParent();
             XUtils.unbindClick(cardView.node);
-            cardView.node.worldPosition = this.ndHandRoot.worldPosition;
+            cardView.vWorldPosition = this.ndHandRoot.worldPosition;
             return cardView;
         }
     }
@@ -339,12 +340,12 @@ export default class ViewHand extends Component {
         cardView.data.type = CardType.hand;
         cardView.node.parent = this.ndHandRoot;
         if (fromWorldPosition) {
-            cardView.node.worldPosition = fromWorldPosition;
+            cardView.vWorldPosition = fromWorldPosition;
         }
         this.handCards.push(cardView);
-        tween(cardView.node).to(0.3, { 
-            position: v3(0,0),
-            angle: 0,
+        tween(cardView).to(0.3, { 
+            vPosition: v3(0,0),
+            vAngle: 0,
          },{ easing: 'quadOut' })
             .delay(0.2)
             .call(()=>{
@@ -386,14 +387,15 @@ export default class ViewHand extends Component {
         const len = this.poolCards.length;
         const startX = -CardView.WIDTH * 0.5;
         for (let i = 0; i < len; i++) {
-            const nd = this.poolCards[i].node;
+            const cardView = this.poolCards[i];
+            const nd = cardView.node;
             nd.setSiblingIndex(i);
             const num = Math.min(len - i, POOL_VISIBLE_CARD_COUNT) - 1;
             const x = startX + num * POOL_OFFSET_X;
             Tween.stopAllByTarget(nd);
-            tween(nd).to(0.5, {
-                position: v3(x, 0, 0),
-                scale: v3(1, 1, 1)
+            tween(cardView).to(0.5, {
+                vPosition: v3(x, 0, 0),
+                // scale: v3(1, 1, 1)
             }, { easing: 'quadOut' }).start();
         }
         // 检查ndExtraNum是否大于0

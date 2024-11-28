@@ -36,8 +36,8 @@ export default class ViewTable extends Component {
             ndCard.parent = this.node;
             const cardView = ndCard.getComponent(CardView);
             cardView.data = card;
-            ndCard.position = card.tPos;
-            ndCard.angle = card.tAngle;
+            cardView.vPosition = card.tPos;
+            cardView.vAngle = card.tAngle;
             cardView._bFront = false;
             cardViews.push(cardView);
         }
@@ -52,9 +52,9 @@ export default class ViewTable extends Component {
     public undoCard(cardView: CardView) {
         cardView.node.parent = this.node;
         cardView.data.type = CardType.table;
-        tween(cardView.node).to(0.3, {
-            position: cardView.data.tPos,
-            angle: cardView.data.tAngle
+        tween(cardView).to(0.3, {
+            vPosition: cardView.data.tPos,
+            vAngle: cardView.data.tAngle
         },{ easing: 'quadOut' })
             .call(()=>{
                 this.setupCard(cardView);
@@ -126,7 +126,7 @@ export default class ViewTable extends Component {
         const underCards:CardView[] = [];
         for (const e of this.cardViews) {
             if (cardView != e) {
-                const bIntersects = GameGeometry.doNodesIntersect(cardView.node, e.node);
+                const bIntersects = GameGeometry.doCardViewsIntersect(cardView, e);
                 if (bIntersects && e.data.tIdx < cardView.data.tIdx) {
                     underCards.push(e);
                 }
@@ -216,8 +216,8 @@ export default class ViewTable extends Component {
             const ndCard = GameLoader.addCard(this.node);
             const cardView = ndCard.getComponent(CardView);
             cardView.data = e;
-            ndCard.position = startPos;
-            ndCard.angle = e.tAngle;
+            cardView.vPosition = startPos;
+            cardView.vAngle = e.tAngle;
             cardView.isFront = true;
             tween(cardView.node).to(0.7, { position: endPos },{ easing: 'quadOut' })
                 .call(()=>{
@@ -270,10 +270,10 @@ export default class ViewTable extends Component {
             cardView.data.type = CardType.none;
             this.setupInsertJokerCard(cardView);
             const startPos = v3(startX + i * offsetX, 300);
-            tween(nd)
-                .set({ position : startPos,angle: 0 })
+            tween(cardView)
+                .set({ vPosition : startPos, vAngle: 0 })
                 .delay(0.5)
-                .to(0.5, { position : pos,angle },{ easing: 'quadOut' })
+                .to(0.5, { vPosition : pos, vAngle: angle },{ easing: 'quadOut' })
                 .call(()=>{
                     cardView.data.type = CardType.table;
                     cardView.updateView();

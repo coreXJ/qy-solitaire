@@ -85,7 +85,7 @@ export default class UIEditor extends UIView {
     private onCardTouchStart(e: EventTouch) {
         const op = this.cardView.getComponent(UIOpacity) || this.cardView.addComponent(UIOpacity);
         op.opacity = 127;
-        this.cardView.node.setWorldPosition(e.getUILocation().toVec3());
+        this.cardView.vWorldPosition = e.getUILocation().toVec3();
         // this.touchCardNode = instantiate(this.cardView.node);
         // this.touchCardNode.parent = this.table.node;
         // const pos = e.getUILocation().toVec3();
@@ -96,7 +96,7 @@ export default class UIEditor extends UIView {
     private onCardTouchMove(e: EventTouch) {
         console.log('cardView TOUCH_MOVE');
         const wpos = e.getUILocation().toVec3();
-        this.cardView.node.setWorldPosition(wpos);
+        this.cardView.vWorldPosition = wpos;
         this.table.onNewCardMove(wpos);
     }
 

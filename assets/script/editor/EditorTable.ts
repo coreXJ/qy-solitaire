@@ -53,7 +53,7 @@ export class EditorTable extends Component implements IEditorLayersListener {
         this.node.on(Node.EventType.TOUCH_CANCEL, this.onTouchEnd, this);
     }
     public onNewCardMove(pos: Vec3) {
-        pos = pos.subtract(this.node.worldPosition);
+        // pos = pos.subtract(this.node.worldPosition);
         // if (!this.isPosInMesh(pos)) {
         //     return;
         // }
@@ -87,8 +87,8 @@ export class EditorTable extends Component implements IEditorLayersListener {
     private setupCard(cardView: CardView) {
         // 当setup的牌下面没有其它牌时，layer为1
         // 当setup的牌下面有其它牌，layer=target。layer+1
-        const ndCard = cardView.node;
-        const underCards = this.findIntersectCards(ndCard);
+        // const ndCard = cardView.node;
+        const underCards = this.findIntersectCards(cardView);
         cardView.data.tLayer = 1;
         cardView.data.type = CardType.table;
         for (const e of underCards) {
@@ -109,12 +109,12 @@ export class EditorTable extends Component implements IEditorLayersListener {
         console.log('重新排序后', [...this.cardViews]);
     }
     /**获得所有下层卡 */
-    private findIntersectCards(ndCard: Node) {
+    private findIntersectCards(cardView: CardView) {
         const underCards:CardView[] = [];
         for (const e of this.cardViews) {
-            if (ndCard != e.node) {
-                const tran = e.getComponent(UITransform);
-                const bIntersects = GameGeometry.doNodesIntersect(ndCard, e.node);
+            if (cardView != e) {
+                // const tran = e.getComponent(UITransform);
+                const bIntersects = GameGeometry.doCardViewsIntersect(cardView, e);
                 if (bIntersects) {
                     underCards.push(e);
                 }
@@ -138,7 +138,7 @@ export class EditorTable extends Component implements IEditorLayersListener {
             }
             if (cardView != e) {
                 // const tran = e.getComponent(UITransform);
-                const rect1 = GameGeometry.node2rect(e.node);
+                const rect1 = GameGeometry.card2rect(e.data);
                 const bIntersects = GameGeometry.doRectsIntersect(rect0, rect1);
                 if (bIntersects) {
                     underCards.push(e);
@@ -373,7 +373,7 @@ export class EditorTable extends Component implements IEditorLayersListener {
                 } else if (this.touchType == 1) {
                     // 先计算弧度
                     const targetCard = this.selCards[this.selCards.length-1];
-                    const targetPos = targetCard.node.worldPosition.toVec2();
+                    const targetPos = targetCard.vWorldPosition.toVec2();
                     let pos0 = p0.subtract(targetPos);
                     let pos1 = pos.subtract(targetPos);
                     // console.log('pos0',pos0.x,pos0.y);
@@ -382,11 +382,9 @@ export class EditorTable extends Component implements IEditorLayersListener {
                     let radian1 = Math.atan2(pos1.x,pos1.y);
                     let radianDiff = radian1 - radian0;
                     let angleDiff = radianDiff * (180 / Math.PI);
-                    // console.log('angle0',radian0,'angle1',radian1,);
-                    // console.log('angleDiff',angleDiff);
                     for (const e of this.selCards) {
                             const angle = e.data.tAngle || 0;
-                            e.node.angle = XUtils.numToFixed(angle - angleDiff);
+                            e.vAngle = XUtils.numToFixed(angle - angleDiff);
                             
                     }
                 }
@@ -430,7 +428,7 @@ export class EditorTable extends Component implements IEditorLayersListener {
                 }
             } else if (this.touchType == 1) {
                 for (const e of this.selCards) {
-                    e.data.tAngle = e.node.angle;
+                    e.data.tAngle = e.vAngle;
                 }
                 this.refreshOverlap();
             }
@@ -502,8 +500,8 @@ export class EditorTable extends Component implements IEditorLayersListener {
             cardView.data = e;
             cardView._bFront = true;
             ndCard.parent = this.ndRoot;
-            ndCard.setPosition(e.tPos);
-            ndCard.angle = e.tAngle||0;
+            cardView.setPos(e.tPos);
+            cardView.vAngle = e.tAngle||0;
             // this.setupCard(cardView);
             cardView.isEditor = true;
             this.cardViews.push(cardView);
@@ -522,8 +520,7 @@ export class EditorTable extends Component implements IEditorLayersListener {
     }
 
     public setCardAngel(cardView: CardView, angel: number) {
-        cardView.node.angle = angel;
-        cardView.data.tAngle = angel;
+        cardView.setAngle(angel);
         this.refreshOverlap();
         this.setSelCards();
         return true;

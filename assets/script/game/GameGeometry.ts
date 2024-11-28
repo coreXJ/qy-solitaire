@@ -142,14 +142,13 @@ export namespace GameGeometry {
     
         return true;
     }
-    export function node2rect(node: Node): IRect {
-        const trans = node.getComponent(UITransform);
+    export function cardView2rect(v: CardView): IRect {
         return {
-            x: node.position.x,
-            y: node.position.y,
-            width: trans.width,
-            height: trans.height,
-            angle: node.angle
+            x: v.vPosition.x,
+            y: v.vPosition.y,
+            width: CardView.WIDTH,
+            height: CardView.HEIGHT,
+            angle: v.vAngle
         };
     }
     export function card2rect(card: Card): IRect {
@@ -161,8 +160,8 @@ export namespace GameGeometry {
             angle: card.tAngle || 0,
         }
     }
-    export function doNodesIntersect(node1: Node, node2: Node): boolean {
-        return doRectsIntersect(node2rect(node1), node2rect(node2));
+    export function doCardViewsIntersect(cardView1: CardView, cardView2: CardView): boolean {
+        return doRectsIntersect(cardView2rect(cardView1), cardView2rect(cardView2));
     }
     export function doCardsIntersect(card1: Card, card2: Card): boolean {
         return doRectsIntersect(card2rect(card1), card2rect(card2));
