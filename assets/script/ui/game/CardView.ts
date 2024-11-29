@@ -5,7 +5,8 @@ import { GameGeometry } from "../../game/GameGeometry";
 const { ccclass, property } = _decorator;
 
 const COLOR_NONE = new Color(0xff,0xff,0xff);
-const COLOR_OVERLAP = new Color(0x99,0x99,0x99);
+// const COLOR_OVERLAP = new Color(0x99,0x99,0x99);
+const COLOR_OVERLAP = new Color(0xff,0xff,0xff);
 
 @ccclass('CardView')
 export default class CardView extends Component {
@@ -143,6 +144,16 @@ export default class CardView extends Component {
     public get vAngle() {
         return this._vAngle || 0;
     }
+    // 不改变z
+    public set vPositionXY(pos: Vec3) {
+        let z0 = this.node.position.z;
+        pos = v3(pos);
+        pos.z = z0;
+        this.node.setPosition(pos);
+    }
+    public get vPositionXY() {
+        return this.node.position;
+    }
     public set vPosition(pos: Vec3) {
         let z0 = this.node.position.z;
         let z1 = pos.z;
@@ -189,7 +200,7 @@ export default class CardView extends Component {
             if (z > 0) {
                 // 显示shadow
                 nd1.active = true;
-                const x = CardView.WIDTH * 3 * z;
+                const x = CardView.WIDTH * 2 * z;
                 const y = -CardView.HEIGHT * 1.1 * z;
                 nd1.setPosition(x,y);
                 const scale1 = scale * 1.2;

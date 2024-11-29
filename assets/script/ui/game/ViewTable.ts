@@ -7,6 +7,7 @@ import { XUtils } from "../../comm/XUtils";
 import GameCtrl from "../../game/GameCtrl";
 import { GameGeometry } from "../../game/GameGeometry";
 import { CardJoker } from "../../data/GameConfig";
+import { CardTweens } from "../../game/CardTweens";
 const { ccclass, property } = _decorator;
 
 @ccclass('ViewTable')
@@ -30,23 +31,33 @@ export default class ViewTable extends Component {
 
     public dealCards(cards: Card[]) {
         console.log('ViewTable dealCards', cards);
-        const cardViews:CardView[] = [];
-        for (const card of cards) {
-            const ndCard = GameLoader.addCard()
-            ndCard.parent = this.node;
-            const cardView = ndCard.getComponent(CardView);
-            cardView.data = card;
-            cardView.vPosition = card.tPos;
-            cardView.vAngle = card.tAngle;
-            cardView._bFront = false;
-            cardViews.push(cardView);
-        }
-        // 当动画结束后
-        // 先setup所有牌
-        for (const v of cardViews) {
-            this.setupCard(v);
-        }
-        this.updateCards();
+        return new Promise<void>(resolve=>{
+            const cardViews:CardView[] = [];
+            for (const card of cards) {
+                const ndCard = GameLoader.addCard()
+                ndCard.parent = this.node;
+                const cardView = ndCard.getComponent(CardView);
+                cardView.data = card;
+                cardView.vPosition = card.tPos;
+                cardView.vAngle = card.tAngle;
+                cardView._bFront = false;
+                cardViews.push(cardView);
+            }
+            // 当动画结束后
+            // 先setup所有牌
+            for (let i = 0; i < cardViews.length; i++) {
+                const v = cardViews[i];
+                CardTweens.dealTableCard(v, i).call(()=>{
+                    if (i == cardViews.length - 1) {
+                        for (const e of cardViews) {
+                            this.setupCard(e);
+                        }
+                        this.updateCards();
+                        resolve();
+                    }
+                }).start();
+            }
+        });
     }
     
     public undoCard(cardView: CardView) {
