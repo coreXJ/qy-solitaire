@@ -1,4 +1,4 @@
-import { tween, v3, view } from "cc";
+import { Tween, tween, v3, view } from "cc";
 import CardView from "../ui/game/CardView";
 import { POOL_OFFSET_X, POOL_VISIBLE_CARD_COUNT } from "../ui/game/ViewHand";
 
@@ -98,6 +98,39 @@ export namespace CardTweens {
                     // cardView.vPositionXY = v3(x, y);
                 },
             });
+    }
+    /**table表面卡缓动 */
+    export function shake(cardView: CardView, bTop = false) {
+        const startAngle = cardView.data.tAngle;
+        cardView.vAngle = startAngle;
+        Tween.stopAllByTarget(cardView);
+        if (bTop) {
+            // FrameUnit*2 放大0.15
+            // delay FrameUnit*2
+            // FrameUnit*2 缩小0.15
+            tween(cardView)
+                .to(FrameUnit * 2, {z: 0.15}, {easing: 'cubicOut'})
+                .delay(FrameUnit * 2)
+                .to(FrameUnit * 2, {z: 0}, {easing: 'cubicIn'})
+                .start();
+            return tween(cardView)
+                .by(FrameUnit, {vAngle: 15})
+                .by(FrameUnit, {vAngle: -30})
+                .by(FrameUnit, {vAngle: 25})
+                .by(FrameUnit, {vAngle: -15})
+                .by(FrameUnit, {vAngle: 10})
+                .by(FrameUnit, {vAngle: -5})
+                .start();
+        } else {
+            return tween(cardView)
+                .by(FrameUnit, {vAngle: 7.5})
+                .by(FrameUnit, {vAngle: -15})
+                .by(FrameUnit, {vAngle: 12.5})
+                .by(FrameUnit, {vAngle: -7.5})
+                .by(FrameUnit, {vAngle: 5})
+                .by(FrameUnit, {vAngle: -2.5})
+                .start();
+        }
     }
 
     function easeInOutBack(x: number): number {

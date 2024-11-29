@@ -128,7 +128,12 @@ export default class ViewTable extends Component {
             return;
         }
         if (cardView.overlap == 0) {
-            GameCtrl.linkTable(cardView);
+            const bool = GameCtrl.linkTable(cardView);
+            if (!bool) {
+                CardTweens.shake(cardView,true).start();
+            }
+        } else {
+            CardTweens.shake(cardView).start();
         }
     }
 

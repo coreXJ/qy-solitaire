@@ -152,6 +152,7 @@ class GameCtrl {
             this.checkTableCardCount();
             GMCtrl.addTopCardCount(this.view.table.getTopCardViews().length);
         }
+        return bCanLink;
     }
 
     public checkTableCardCount() {
