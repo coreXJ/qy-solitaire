@@ -1,9 +1,10 @@
 import { tween, v3, view } from "cc";
 import CardView from "../ui/game/CardView";
+import { POOL_OFFSET_X, POOL_VISIBLE_CARD_COUNT } from "../ui/game/ViewHand";
 
 export namespace CardTweens {
 
-    const FrameUnit = 1 / 12; // 1帧=1/12秒
+    export const FrameUnit = 1 / 12; // 1帧=1/12秒
 
     export function linkTable(cardView: CardView) {
         // 0左 1右
@@ -66,13 +67,65 @@ export namespace CardTweens {
             )
     }
 
-    
+    export function addPoolCard(cardView: CardView, idx: number, total: number) {
+        const startX = -CardView.WIDTH * 0.5;
+        const num = Math.min(total - idx, POOL_VISIBLE_CARD_COUNT) - 1;
+        const x = startX + num * POOL_OFFSET_X;
+        let startPos = v3(x + 50, -200); // 屏幕下方中间
+        let endPos = v3(x, 0, 0);
+        let z = 0.2;
+        let angle = 15;
+        cardView.z = z;
+        cardView.node.active = false;
+        cardView.vPositionXY = startPos;
+        cardView.vAngle = angle;
+        return tween(cardView)
+            .delay(idx * 0.1)
+            .call(()=>{
+                cardView.node.active = true;
+            })
+            .to(FrameUnit * 8, {
+                // z: 0,
+                vPositionXY:endPos
+            }, {
+                easing: 'backOut',
+                onUpdate(target, ratio) {
+                    cardView.z = z - ratio * z;
+                    let r1 = Math.min(1, ratio / 0.5);
+                    cardView.vAngle = angle - easeOutBackHalf(r1, 1.9) * angle;
+                    // let x = startPos.x + (endPos.x - startPos.x) * easeOutBack(ratio);
+                    // let y = startPos.y + (endPos.y - startPos.y) * easeOutBack(ratio);
+                    // cardView.vPositionXY = v3(x, y);
+                },
+            });
+    }
+
+    function easeInOutBack(x: number): number {
+        const c1 = 1.70158;
+        const c2 = c1 * 1.525;
+        return x < 0.5
+            ? (Math.pow(2 * x, 2) * ((c2 + 1) * 2 * x - c2)) / 2
+            : (Math.pow(2 * x - 2, 2) * ((c2 + 1) * (x * 2 - 2) + c2) + 2) / 2;
+    }
     function easeInBackHalf(x: number, c1 = 1.70158)  {
         const c2 = c1 * 1.8;
 		x = x / 2
         return (Math.pow(2 * x, 2) * ((c2 + 1) * 2 * x - c2))
     }
-
+    function easeOutBackHalf(x: number, c1 = 1.70158)  {
+        const c2 = c1 * 1.8;
+		x = 0.5 + x / 2
+        return (Math.pow(2 * x - 2, 2) * ((c2 + 1) * (x * 2 - 2) + c2) + 2) / 2;
+    }
+    function easeInBack(x: number, c1 = 1.70158): number {
+        const c3 = c1 + 1;
+        return c3 * x * x * x - c1 * x * x;
+    }
+    function easeOutBack(x: number, c1 = 1.70158): number {
+        const c3 = c1 + 1;
+        return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2);
+    }
+    
     function easeOutQuad(x: number): number {
         return 1 - (1 - x) * (1 - x);
     }

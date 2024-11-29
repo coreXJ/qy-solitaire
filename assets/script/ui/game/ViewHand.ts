@@ -1,4 +1,4 @@
-import { _decorator, Component, Label, Node, tween, Tween, v3, Vec3 } from "cc";
+import { _decorator, Component, Label, Node, tween, Tween, UIOpacity, v3, Vec3 } from "cc";
 import GameLoader from "../../game/GameLoader";
 import { Card, CardType, PropID } from "../../data/GameObjects";
 import CardView from "./CardView";
@@ -11,8 +11,8 @@ import UserModel from "../../data/UserModel";
 import { CardTweens } from "../../game/CardTweens";
 const { ccclass, property } = _decorator;
 
-const POOL_VISIBLE_CARD_COUNT = 9;
-const POOL_OFFSET_X = -22;
+export const POOL_VISIBLE_CARD_COUNT = 9;
+export const POOL_OFFSET_X = -22;
 
 @ccclass('ViewHand')
 export default class ViewHand extends Component {
@@ -35,8 +35,6 @@ export default class ViewHand extends Component {
     private poolCards: CardView[] = [];
     private handCards: CardView[] = [];
     
-    private _canDrawPoolTime: number;
-
     //==viewmodel start==
     public get poolCardValues(): number[] {
         return this.poolCards.map(cardView => cardView.cardValue);
@@ -73,13 +71,20 @@ export default class ViewHand extends Component {
     public dealCards(poolCount: number) {
         console.log('ViewHand dealCards', poolCount);
         return new Promise<void>(resolve => {
-            // 先发pool牌 
-            for (let i = 0; i < poolCount + 1; i++) {
-                this.addPoolCardView();
-            }
-            // 再翻一张hand牌
-            this.scheduleOnce(() => {
-                resolve();
+            this.scheduleOnce(()=>{
+                // 先发pool牌 
+                for (let i = 0; i < poolCount + 1; i++) {
+                    const cardView = this.newPoolCardView();
+                    CardTweens.addPoolCard(cardView, i, poolCount + 1)
+                    .call(()=>{
+                        if (i == poolCount) {
+                            this.tweenMovePoolCards();
+                            this.scheduleOnce(() => {
+                                resolve();
+                            }, 0.7);
+                        }
+                    }).start();
+                }
             }, 0.7);
         });
     }
@@ -173,14 +178,11 @@ export default class ViewHand extends Component {
     }
     public addPropAddCards(count: number) {
         for (let i = 0; i < count; i++) {
-            const nd = GameLoader.addCard();
-            nd.parent = this.ndPoolRoot;
-            const cardView = nd.getComponent(CardView);
-            cardView.cardValue = 0;
-            this.poolCards.push(cardView);
-            this.view.bindClick(nd, this.onClickPoolCard, this, cardView);
+            const cardView = this.newPoolCardView();
+            CardTweens.addPoolCard(cardView, i, count).start();
         }
-        this.tweenMovePoolCards();
+        this.checkPoolEmpty();
+        this.view.blockTouch(1 / 12 * 8 + 0.1 * count);
     }
     public addPropJokerCard() {
         const nd = GameLoader.addCard();
@@ -227,7 +229,14 @@ export default class ViewHand extends Component {
     //     }
     //     this.tweenMovePoolCards();
     // }
-
+    public newPoolCardView() {
+        const nd = GameLoader.addCard(this.ndPoolRoot);
+        const cardView = nd.getComponent(CardView);
+        cardView.cardValue = 0;
+        this.poolCards.push(cardView);
+        this.view.bindClick(cardView.node, this.onClickPoolCard, this, cardView);
+        return cardView;
+    }
     public addPoolCardView(cardView?: CardView) {
         // const len = this.poolCards.length;
         if (!cardView) {
@@ -243,6 +252,7 @@ export default class ViewHand extends Component {
     public drawPoolCard(cardValue?: number) {
         if (this.poolCards.length > 0) {
             const cardView = this.topPoolCard;
+            Tween.stopAllByTarget(cardView);
             const wpos = v3(cardView.vWorldPosition);
             this.popPoolCard();
             cardView.data = cardView.data || new Card();
@@ -365,15 +375,13 @@ export default class ViewHand extends Component {
 
     private onClickPoolCard(cardView: CardView) {
         const idx = this.poolCards.indexOf(cardView);
+        console.log('onClickPoolCard',idx,cardView);
         if (idx == -1 || idx < this.poolCards.length - 1) {
             return;
         }
-        if (this._canDrawPoolTime > Date.now()) {
-            return;
-        }
         console.log('onClickPoolCard', cardView);
-        this._canDrawPoolTime = Date.now() + 500;
         GameCtrl.drawPool();
+        this.view.blockTouch(0.5);
     }
 
     /**用tween缓动把poolCard移到自己的位置 */
@@ -394,7 +402,26 @@ export default class ViewHand extends Component {
         }
         // 检查ndExtraNum是否大于0
         const bExtra = len > POOL_VISIBLE_CARD_COUNT;
-        this.ndExtraNum.active = bExtra;
+        // this.ndExtraNum.active = true;
+        const extraNumX = -268;
+        if (!this.ndExtraNum.active) {
+            this.ndExtraNum.setPosition(extraNumX + 50, 0);
+        }
+        if (bExtra) {
+            tween(this.ndExtraNum).set({
+                active: true
+            }).to(0.2, {
+                position: v3(extraNumX)
+            }).set({
+            }).start();
+        } else if (this.ndExtraNum.active) {
+            tween(this.ndExtraNum)
+            .to(0.2, {
+                position: v3(extraNumX + 50)
+            }).set({
+                active: false
+            }).start();
+        }
         const lb = this.ndExtraNum.getComponentInChildren(Label);
         lb.string = '+' + (len - POOL_VISIBLE_CARD_COUNT);
         this.checkPoolEmpty();
@@ -427,5 +454,6 @@ export default class ViewHand extends Component {
         }
         this.poolCards = [];
         this.handCards = [];
+        this.ndExtraNum.active = false;
     }
 }

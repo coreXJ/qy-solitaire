@@ -65,10 +65,12 @@ export default class UIGame extends UIView {
      */
     public async startGame(level: Level,winPoolCards: number[],boosterIDs: BoosterID[]) {
         this.isStarted = false;
-        // 1.发桌牌
-        await this.table.dealCards(level.tableCards);
-        // 2.发储备牌
-        await this.hand.dealCards(level.poolCount);
+        Promise.all([
+            // 1.发桌牌
+            this.table.dealCards(level.tableCards),
+            // 2.发储备牌
+            await this.hand.dealCards(level.poolCount)
+        ]);
         for (const id of boosterIDs) {
             if (id == BoosterID.hook) {
                 // 3.场外钩子
