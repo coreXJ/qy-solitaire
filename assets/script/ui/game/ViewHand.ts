@@ -8,6 +8,7 @@ import GameCtrl from "../../game/GameCtrl";
 import { CardBlow, CardJoker } from "../../data/GameConfig";
 import GameData from "../../game/GameData";
 import UserModel from "../../data/UserModel";
+import { CardTweens } from "../../game/CardTweens";
 const { ccclass, property } = _decorator;
 
 const POOL_VISIBLE_CARD_COUNT = 9;
@@ -343,14 +344,7 @@ export default class ViewHand extends Component {
             cardView.vWorldPosition = fromWorldPosition;
         }
         this.handCards.push(cardView);
-        tween(cardView).to(0.3, { 
-            vPosition: v3(0,0),
-            vAngle: 0,
-         },{ easing: 'quadOut' })
-            .delay(0.2)
-            .call(()=>{
-                // cardView.isFront = true;
-            }).start();
+        CardTweens.linkTable(cardView).start();
     }
 
     public refreshProp() {

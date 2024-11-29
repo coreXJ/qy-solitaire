@@ -1,7 +1,7 @@
-import { _decorator, Node, Label, instantiate, Sprite, tween, v3 } from "cc";
+import { _decorator, Node, Label, instantiate, Sprite } from "cc";
 import { isFullScreen, UIView } from "../../base/UIView";
 import { UIMgr } from "../../manager/UIMgr";
-import { LoginTypeID, UIID } from "../../data/GameConfig";
+import { UIID } from "../../data/GameConfig";
 import GameData from "../../game/GameData";
 import { XUtils } from "../../comm/XUtils";
 import { BoosterID, Level } from "../../data/GameObjects";
@@ -11,8 +11,6 @@ import { EventMgr, EventName } from "../../manager/EventMgr";
 import GameCtrl from "../../game/GameCtrl";
 import { MySprite } from "../../components/MySprite";
 import GMCtrl from "../../GM/GMCtrl";
-import GameLoader from "../../game/GameLoader";
-import CardView from "../game/CardView";
 const { ccclass, property } = _decorator;
 
 @ccclass('UIHall')
@@ -48,16 +46,6 @@ export default class UIHall extends UIView {
     }
     public onOpen(fromUI: number, ...args: any): void {
         GMCtrl.init();
-
-        let nd = GameLoader.addCard(this.node);
-        let cardView = nd.getComponent(CardView);
-        nd.setPosition(90,20)
-        nd = GameLoader.addCard(this.node);
-        cardView = nd.getComponent(CardView);
-        tween(cardView).to(3, {
-            vPosition: v3(0, 0, 0.2),
-            vAngle: -45,
-        }).start();
     }
     protected onEnable(): void {
         console.log('UIHall onEnable');

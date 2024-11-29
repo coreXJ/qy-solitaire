@@ -32,6 +32,7 @@ export class Launch extends Component {
         this._hideTime = Date.now();
     }
     start() {
+        // game.frameRate = 120;
         HotUpdateMgr.instance.checkMainVersion();
         //初始化UI配置表
         UIMgr.instance.initUIConf(UIConfig);
