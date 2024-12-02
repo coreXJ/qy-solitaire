@@ -69,7 +69,7 @@ export default class ViewHand extends Component {
     }
     
     public dealCards(poolCount: number) {
-        console.log('ViewHand dealCards', poolCount);
+        // console.log('ViewHand dealCards', poolCount);
         return new Promise<void>(resolve => {
             this.scheduleOnce(()=>{
                 // 先发pool牌 
@@ -77,8 +77,9 @@ export default class ViewHand extends Component {
                     const cardView = this.newPoolCardView();
                     CardTweens.addPoolCard(cardView, i, poolCount + 1)
                     .call(()=>{
+                        console.log('i',i,'poolCount',poolCount);
                         if (i == poolCount) {
-                            this.tweenMovePoolCards();
+                            // this.tweenMovePoolCards();
                             this.scheduleOnce(() => {
                                 resolve();
                             }, 0.7);
@@ -139,7 +140,12 @@ export default class ViewHand extends Component {
      * 往抽牌池插入牌，有几种业务情况
      */
     public insertTaskAwardCard(cardValues: number[],idxs: number[]) {
-        for (let i = 0; i < cardValues.length; i++) {
+        const addCards: CardView[] = [];
+        const tws: Tween[] = [];
+        const count = cardValues.length;
+        const pos = this.view.top.getTaskCardWorldPosition();
+        const startX = pos.x - (count - 1)/2 * CardView.WIDTH / 2;
+        for (let i = 0; i < count; i++) {
             const value = cardValues[i];
             const nd = GameLoader.addCard();
             nd.parent = this.ndPoolRoot;
@@ -147,14 +153,33 @@ export default class ViewHand extends Component {
             cardView.cardValue = value;
             this.poolCards.splice(idxs[i], 0, cardView);
             this.view.bindClick(nd, this.onClickPoolCard, this, cardView);
-            const pos = this.view.top.getTaskCardWorldPosition();
-            cardView.vWorldPosition = pos;
-            tween(cardView).set({z: -0.8})
-                .to(0.3,{z: 0},{easing:'backOut'}).start();
+            const vPos = v3(pos);
+            vPos.x = startX + i * CardView.WIDTH / 2;
+            cardView.vWorldPosition = vPos;
+            const tw = CardTweens.popTaskAwardCard(cardView);
+            tws.push(tw);
+            addCards.push(cardView);
         }
-        this.scheduleOnce(()=>{
-            this.tweenMovePoolCards();
-        },0.5);
+        tws[count - 1].call(()=>{
+            this.tweenMovePoolCards((cardView,x,bExtraCard)=>{
+                const idx = addCards.indexOf(cardView);
+                if (idx >= 0) {
+                    const tw = CardTweens.moveTaskAwardPoolCard(cardView, x);
+                    tw.call(()=>{
+                        if (bExtraCard) {
+                            CardTweens.fadeOut(cardView);
+                        } else {
+                            CardTweens.fadeIn(cardView);
+                        }
+                    }).start();
+                    return true;
+                }
+                return false;
+            });
+        });
+        for (const e of tws) {
+            e.start();
+        }
     }
     public undoTaskAwardCards(idxs: number[]) {
         idxs.sort((id0,id1)=>id1-id0); // 从大到小排序
@@ -250,6 +275,7 @@ export default class ViewHand extends Component {
     }
 
     public drawPoolCard(cardValue?: number) {
+        console.log('drawPoolCard',cardValue);
         if (this.poolCards.length > 0) {
             const cardView = this.topPoolCard;
             Tween.stopAllByTarget(cardView);
@@ -260,6 +286,7 @@ export default class ViewHand extends Component {
             if (cardValue) {
                 cardView.data.value = cardValue;
             }
+            console.log('drawPoolCard111',cardView.cardValue);
             if (cardView.cardValue == CardBlow) {
                 this.playBlowCardEffect(cardView, wpos);
             } else {
@@ -313,6 +340,7 @@ export default class ViewHand extends Component {
     }
 
     public addHandCard(cardView: CardView, fromWorldPosition?: Vec3) {
+        console.log('addHandCard111');
         cardView.node.parent = this.ndHandRoot;
         if (fromWorldPosition) {
             cardView.vWorldPosition = fromWorldPosition;
@@ -322,6 +350,7 @@ export default class ViewHand extends Component {
             .delay(0.1)
             .call(()=>{
                 cardView.isFront = true;
+                console.log('addHandCard222',cardView.cardValue);
             }).start();
     }
     public popHandCard() {
@@ -385,7 +414,7 @@ export default class ViewHand extends Component {
     }
 
     /**用tween缓动把poolCard移到自己的位置 */
-    private tweenMovePoolCards() {
+    private tweenMovePoolCards(customTweenFunc?: (cardView:CardView,x:number,bExtraCard:boolean)=>boolean) {
         const len = this.poolCards.length;
         const startX = -CardView.WIDTH * 0.5;
         for (let i = 0; i < len; i++) {
@@ -395,10 +424,19 @@ export default class ViewHand extends Component {
             const num = Math.min(len - i, POOL_VISIBLE_CARD_COUNT) - 1;
             const x = startX + num * POOL_OFFSET_X;
             Tween.stopAllByTarget(nd);
-            tween(cardView).to(0.5, {
-                vPosition: v3(x, 0, 0),
-                // scale: v3(1, 1, 1)
-            }, { easing: 'quadOut' }).start();
+            // 如果是extra的牌，fadeOut，否则fadeIn
+            const bExtraCard = POOL_VISIBLE_CARD_COUNT < len - i - 1;
+            const bCustomTween = customTweenFunc && customTweenFunc(cardView,x,bExtraCard);
+            if (!bCustomTween) {
+                CardTweens.movePoolCard(cardView, x)
+                    .call(()=>{
+                        if (bExtraCard) {
+                            CardTweens.fadeOut(cardView);
+                        } else {
+                            CardTweens.fadeIn(cardView);
+                        }
+                    }).start();
+            }
         }
         // 检查ndExtraNum是否大于0
         const bExtra = len > POOL_VISIBLE_CARD_COUNT;

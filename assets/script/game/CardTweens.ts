@@ -1,4 +1,4 @@
-import { Tween, tween, v3, view } from "cc";
+import { Tween, tween, UIOpacity, v3, view } from "cc";
 import CardView from "../ui/game/CardView";
 import { POOL_OFFSET_X, POOL_VISIBLE_CARD_COUNT } from "../ui/game/ViewHand";
 
@@ -131,6 +131,52 @@ export namespace CardTweens {
                 .by(FrameUnit, {vAngle: -2.5})
                 .start();
         }
+    }
+    export function fadeOut(cardView: CardView) {
+        const op = cardView.getComponent(UIOpacity) || cardView.addComponent(UIOpacity);
+        return tween(op).to(FrameUnit * 4, {
+            opacity: 0,
+        }, {
+            easing: 'fade',
+        });
+    }
+    export function fadeIn(cardView: CardView) {
+        const op = cardView.getComponent(UIOpacity) || cardView.addComponent(UIOpacity);
+        return tween(op).to(FrameUnit * 4, {
+            opacity: 255,
+        }, {
+            easing: 'fade',
+        });
+    }
+    export function popTaskAwardCard(cardView: CardView) {
+        return tween(cardView)
+            .set({
+                z: -0.8,
+                vAngle: -5
+            })
+            .to(FrameUnit * 3, {
+                z: 0,
+            }, {
+                easing: 'backOut',
+            }).delay(FrameUnit * 3);
+    }
+    export function movePoolCard(cardView: CardView, x: number) {
+        return tween(cardView).to(FrameUnit * 6, {
+            vPosition: v3(x, 0, 0),
+            vAngle: 0
+        }, { easing: 'cubicOut' });
+    }
+    export function moveTaskAwardPoolCard(cardView: CardView, x: number) {
+        return tween(cardView)
+            // .delay(idx * FrameUnit * 2)
+            .to(FrameUnit * 6, {
+                vPosition: v3(x, CardView.HEIGHT / 2, 0),
+                vAngle: 5,
+            }, { easing: 'quadOut' })
+            .to(FrameUnit * 4, {
+                vPosition: v3(x, 0, 0),
+                vAngle: 0,
+            }, { easing: 'sineIn' });
     }
 
     function easeInOutBack(x: number): number {

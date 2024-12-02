@@ -179,6 +179,7 @@ class GameCtrl {
     }
     private _guaranteeCount = 0;//摸牌保底计数
     public drawPool() {
+        this.view.table.shakeMissCards();
         const handValue = this.view.hand.topPoolCardValue;
         const action = new GameAction();
         action.type = GameActionType.drawPool;
@@ -272,6 +273,7 @@ class GameCtrl {
         if (id == PropID.PropAdd) {
             this.view.hand.addPropAddCards(5); //读配置
         } else if (id == PropID.PropJoker) {
+            this.view.table.shakeMissCards();
             const action = new GameAction();
             action.type = GameActionType.propJoker;
             action.task = this.task;

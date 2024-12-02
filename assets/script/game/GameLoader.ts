@@ -1,4 +1,4 @@
-import { instantiate, isValid, NodePool, Prefab, Sprite, SpriteFrame,Node, v3, Button } from "cc";
+import { instantiate, isValid, NodePool, Prefab, Sprite, SpriteFrame,Node, v3, Button, UIOpacity } from "cc";
 import { ResMgr } from "../manager/ResMgr";
 import CardView from "../ui/game/CardView";
 import { XUtils } from "../comm/XUtils";
@@ -61,9 +61,10 @@ class GameLoader {
             card.setPosition(0, 0, 0);
         } else {
             card = instantiate(this.getPrefab('CardView'));
-            card.getComponent(CardView).updateView();
         }
         card.parent = parent;
+        const cardView = card.getComponent(CardView);
+        cardView.cardValue = 0;
         return card;
     }
 
@@ -75,6 +76,7 @@ class GameLoader {
                 this._cardNodePool.put(cardNode);
             }
             cardNode.getComponent(Button)?.destroy();
+            cardNode.getComponent(UIOpacity)?.destroy();
             XUtils.unbindClick(cardNode);
         }
     }

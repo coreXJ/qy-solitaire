@@ -8,6 +8,7 @@ import GameCtrl from "../../game/GameCtrl";
 import { GameGeometry } from "../../game/GameGeometry";
 import { CardJoker } from "../../data/GameConfig";
 import { CardTweens } from "../../game/CardTweens";
+import GameLogic from "../../game/GameLogic";
 const { ccclass, property } = _decorator;
 
 @ccclass('ViewTable')
@@ -119,6 +120,20 @@ export default class ViewTable extends Component {
                     GameCtrl.linkTable(e);
                 }, 0.2);
                 return;
+            }
+        }
+    }
+    /**显示miss的卡，当摸储备卡或者使用小丑道具 */
+    public shakeMissCards() {
+        const handValue = this.view.hand.topHandCardValue;
+        if (handValue >= 0x40) {
+            return; // 当顶部牌是效果牌时忽略
+        }
+        const tops = this.getTopCardViews();
+        for (const cardView of tops) {
+            const bool = GameLogic.isCanLink(handValue, cardView.cardValue);
+            if (bool) {
+                CardTweens.shake(cardView, true);
             }
         }
     }
