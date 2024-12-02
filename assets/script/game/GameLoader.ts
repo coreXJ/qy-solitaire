@@ -1,4 +1,4 @@
-import { instantiate, isValid, NodePool, Prefab, Sprite, SpriteFrame,Node, v3, Button, UIOpacity } from "cc";
+import { instantiate, isValid, NodePool, Prefab, Sprite, SpriteFrame,Node, v3, Button, UIOpacity, Tween } from "cc";
 import { ResMgr } from "../manager/ResMgr";
 import CardView from "../ui/game/CardView";
 import { XUtils } from "../comm/XUtils";
@@ -71,13 +71,17 @@ class GameLoader {
     public removeCard(...cardNodes: Node[]){
         for (const cardNode of cardNodes) {
             let card = cardNode.getComponent(CardView);
+            cardNode.getComponent(Button)?.destroy();
+            XUtils.unbindClick(cardNode);
+            const op = cardNode.getComponent(UIOpacity);
+            if (op) {
+                Tween.stopAllByTarget(op);
+                op.opacity = 255;
+            }
             if(isValid(card)){
                 card.reset();
                 this._cardNodePool.put(cardNode);
             }
-            cardNode.getComponent(Button)?.destroy();
-            cardNode.getComponent(UIOpacity)?.destroy();
-            XUtils.unbindClick(cardNode);
         }
     }
     private async preloadPrefabs(){

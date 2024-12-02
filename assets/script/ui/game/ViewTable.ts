@@ -1,4 +1,4 @@
-import { _decorator, Component, Intersection2D, tween, UITransform, v3 } from "cc";
+import { _decorator, Component, Intersection2D, Tween, tween, UITransform, v3 } from "cc";
 import GameLoader from "../../game/GameLoader";
 import { Card, CardType } from "../../data/GameObjects";
 import CardView from "./CardView";
@@ -332,7 +332,42 @@ export default class ViewTable extends Component {
             return false;
         }
     }
-
+    /** 所有牌落下去，放弃游戏时的效果 */
+    public fallCards(cardViews = this.cardViews) {
+        return new Promise<void>(resolve=>{
+            const count = cardViews.length;
+            if (count == 0) {
+                resolve();
+                return;
+            }
+            const tws: Tween[] = [];
+            let topLayer = 0;
+            for (const e of cardViews) {
+                if (e.data.tLayer > topLayer) {
+                    topLayer = e.data.tLayer;
+                }
+            }
+            for (let i = 0; i < count; i++) {
+                const cardView = cardViews[i];
+                Tween.stopAllByTarget(cardView);
+                cardView.node.parent = this.view.node;
+                const tw = CardTweens.fall(cardView, topLayer - cardView.data.tLayer)
+                tw.call(()=>{
+                    GameLoader.removeCard(cardView.node);
+                }).delay(0.1);
+                tws.push(tw);
+            }
+            tws[count-1].call(() => {
+                resolve();
+            })
+            for (const e of tws) {
+                e.start();
+            }
+            if (cardViews == this.cardViews) {
+                this.cardViews = [];
+            }
+        })
+    }
     public getCardCount() {
         return this.cardViews.length;
     }

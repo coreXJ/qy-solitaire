@@ -179,6 +179,22 @@ export namespace CardTweens {
             }, { easing: 'sineIn' });
     }
 
+    export function fall(cardView: CardView, layer: number) {
+        const vAngle = cardView.vAngle <= 0 ? -15 : 15;
+        const y = cardView.vWorldPosition.y;
+        return tween(cardView)
+            .delay(FrameUnit * layer * 2)
+            .parallel(
+                tween(cardView).by(FrameUnit * 10, {
+                    vWorldPosition: v3(0, -y - CardView.HEIGHT, 0),
+                    vAngle
+                }, { easing: 'cubicIn' }),
+                tween(cardView).to(FrameUnit * 10, {
+                    z: 0.2
+                }, { easing: 'cubicOut' }),
+            )
+    }
+
     function easeInOutBack(x: number): number {
         const c1 = 1.70158;
         const c2 = c1 * 1.525;

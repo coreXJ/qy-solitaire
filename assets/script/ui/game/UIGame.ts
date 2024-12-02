@@ -164,8 +164,11 @@ export default class UIGame extends UIView {
     }
 
     public showZanting() {
-        this.zanting.show(()=>{
-            GameCtrl.onGameEnd(false);
+        this.zanting.show(() => {
+            this.isStarted = false;
+            this.table.fallCards().then(() => {
+                GameCtrl.onGameEnd(false);
+            });
         });
     }
 
