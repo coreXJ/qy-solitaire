@@ -1,4 +1,4 @@
-import { Tween, tween, UIOpacity, v3, view } from "cc";
+import { Tween, tween, UIOpacity, v3, Vec3, view } from "cc";
 import CardView from "../ui/game/CardView";
 import { POOL_OFFSET_X, POOL_VISIBLE_CARD_COUNT } from "../ui/game/ViewHand";
 
@@ -40,7 +40,34 @@ export namespace CardTweens {
             })
         );
     }
-
+    export function propJoker(cardView: CardView) {
+        const startPos = v3(cardView.vPosition);
+        const endPos = v3(0, 0);
+        const topY = startPos.y * 1.4;
+        const topDiff = topY - startPos.y;
+        console.log('propJoker',startPos);
+        return tween(cardView).to(FrameUnit * 8, {
+                vPositionXY: v3(0, 0),
+            }, {
+                easing: 'sineOut',
+                onUpdate(target, k) {
+                    const diffX = endPos.x - startPos.x;
+                    let x = startPos.x + diffX * k;
+                    let y = 0;
+                    let z = 0
+                    if (k < 0.5) {
+                        k = easeOutCubic(k*2);
+                        y = startPos.y + topDiff * k;
+                        cardView.vAngle = 15 * k;
+                    } else {
+                        k = easeInQuad((k-0.5)*2);
+                        y = topY - topY * k;
+                        cardView.vAngle = 15 - k * 15;
+                    }
+                    cardView.vPosition = v3(x, y, z);
+                },
+            });
+    }
     export function dealTableCard(cardView: CardView, idx: number) {
         // 起始位置在屏幕左边中间
         const startX = -view.getVisibleSize().width / 2 - CardView.WIDTH;
@@ -224,8 +251,14 @@ export namespace CardTweens {
     function easeOutQuad(x: number): number {
         return 1 - (1 - x) * (1 - x);
     }
+    function easeInQuad(x: number): number {
+        return x * x;
+    }
     function easeOutCubic(x: number): number {
         return 1 - Math.pow(1 - x, 3);
+    }
+    function easeInCubic(x: number): number {
+        return x * x * x;
     }
     function easeOutCirc(x: number): number {
         return Math.sqrt(1 - Math.pow(x - 1, 2));

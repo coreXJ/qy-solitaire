@@ -77,7 +77,6 @@ export default class ViewHand extends Component {
                     const cardView = this.newPoolCardView();
                     CardTweens.addPoolCard(cardView, i, poolCount + 1)
                     .call(()=>{
-                        console.log('i',i,'poolCount',poolCount);
                         if (i == poolCount) {
                             // this.tweenMovePoolCards();
                             this.scheduleOnce(() => {
@@ -211,17 +210,23 @@ export default class ViewHand extends Component {
     }
     public addPropJokerCard() {
         const nd = GameLoader.addCard();
-        nd.parent = this.node;
+        nd.parent = this.ndHandRoot;
         const cardView = nd.getComponent(CardView);
         cardView.cardValue = CardJoker;
         // this.poolCards.push(cardView);
-        cardView.vWorldPosition = this.propJokerWorldPosition;
+        const startWorldPos = this.propJokerWorldPosition;
+        // const endWorldPos = this.ndHandRoot.worldPosition;
+        cardView.vWorldPosition = startWorldPos;
         tween(cardView).set({z: -0.8})
             .to(0.3,{z: 0},{easing:'backOut'}).start();
         this.scheduleOnce(()=>{
-            this.addHandCard(cardView, this.propJokerWorldPosition);
+            // this.addHandCard(cardView, this.propJokerWorldPosition);
+            CardTweens.propJoker(cardView).call(()=>{
+
+            }).start();
             // this.tweenMovePoolCards();
         },0.5);
+        this.handCards.push(cardView);
     }
     private get propJokerWorldPosition() {
         const pos = v3(this.ndPropJoker.worldPosition);
