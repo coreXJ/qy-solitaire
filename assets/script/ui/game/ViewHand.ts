@@ -30,6 +30,8 @@ export default class ViewHand extends Component {
     ndPropJoker: Node = null;
     @property(Node)
     ndExtraNum: Node = null;
+    @property(Node)
+    prebWinGold: Node = null;
     
     public view: UIGame = null;
     private poolCards: CardView[] = [];
@@ -74,9 +76,11 @@ export default class ViewHand extends Component {
             this.scheduleOnce(()=>{
                 // 先发pool牌 
                 for (let i = 0; i < poolCount + 1; i++) {
-                    const cardView = this.newPoolCardView();
+                    const cardView = this.newPoolCardView(false);
                     CardTweens.addPoolCard(cardView, i, poolCount + 1)
                     .call(()=>{
+                        this.poolCards.push(cardView);
+                        // this.updatePoolVisible();
                         if (i == poolCount) {
                             // this.tweenMovePoolCards();
                             this.scheduleOnce(() => {
@@ -257,11 +261,13 @@ export default class ViewHand extends Component {
     //     }
     //     this.tweenMovePoolCards();
     // }
-    public newPoolCardView() {
+    public newPoolCardView(bAdd = true) {
         const nd = GameLoader.addCard(this.ndPoolRoot);
         const cardView = nd.getComponent(CardView);
         cardView.cardValue = 0;
-        this.poolCards.push(cardView);
+        if (bAdd) {
+            this.poolCards.push(cardView);
+        }
         this.view.bindCardTouch(cardView, this.onClickPoolCard, this, cardView);
         return cardView;
     }
@@ -285,7 +291,7 @@ export default class ViewHand extends Component {
             const wpos = v3(cardView.vWorldPosition);
             this.popPoolCard();
             cardView.data = cardView.data || new Card();
-            cardView.data.type = CardType.hand;
+            cardView.type = CardType.hand;
             if (cardValue) {
                 cardView.data.value = cardValue;
             }
@@ -339,7 +345,9 @@ export default class ViewHand extends Component {
     public undoDrawPoolCard() {
         const cardView = this.popHandCard();
         cardView.isFront = false;
+        const wpos = cardView.vWorldPosition;
         this.addPoolCardView(cardView);
+        cardView.vWorldPosition = wpos;
     }
 
     public addHandCard(cardView: CardView, fromWorldPosition?: Vec3) {
@@ -380,7 +388,7 @@ export default class ViewHand extends Component {
     }
     // tween动画 把桌牌飞过来 到时候要改下动画
     public linkTableCard(cardView: CardView, fromWorldPosition?: Vec3) {
-        cardView.data.type = CardType.hand;
+        cardView.type = CardType.hand;
         cardView.node.parent = this.ndHandRoot;
         if (fromWorldPosition) {
             cardView.vWorldPosition = fromWorldPosition;
@@ -434,9 +442,9 @@ export default class ViewHand extends Component {
                 CardTweens.movePoolCard(cardView, x)
                     .call(()=>{
                         if (bExtraCard) {
-                            CardTweens.fadeOut(cardView);
+                            CardTweens.fadeOut(cardView).start();
                         } else {
-                            CardTweens.fadeIn(cardView);
+                            CardTweens.fadeIn(cardView).start();
                         }
                     }).start();
             }
@@ -473,6 +481,46 @@ export default class ViewHand extends Component {
         });
     }
 
+    /**通关时的算分动画 */
+    public playWinAnimPool() {
+        const cards = [...this.poolCards].reverse();
+        return new Promise<void>(resolve=>{
+            let idx = 0;
+            let addMs = 0.25;
+            const next = ()=>{
+                const cardView = cards[idx];
+                CardTweens.fadeOutTop(cardView, addMs, ()=>{
+                    idx ++;
+                    if (idx < cards.length) {
+                        addMs = Math.max(addMs - 0.05, 0);
+                        next();
+                    }
+                    console.log('跳金币');
+                    // 跳金币
+                    const x = cardView.vWorldPosition.x;
+                    const startY = this.ndPoolRoot.worldPosition.y + CardView.HEIGHT;
+                    const ndGoldAnim = GameLoader.addWinPoolGold(this.prebWinGold);
+                    ndGoldAnim.parent = this.node;
+                    ndGoldAnim.worldPosition = v3(x, startY);
+                    CardTweens.fadeOutWinPoolGold(ndGoldAnim)
+                        .call(()=>{
+                            GameLoader.removeWinPoolGold(ndGoldAnim);
+                            if (idx >= cards.length) {
+                                resolve();
+                            }
+                        }).start();
+                }).start();
+            }
+            this.scheduleOnce(()=>{
+                next();
+                CardTweens.fadeOutNode(this.ndExtraNum).call(()=>{
+                    this.ndExtraNum.getComponent(UIOpacity).opacity = 255;
+                    this.ndExtraNum.active = false;
+                }).start();
+            }, 0.6);
+        });
+    }
+
     private checkPoolEmpty() {
         const len = this.poolCards.length;
         const bEmpty = len == 0;
@@ -498,6 +546,12 @@ export default class ViewHand extends Component {
         this.ndExtraNum.active = false;
     }
     protected update(dt: number): void {
+        if (this.view.isStarted) {
+            this.updateHandVisible(); 
+            // this.updatePoolVisible();
+        }
+    }
+    private updateHandVisible() {
         const handCount = this.handCards.length;
         if (handCount == 0) {
             return;
@@ -516,4 +570,25 @@ export default class ViewHand extends Component {
             }
         }
     }
+    // private updatePoolVisible() {
+    //     const count = this.poolCards.length;
+    //     if (count == 0) {
+    //         return;
+    //     }
+    //     const startX = -CardView.WIDTH * 0.5;
+    //     const x = startX + (POOL_VISIBLE_CARD_COUNT - 1) * POOL_OFFSET_X;
+    //     let bool = false;
+    //     for (let i = count - 1; i >= 0; i--) {
+    //         const e = this.poolCards[i];
+    //         if (!bool) {
+    //             e.node.active = true;
+    //             const xy = e.vPositionXY;
+    //             if (xy.x == x) {
+    //                 bool = true;
+    //             }
+    //         } else {
+    //             e.node.active = false;
+    //         }
+    //     }
+    // }
 }

@@ -90,7 +90,7 @@ export class EditorTable extends Component implements IEditorLayersListener {
         // const ndCard = cardView.node;
         const underCards = this.findIntersectCards(cardView);
         cardView.data.tLayer = 1;
-        cardView.data.type = CardType.table;
+        cardView.type = CardType.table;
         for (const e of underCards) {
             if (cardView.data.tLayer <= e.data.tLayer) {
                 cardView.data.tLayer = e.data.tLayer + 1;

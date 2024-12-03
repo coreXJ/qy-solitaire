@@ -51,7 +51,7 @@ export class EdirotPopSelectCard extends Component {
         const startX = -(col - 1) / 2 * itemWidth;
         const bindCard = (nd: Node, cardValue: number) => {
             const cardView = nd.getComponent(CardView);
-            cardView.data.type = CardType.none;
+            cardView.type = CardType.none;
             cardView.cardValue = cardValue;
             cardView.isFront = true;
             XUtils.bindClick(nd, () => {

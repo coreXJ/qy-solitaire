@@ -1,4 +1,4 @@
-import { Tween, tween, UIOpacity, v3, Vec3, view } from "cc";
+import { Tween, tween, UIOpacity, v3, Vec3, view ,Node} from "cc";
 import CardView from "../ui/game/CardView";
 import { POOL_OFFSET_X, POOL_VISIBLE_CARD_COUNT } from "../ui/game/ViewHand";
 
@@ -220,6 +220,54 @@ export namespace CardTweens {
                     z: 0.2
                 }, { easing: 'cubicOut' }),
             )
+    }
+
+    export function fadeOutTop(cardView: CardView, addMs: number, onBefore: Function) {
+        const x = cardView.vPositionXY.x;
+        const op = cardView.getComponent(UIOpacity) || cardView.addComponent(UIOpacity);
+        return tween(cardView)
+            // .delay(FrameUnit * 2 * idx)
+            .call(()=>{
+                op.opacity = 255;
+            })
+            .delay(FrameUnit * 1.5 + addMs)
+            .call(()=>{
+                // call callback
+                onBefore();
+                tween(op)
+                    .delay(FrameUnit * 2)
+                    .to(FrameUnit * 2, {
+                        opacity: 0
+                    }, { easing: 'fade' })
+                    .start();
+            })
+            .to(FrameUnit * 4, {
+                vPositionXY: v3(x, CardView.HEIGHT / 3)
+            }, { easing: 'cubicOut' });
+    }
+    export function fadeOutWinPoolGold(nd: Node) {
+        const toPos = v3(nd.position).add(v3(0, CardView.HEIGHT / 3, 0));
+        nd.active = false;
+        return tween(nd)
+            .delay(FrameUnit * 2)
+            .set({active: true})
+            .call(()=>{
+                const op = nd.getComponent(UIOpacity) || nd.addComponent(UIOpacity);
+                tween(op)
+                    .delay(FrameUnit * 4)
+                    .to(FrameUnit * 8, {
+                        opacity: 0
+                    }, { easing: 'cubicOut' }).start();
+            }).to(FrameUnit * 8, {
+                position: toPos
+            }, { easing: 'cubicOut' })
+            .delay(FrameUnit * 4)
+    }
+    export function fadeOutNode(nd: Node) {
+        const op = nd.getComponent(UIOpacity) || nd.addComponent(UIOpacity);
+        return tween(op).to(FrameUnit * 4, {
+            opacity: 0
+        }, { easing: 'fade' });
     }
 
     function easeInOutBack(x: number): number {

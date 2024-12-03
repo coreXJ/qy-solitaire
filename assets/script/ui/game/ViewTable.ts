@@ -39,8 +39,9 @@ export default class ViewTable extends Component {
                 ndCard.parent = this.node;
                 const cardView = ndCard.getComponent(CardView);
                 cardView.data = card;
-                cardView.vPosition = card.tPos;
-                cardView.vAngle = card.tAngle;
+                cardView.type = CardType.table;
+                // cardView.vPosition = card.tPos;
+                // cardView.vAngle = card.tAngle;
                 cardView._bFront = false;
                 cardViews.push(cardView);
             }
@@ -63,7 +64,7 @@ export default class ViewTable extends Component {
     
     public undoCard(cardView: CardView) {
         cardView.node.parent = this.view.node;
-        cardView.data.type = CardType.table;
+        cardView.type = CardType.table;
         this.view.blockTouch(0.3);
         const endPos = v3(this.node.position).add(v3(cardView.data.tPos));
         tween(cardView).to(0.3, {
@@ -283,7 +284,7 @@ export default class ViewTable extends Component {
             const nd = GameLoader.addCard(this.node);
             const cardView = nd.getComponent(CardView);
             cardView.cardValue = CardJoker;
-            cardView.data.type = CardType.table;
+            cardView.type = CardType.table;
             cardView.setAngle(0);
             const idx = XUtils.getRandomInt(0, allPairs.length-1);
             const pair = allPairs.splice(idx,1)[0];
@@ -302,7 +303,7 @@ export default class ViewTable extends Component {
             // cardView.cardValue = CardJoker;
             cardView.setPos(pos);
             cardView.setAngle(angle);
-            cardView.data.type = CardType.none;
+            cardView.type = CardType.none;
             this.setupInsertJokerCard(cardView);
             const startPos = v3(startX + i * offsetX, 300);
             tween(cardView)
@@ -310,7 +311,7 @@ export default class ViewTable extends Component {
                 .delay(0.5)
                 .to(0.5, { vPosition : pos, vAngle: angle },{ easing: 'quadOut' })
                 .call(()=>{
-                    cardView.data.type = CardType.table;
+                    cardView.type = CardType.table;
                     cardView.updateView();
                 }).start();
         }

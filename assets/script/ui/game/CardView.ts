@@ -22,11 +22,12 @@ export default class CardView extends Component {
     public _bFront: boolean = false;
 
     private _bEditor: boolean = false;
+    public type: CardType = CardType.none;
 
     /**被重叠计数，table下有用 */
     public overlap = 0;
-    /**被覆盖的牌 */
-    public underCards: CardView[] = [];
+    // /**被覆盖的牌 */
+    // public underCards: CardView[] = [];
     public set isFront(bool: boolean) {
         this._bFront = bool;
         this.updateView();
@@ -36,7 +37,7 @@ export default class CardView extends Component {
         return this._data?.value || 0;
     }
     public get cardType(): CardType {
-        return this._data?.type || CardType.none;
+        return this.type || CardType.none;
     }
     public set cardValue(value: number) {
         this.data.value = value;
@@ -61,7 +62,6 @@ export default class CardView extends Component {
     private initData() {
         if (!this._data) {
             const data = new Card();
-            data.type = CardType.none;
             data.value = 0;
             data.tAngle = 0;
             data.tPos = v3();
@@ -100,6 +100,7 @@ export default class CardView extends Component {
         this.isFront = false;
         this._data = null;
         this._bEditor = false;
+        // this.underCards = [];
     }
 
     public saveEditorData() {

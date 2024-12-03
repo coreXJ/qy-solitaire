@@ -8,7 +8,7 @@ class GameLoader {
     private _cardSprites: SpriteFrame[] = [];
     private _prefabs:Prefab[] = [];
     private _cardNodePool = new NodePool('CardPool');
-
+    private _nodePoolWinPoolGold = new NodePool('NodePoolWinGold');
     public preloadNodes() {
 
     }
@@ -71,18 +71,39 @@ class GameLoader {
     public removeCard(...cardNodes: Node[]){
         for (const cardNode of cardNodes) {
             let card = cardNode.getComponent(CardView);
-            cardNode.getComponent(Button)?.destroy();
-            XUtils.unbindClick(cardNode);
-            const op = cardNode.getComponent(UIOpacity);
-            cardNode.off(Node.EventType.TOUCH_START);
+            if(isValid(card)){
+                cardNode.getComponent(Button)?.destroy();
+                XUtils.unbindClick(cardNode);
+                const op = cardNode.getComponent(UIOpacity);
+                cardNode.off(Node.EventType.TOUCH_START);
+                if (op) {
+                    Tween.stopAllByTarget(op);
+                    op.opacity = 255;
+                }
+                card.reset();
+                this._cardNodePool.put(cardNode);
+            }
+        }
+    }
+    public addWinPoolGold(prefab: Node){
+        let node: Node = null;
+        if (this._nodePoolWinPoolGold.size() > 0) {
+            node = this._nodePoolWinPoolGold.get();
+        } else {
+            node = instantiate(prefab);
+        }
+        node.active = true;
+        return node;
+    }
+    public removeWinPoolGold(...nodes: Node[]){
+        for (const node of nodes) {
+            Tween.stopAllByTarget(node);
+            const op = node.getComponent(UIOpacity);
             if (op) {
                 Tween.stopAllByTarget(op);
                 op.opacity = 255;
             }
-            if(isValid(card)){
-                card.reset();
-                this._cardNodePool.put(cardNode);
-            }
+            this._nodePoolWinPoolGold.put(node);
         }
     }
     private async preloadPrefabs(){

@@ -162,20 +162,32 @@ class GameCtrl {
         }
     }
 
-    public onGameEnd(bWin: boolean) {
+    public async onGameEnd(bWin: boolean) {
         console.log('onGameEnd',this.isEditor);
         this.bGaming = false;
-        UIMgr.instance.open(UIID.UIResult,{bWin,isEditor:this.isEditor});
-        if (this.isEditor) {
-            return;
+        this.view.isStarted = false;
+        if (!this.isEditor) {
+            if (bWin) {
+                UserModel.nextLevel();
+                UserModel.addWinTimes();
+            } else {
+                UserModel.breakWinTimes();
+            }
         }
-        // UIMgr.instance.open(UIID.UIResult,{bWin});
         if (bWin) {
-            UserModel.nextLevel();
-            UserModel.addWinTimes();
-        } else {
-            UserModel.breakWinTimes();
+            await this.view.hand.playWinAnimPool();
         }
+        UIMgr.instance.open(UIID.UIResult,{bWin,isEditor:this.isEditor});
+        // if (this.isEditor) {
+        //     return;
+        // }
+        // // UIMgr.instance.open(UIID.UIResult,{bWin});
+        // if (bWin) {
+        //     UserModel.nextLevel();
+        //     UserModel.addWinTimes();
+        // } else {
+        //     UserModel.breakWinTimes();
+        // }
     }
     private _guaranteeCount = 0;//摸牌保底计数
     public drawPool() {

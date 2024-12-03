@@ -3,7 +3,7 @@ import { Vec3 } from "cc";
 /**牌数据 */
 export class Card {
     value: number; // 牌值 0为未知
-    type: CardType;
+    // type?: CardType;
     tAngle: number; // 角度
     tIdx: number;
     tLayer: number;

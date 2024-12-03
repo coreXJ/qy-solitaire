@@ -48,6 +48,7 @@ export default class UIGame extends UIView {
     }
     public bindCardTouch(cardView: CardView, listener: Function, target?:any, ...args:any[]) {
         XUtils.unbindClick(cardView.node);
+        cardView.node.off(Node.EventType.TOUCH_START);
         cardView.node.on(Node.EventType.TOUCH_START, () => {
             if (this.isCanTouch) {
                 listener.apply(target, args);
@@ -169,6 +170,7 @@ export default class UIGame extends UIView {
 
     public onClose() {
         GameCtrl.unbind();
+        this.reset();
     }
 
     public showZanting() {
