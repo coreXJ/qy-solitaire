@@ -218,14 +218,10 @@ export default class ViewHand extends Component {
         // const endWorldPos = this.ndHandRoot.worldPosition;
         cardView.vWorldPosition = startWorldPos;
         tween(cardView).set({z: -0.8})
-            .to(0.3,{z: 0},{easing:'backOut'}).start();
-        this.scheduleOnce(()=>{
-            // this.addHandCard(cardView, this.propJokerWorldPosition);
-            CardTweens.propJoker(cardView).call(()=>{
-
+            .to(0.3,{z: 0},{easing:'backOut'})
+            .call(()=>{
+                CardTweens.propJoker(cardView).start();
             }).start();
-            // this.tweenMovePoolCards();
-        },0.5);
         this.handCards.push(cardView);
     }
     private get propJokerWorldPosition() {
@@ -235,7 +231,9 @@ export default class ViewHand extends Component {
     }
     public undoPropJokerCard() {
         const cardView = this.popHandCard();
+        const startWorldPos = cardView.vWorldPosition;
         cardView.node.parent = this.node;
+        cardView.vWorldPosition = startWorldPos;
         tween(cardView.node).to(0.3, {
             worldPosition: this.propJokerWorldPosition
         },{ easing: 'quadOut' }).call(()=>{
@@ -498,5 +496,24 @@ export default class ViewHand extends Component {
         this.poolCards = [];
         this.handCards = [];
         this.ndExtraNum.active = false;
+    }
+    protected update(dt: number): void {
+        const handCount = this.handCards.length;
+        if (handCount == 0) {
+            return;
+        }
+        let bool = false;
+        for (let i = handCount - 1; i >= 0; i--) {
+            const e = this.handCards[i];
+            if (!bool) {
+                e.node.active = true;
+                const xy = e.vPositionXY;
+                if (xy.x == 0 && xy.y == 0) {
+                    bool = true;
+                }
+            } else {
+                e.node.active = false;
+            }
+        }
     }
 }

@@ -62,13 +62,17 @@ export default class ViewTable extends Component {
     }
     
     public undoCard(cardView: CardView) {
-        cardView.node.parent = this.node;
+        cardView.node.parent = this.view.node;
         cardView.data.type = CardType.table;
+        this.view.blockTouch(0.3);
+        const endPos = v3(this.node.position).add(v3(cardView.data.tPos));
         tween(cardView).to(0.3, {
-            vPosition: cardView.data.tPos,
+            vPositionXY: endPos,
             vAngle: cardView.data.tAngle
         },{ easing: 'quadOut' })
             .call(()=>{
+                cardView.node.parent = this.node;
+                cardView.vPositionXY = cardView.data.tPos;
                 this.setupCard(cardView);
                 this.updateCards();
             }).start();

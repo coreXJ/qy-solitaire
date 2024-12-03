@@ -46,10 +46,10 @@ export namespace CardTweens {
         const topY = startPos.y * 1.4;
         const topDiff = topY - startPos.y;
         console.log('propJoker',startPos);
-        return tween(cardView).to(FrameUnit * 8, {
+        return tween(cardView).to(FrameUnit * 6, {
                 vPositionXY: v3(0, 0),
             }, {
-                easing: 'sineOut',
+                easing: 'sineIn',
                 onUpdate(target, k) {
                     const diffX = endPos.x - startPos.x;
                     let x = startPos.x + diffX * k;
