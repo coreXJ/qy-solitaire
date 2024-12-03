@@ -94,7 +94,7 @@ export default class ViewTable extends Component {
         }
         this.cardViews.push(cardView);
         this.underCardsMap.set(cardView, underCards);
-        this.view.bindClick(cardView.node, this.onClickCard.bind(this,cardView));
+        this.view.bindCardTouch(cardView, this.onClickCard.bind(this,cardView));
     }
     private setupInsertJokerCard(cardView: CardView) {
         this.cardViews.push(cardView);

@@ -40,11 +40,19 @@ export default class UIGame extends UIView {
         GameCtrl.bind(this);
     }
     public bindClick(node: Node, listener: Function, target?:any, ...args:any[]) {
-        XUtils.bindClick(node, ()=>{
+        XUtils.bindClick(node, () => {
             if (this.isCanTouch) {
-                listener.apply(target, args)
+                listener.apply(target, args);
             }
         }, target, ...args);
+    }
+    public bindCardTouch(cardView: CardView, listener: Function, target?:any, ...args:any[]) {
+        XUtils.unbindClick(cardView.node);
+        cardView.node.on(Node.EventType.TOUCH_START, () => {
+            if (this.isCanTouch) {
+                listener.apply(target, args);
+            }
+        });
     }
     private bindNodes() {
         this.content = this.node.getChildByName('content');

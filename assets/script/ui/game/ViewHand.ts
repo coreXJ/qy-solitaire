@@ -100,7 +100,7 @@ export default class ViewHand extends Component {
             const cardView = nd.getComponent(CardView);
             cardView.cardValue = value;
             this.poolCards.splice(idxs[i], 0, cardView);
-            this.view.bindClick(nd, this.onClickPoolCard, this, cardView);
+            this.view.bindCardTouch(cardView, this.onClickPoolCard, this, cardView);
             const pos = this.node.getWorldPosition();
             pos.add(v3(startX + i * offsetX, y, 0));
             cardView.vWorldPosition = pos;
@@ -123,7 +123,7 @@ export default class ViewHand extends Component {
             const cardView = nd.getComponent(CardView);
             cardView.cardValue = value;
             this.poolCards.splice(idxs[i], 0, cardView);
-            this.view.bindClick(nd, this.onClickPoolCard, this, cardView);
+            this.view.bindCardTouch(cardView, this.onClickPoolCard, this, cardView);
             cardView.vWorldPosition = this.view.table.node.worldPosition;
             tween(cardView).set({z: -0.8})
                 .to(0.3,{z: 0.2},{easing:'backOut'}).start();
@@ -151,7 +151,7 @@ export default class ViewHand extends Component {
             const cardView = nd.getComponent(CardView);
             cardView.cardValue = value;
             this.poolCards.splice(idxs[i], 0, cardView);
-            this.view.bindClick(nd, this.onClickPoolCard, this, cardView);
+            this.view.bindCardTouch(cardView, this.onClickPoolCard, this, cardView);
             const vPos = v3(pos);
             vPos.x = startX + i * CardView.WIDTH / 2;
             cardView.vWorldPosition = vPos;
@@ -262,7 +262,7 @@ export default class ViewHand extends Component {
         const cardView = nd.getComponent(CardView);
         cardView.cardValue = 0;
         this.poolCards.push(cardView);
-        this.view.bindClick(cardView.node, this.onClickPoolCard, this, cardView);
+        this.view.bindCardTouch(cardView, this.onClickPoolCard, this, cardView);
         return cardView;
     }
     public addPoolCardView(cardView?: CardView) {
@@ -274,7 +274,7 @@ export default class ViewHand extends Component {
         cardView.node.parent = this.ndPoolRoot;
         this.poolCards.push(cardView);
         this.tweenMovePoolCards();
-        this.view.bindClick(cardView.node, this.onClickPoolCard, this, cardView);
+        this.view.bindCardTouch(cardView, this.onClickPoolCard, this, cardView);
     }
 
     public drawPoolCard(cardValue?: number) {
@@ -325,7 +325,7 @@ export default class ViewHand extends Component {
         const cardView = nd.getComponent(CardView);
         cardView.cardValue = CardBlow;
         this.poolCards.push(cardView);
-        this.view.bindClick(nd, this.onClickPoolCard, this, cardView);
+        this.view.bindCardTouch(cardView, this.onClickPoolCard, this, cardView);
         cardView.vWorldPosition = this.view.table.node.worldPosition;
         tween(cardView).set({z: -0.8})
             .to(0.3,{z: 0.2},{easing:'backOut'}).start();

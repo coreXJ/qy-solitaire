@@ -74,6 +74,7 @@ class GameLoader {
             cardNode.getComponent(Button)?.destroy();
             XUtils.unbindClick(cardNode);
             const op = cardNode.getComponent(UIOpacity);
+            cardNode.off(Node.EventType.TOUCH_START);
             if (op) {
                 Tween.stopAllByTarget(op);
                 op.opacity = 255;
