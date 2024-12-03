@@ -42,7 +42,7 @@ export default class ViewTable extends Component {
                 cardView.type = CardType.table;
                 // cardView.vPosition = card.tPos;
                 // cardView.vAngle = card.tAngle;
-                cardView._bFront = false;
+                cardView.isFront = false;
                 cardViews.push(cardView);
             }
             // 当动画结束后
@@ -231,12 +231,15 @@ export default class ViewTable extends Component {
         for (const cardView of tops) {
             if (this.removeCard(cardView)) {
                 cardView.node.parent = this.node;
-                const endPos = v3(cardView.node.position);
-                endPos.y += 900;
-                tween(cardView.node).to(0.7, { position: endPos },{ easing: 'quadOut' })
-                    .call(()=>{
-                        GameLoader.removeCard(cardView.node);
-                    }).start();
+                CardTweens.blowFadeOut(cardView).call(()=>{
+                    GameLoader.removeCard(cardView.node);
+                }).start();
+                // const endPos = v3(cardView.node.position);
+                // endPos.y += 900;
+                // tween(cardView.node).to(0.7, { position: endPos },{ easing: 'quadOut' })
+                //     .call(()=>{
+                //         GameLoader.removeCard(cardView.node);
+                //     }).start();
             }
         }
         this.scheduleOnce(()=>{
@@ -246,25 +249,28 @@ export default class ViewTable extends Component {
     }
     public undoBlowCards(blowCards: Card[]) {
         for (const e of blowCards) {
-            const startPos = v3(e.tPos);
-            startPos.y += 900;
-            const endPos = v3(e.tPos);
+            // const startPos = v3(e.tPos);
+            // startPos.y += 900;
+            // const endPos = v3(e.tPos);
             const ndCard = GameLoader.addCard(this.node);
             const cardView = ndCard.getComponent(CardView);
             cardView.data = e;
-            cardView.vPosition = startPos;
+            cardView.vPosition = v3(e.tPos);
             cardView.vAngle = e.tAngle;
             cardView.isFront = true;
-            tween(cardView.node).to(0.7, { position: endPos },{ easing: 'quadOut' })
-                .call(()=>{
-                    this.setupCard(cardView);
-                }).start();
+            this.setupCard(cardView);
+            CardTweens.blowFadeIn(cardView).call(()=>{
+            }).start();
+            // tween(cardView.node).to(0.7, { position: endPos },{ easing: 'quadOut' })
+            //     .call(()=>{
+            //         this.setupCard(cardView);
+            //     }).start();
         }
+        this.updateCards();
         return new Promise<void>((resolve)=>{
             this.scheduleOnce(()=>{
-                this.updateCards();
                 resolve();
-            }, 0.75);
+            }, 0.2);
         });
     }
     public insertBoosterJoker(count: number) {

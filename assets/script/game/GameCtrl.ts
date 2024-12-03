@@ -191,7 +191,6 @@ class GameCtrl {
     }
     private _guaranteeCount = 0;//摸牌保底计数
     public drawPool() {
-        this.view.table.shakeMissCards();
         const handValue = this.view.hand.topPoolCardValue;
         const action = new GameAction();
         action.type = GameActionType.drawPool;
@@ -205,6 +204,7 @@ class GameCtrl {
             const targetCard = this.view.hand.drawPoolCard();
             action.targetCard = targetCard;
         } else {
+            this.view.table.shakeMissCards();
             // 如果摸的这张牌是普通牌，就生成牌值
             const topValues = this.view.table.getTopCardValues();
             this.level.breakSwitchProb

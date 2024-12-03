@@ -138,7 +138,7 @@ export default class UIGame extends UIView {
         this.blockTouch(1.3);
         // 撤回吹风卡
         // 1.table把吹走的卡恢复
-        await this.table.undoBlowCards(blowCards);
+        this.table.undoBlowCards(blowCards);
         // 2.hand把吹风卡恢复
         this.hand.undoDrawPoolBlowCard();
     }

@@ -160,16 +160,16 @@ export namespace CardTweens {
         }
     }
     export function fadeOut(cardView: CardView) {
-        const op = cardView.getComponent(UIOpacity) || cardView.addComponent(UIOpacity);
+        const op = cardView.getComponent(UIOpacity);
         return tween(op).to(FrameUnit * 4, {
             opacity: 0,
         }, {
             easing: 'fade',
         });
     }
-    export function fadeIn(cardView: CardView) {
-        const op = cardView.getComponent(UIOpacity) || cardView.addComponent(UIOpacity);
-        return tween(op).to(FrameUnit * 4, {
+    export function fadeIn(cardView: CardView, duration = FrameUnit * 4) {
+        const op = cardView.getComponent(UIOpacity);
+        return tween(op).to(duration, {
             opacity: 255,
         }, {
             easing: 'fade',
@@ -224,7 +224,7 @@ export namespace CardTweens {
 
     export function fadeOutTop(cardView: CardView, addMs: number, onBefore: Function) {
         const x = cardView.vPositionXY.x;
-        const op = cardView.getComponent(UIOpacity) || cardView.addComponent(UIOpacity);
+        const op = cardView.getComponent(UIOpacity);
         return tween(cardView)
             // .delay(FrameUnit * 2 * idx)
             .call(()=>{
@@ -268,6 +268,40 @@ export namespace CardTweens {
         return tween(op).to(FrameUnit * 4, {
             opacity: 0
         }, { easing: 'fade' });
+    }
+    export function blowFadeOut(cardView: CardView) {
+        const angle = cardView.vAngle <= 0 ? -15 : 15;
+        return tween(cardView)
+            // .by(FrameUnit * 6, {
+            //     vAngle: angle,
+            //     vPosition: v3(0, 0, 0)
+            // }, { easing: 'backIn' })
+            .call(()=>{
+                const op = cardView.getComponent(UIOpacity);
+                tween(op)
+                    .delay(FrameUnit * 4)
+                    .to(FrameUnit * 6, {
+                        opacity: 0
+                    }, { easing: 'cubicOut' }).start();
+            })
+            .parallel(
+                tween(cardView).by(FrameUnit * 6, {
+                    vPositionXY: v3(0, -CardView.HEIGHT),
+                    vAngle: angle,
+                }, { easing: 'cubicIn' }),
+                tween(cardView).to(FrameUnit * 6, {
+                    z: 0.2
+                }, { easing: 'cubicOut' }),
+            )
+            .delay(FrameUnit * 4)
+    }
+    export function blowFadeIn(cardView: CardView) {
+        const op = cardView.getComponent(UIOpacity);
+        return tween(op)
+            .set({ opacity: 0 })
+            .to(FrameUnit * 6, {
+                opacity: 255,
+            }, { easing: 'fade' });
     }
 
     function easeInOutBack(x: number): number {

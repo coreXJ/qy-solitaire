@@ -327,20 +327,23 @@ export default class ViewHand extends Component {
         // 撤回吹风卡
         const nd = GameLoader.addCard();
         nd.parent = this.ndPoolRoot;
-        nd.setPosition(0, -400);
+        nd.setPosition(0, 0);
         const cardView = nd.getComponent(CardView);
         cardView.cardValue = CardBlow;
         this.poolCards.push(cardView);
         this.view.bindCardTouch(cardView, this.onClickPoolCard, this, cardView);
-        cardView.vWorldPosition = this.view.table.node.worldPosition;
-        tween(cardView).set({z: -0.8})
-            .to(0.3,{z: 0.2},{easing:'backOut'}).start();
-        return new Promise<void>(resolve => {
-            this.scheduleOnce(async ()=>{
-                await this.tweenMovePoolCards();
-                resolve();
-            },0.5);
-        });
+        this.tweenMovePoolCards();
+        cardView.getComponent(UIOpacity).opacity = 0;
+        CardTweens.fadeIn(cardView, 0.2).start();
+        // cardView.vWorldPosition = this.view.table.node.worldPosition;
+        // tween(cardView).set({z: -0.8})
+        //     .to(0.3,{z: 0.2},{easing:'backOut'}).start();
+        // return new Promise<void>(resolve => {
+        //     this.scheduleOnce(async ()=>{
+        //         await this.tweenMovePoolCards();
+        //         resolve();
+        //     },0.5);
+        // });
     }
     public undoDrawPoolCard() {
         const cardView = this.popHandCard();
