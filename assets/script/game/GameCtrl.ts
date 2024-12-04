@@ -73,6 +73,7 @@ class GameCtrl {
         tableCards = GameLogic.generateTableCards(
             tableCards,
             this.level.tableComboRange,
+            this.level.ascProb,
             this.level.minBreakDiff,
             this.level.maxComboRedProb,
             this.level.breakSwitchProb

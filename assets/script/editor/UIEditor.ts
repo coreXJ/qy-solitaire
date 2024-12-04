@@ -12,34 +12,46 @@ import { UIMgr } from "../manager/UIMgr";
 import { UIID } from "../data/GameConfig";
 import { EditorPopSave } from "./EditorPopSave";
 import GameCtrl from "../game/GameCtrl";
+import { EditorTabPool } from "./EditorTabPool";
+import { EditorTabInfo } from "./EditorTabInfo";
 
 const { ccclass, property } = _decorator;
-const CardViewPos = v3(-277, -495);
+const CardViewPos = v3(-277, -350);
 @ccclass('UIEditor')
 @isFullScreen(true)
 export default class UIEditor extends UIView {
     
     @property(CardView)
-    cardView: CardView = null;
+    private cardView: CardView = null;
 
     @property(EditorTable)
     table: EditorTable = null;
     @property(EdirotPanelProperty)
     panelProperty: EdirotPanelProperty = null;
     @property(EditorLayers)
-    layers: EditorLayers = null;
+    tabLayers: EditorLayers = null;
+    @property(EditorTabPool)
+    tabPool: EditorTabPool = null;
+    @property(EditorTabInfo)
+    tabInfo: EditorTabInfo = null;
     @property(Node)
     etLevel: Node = null;
     @property(Toggle)
     tgAlignMesh: Toggle = null;
-    private level: Level;
+    @property(Node)
+    ndTabs: Node = null;
+    private _level: Level;
+    public get level() {
+        return this._level;
+    }
     private ndHelp: Node;
-    private tabs: Sprite[] = [];
+    private touchTabs: Sprite[] = [];
     public init(...args: any): void {
         console.log('UIEditor init');
         this.lisEvents();
         this.bindNodes();
-        this.layers.setListener(this.table);
+        this.tabLayers.setListener(this.table);
+        this.initTabs();
     }
     protected onEnable(): void {
         input.on(Input.EventType.KEY_DOWN, this.onKeyDown, this);
@@ -53,6 +65,8 @@ export default class UIEditor extends UIView {
         console.log('UIEditor onOpen');
         this.newLevel();
         this.selectTab(0);
+        this.tabPool.init(this, this.level);
+        this.tabInfo.init(this, this.level);
     }
     private bindNodes() {
         this.table.view = this;
@@ -61,15 +75,15 @@ export default class UIEditor extends UIView {
         const btnClear = this.node.getChildByName('btnClear');
         const btnHelp = this.node.getChildByName('btnHelp');
         const btnPlay = this.node.getChildByName('btnPlay');
-        const tabs = this.node.getChildByName('tabs');
+        const touchTabs = this.node.getChildByName('touchTabs');
         XUtils.bindClick(btnExport, this.showPopSave, this);
         XUtils.bindClick(this.ndHelp, this.onClickHelp, this);
         XUtils.bindClick(btnClear, this.onClickClear, this);
         XUtils.bindClick(btnHelp, this.onClickHelp, this);
         XUtils.bindClick(btnPlay, this.onClickPlay, this);
-        for (let i = 0; i < tabs.children.length; i++) {
-            const e = tabs.children[i];
-            this.tabs[i] = e.getComponent(Sprite);
+        for (let i = 0; i < touchTabs.children.length; i++) {
+            const e = touchTabs.children[i];
+            this.touchTabs[i] = e.getComponent(Sprite);
             XUtils.bindClick(e,this.selectTab,this,i);
         }
         this.tgAlignMesh.node.on('toggle',this.onAlignMesh,this);
@@ -81,7 +95,36 @@ export default class UIEditor extends UIView {
         this.cardView.node.on(Node.EventType.TOUCH_CANCEL, this.onCardTouchEnd, this);
         this.etLevel.on('text-changed', this.onEditLevel, this);
     }
-
+    private initTabs() {
+        const tabNodes = this.ndTabs.children;
+        let curTab = 0;
+        const color0 = new Color(0x20,0x20,0x20);
+        const color1 = new Color(0x10,0x20,0x30);
+        const sps:Sprite[] = [];
+        const count = tabNodes.length;
+        const tabViews:Node[] = [
+            this.tabLayers.node,
+            this.tabPool.node,
+            this.tabInfo.node,
+        ];
+        const selTab = (i: number)=>{
+            console.log('selTab',i);
+            sps[curTab].color = color0;
+            tabViews[curTab].active = false;
+            console.log('false',curTab);
+            sps[i].color = color1;
+            tabViews[i].active = true;
+            curTab = i;
+            console.log('true',curTab);
+        }
+        for (let i = 0; i < count; i++) {
+            const nd = tabNodes[i];
+            const sp = nd.getComponent(Sprite);
+            sps[i] = sp;
+            XUtils.bindClick(nd, selTab.bind(this,i));
+        }
+        selTab(0);
+    }
     private onCardTouchStart(e: EventTouch) {
         const op = this.cardView.getComponent(UIOpacity) || this.cardView.addComponent(UIOpacity);
         op.opacity = 127;
@@ -109,18 +152,19 @@ export default class UIEditor extends UIView {
         op.opacity = 255;
     }
     private newLevel() {
-        this.level = new Level();
+        this._level = new Level();
         // 刷新table，和其它东西。
-        this.level.id = 1;
-        this.level.tableComboRange = [6,7];
-        this.level.minBreakDiff = 2;
-        this.level.maxComboRedProb = 0.5;
-        this.level.breakSwitchProb = 0.5;
-        this.level.poolCount = 10;
-        this.level.handCardValue = 0;
-        this.level.minGuarantee = 3;
-        this.level.group = 'group1';
-        this.etLevel.getComponent(EditBox).string = this.level.id+'';
+        this._level.id = 101;
+        this._level.tableComboRange = [6,7];
+        this._level.minBreakDiff = 2;
+        this._level.maxComboRedProb = 0.5;
+        this._level.breakSwitchProb = 0.5;
+        this._level.ascProb = 0.65;
+        this._level.poolCount = 10;
+        this._level.handCardValue = 0;
+        this._level.minGuarantee = 3;
+        // this._level.group = 'group1';
+        this.etLevel.getComponent(EditBox).string = this._level.id+'';
     }
 
     private onKeyDown(event: EventKeyboard) {
@@ -179,13 +223,13 @@ export default class UIEditor extends UIView {
         if (str != et.string) {
             et.string = str;
         }
-        this.level.id = parseInt(str);
-        this.level.name = 'Level '+str;
+        this._level.id = parseInt(str);
+        this._level.name = 'Level '+this._level.getLevelId();
     }
 
     private async showPopSave() {
         const node = await this.getPrefabNode('popSave');
-        node.getComponent(EditorPopSave).show(this, this.level);
+        node.getComponent(EditorPopSave).show(this, this._level);
     }
     public async showPopSelectCard(cardView?: CardView, callback?:(cardValue: number) => void) {
         const node = await this.getPrefabNode('popSelectCard');
@@ -205,9 +249,11 @@ export default class UIEditor extends UIView {
     }
     public resumeLevel(level: Level) {
         console.log('resumeLevel',level);
-        this.level = level;
-        this.etLevel.getComponent(EditBox).string = (this.level.id || 1) + '';
-        this.table.resume(this.level.tableCards);
+        this._level = level;
+        this.etLevel.getComponent(EditBox).string = (this._level.id || 101) + '';
+        this.table.resume(this._level.tableCards);
+        this.tabPool.init(this, this.level);
+        this.tabInfo.init(this, this.level);
     }
     public onSelCards(cards: CardView[]) {
         this.panelProperty.view = this;
@@ -220,8 +266,8 @@ export default class UIEditor extends UIView {
     public selectTab(tab: 0|1) {
         console.log('selectTab',tab);
         this.table.touchType = tab;
-        for (let i = 0; i < this.tabs.length; i++) {
-            const e = this.tabs[i];
+        for (let i = 0; i < this.touchTabs.length; i++) {
+            const e = this.touchTabs[i];
             e.color = tab == i ? new Color(0x10,0x20,0x30) : Color.GRAY;
         }
     }
@@ -230,8 +276,8 @@ export default class UIEditor extends UIView {
         this.table.isAlignMesh = this.tgAlignMesh.isChecked;
     }
     private onClickPlay() {
-        this.level.tableCards = this.table.getCards();
-        const level = JSON.parse(JSON.stringify(this.level));
+        this._level.tableCards = this.table.getCards();
+        const level = JSON.parse(JSON.stringify(this._level));
         GameCtrl.openGame({
             level: level,
             useBoosters: [],

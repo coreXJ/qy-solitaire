@@ -70,9 +70,6 @@
 			"id":4,
 			"name":"booster_elimate",
 			"price":[
-				1000,
-				1000,
-				1000,
 				1000
 			],
 			"type":"场外道具",
@@ -90,9 +87,6 @@
 			"id":5,
 			"name":"booster_elimate",
 			"price":[
-				1000,
-				1000,
-				1000,
 				1000
 			],
 			"type":"场外道具",
@@ -110,9 +104,6 @@
 			"id":6,
 			"name":"booster_elimate",
 			"price":[
-				1000,
-				1000,
-				1000,
 				1000
 			],
 			"type":"场外道具",
@@ -154,7 +145,7 @@
 			"effect":[
 				{
 					"effectType":1,
-					"times":5
+					"times":4
 				},
 				{
 					"effectType":2,
@@ -169,15 +160,11 @@
 		},
 		{
 			"addGuide":[],
-			"desc":"连击条奖励",
+			"desc":"连击条奖励补牌",
 			"effect":[
 				{
 					"effectType":1,
 					"times":2
-				},
-				{
-					"effectType":2,
-					"times":1
 				}
 			],
 			"guideLevel":3,
@@ -188,19 +175,89 @@
 		},
 		{
 			"addGuide":[],
-			"desc":"广告补牌",
+			"desc":"连击条奖励Joker",
+			"effect":[
+				{
+					"effectType":2,
+					"times":1
+				}
+			],
+			"id":12,
+			"name":"mech_reward",
+			"price":[],
+			"type":"机制道具"
+		},
+		{
+			"addGuide":[],
+			"desc":"广告补牌2张",
 			"effect":[
 				{
 					"effectType":1,
 					"times":2
-				},
-				{
-					"effectType":2,
-					"times":0
 				}
 			],
-			"id":12,
-			"name":"ad_add",
+			"id":13,
+			"name":"ad_add1",
+			"price":[],
+			"type":"广告道具",
+			"unlockLevel":999999
+		},
+		{
+			"addGuide":[],
+			"desc":"广告补牌3张",
+			"effect":[
+				{
+					"effectType":1,
+					"times":3
+				}
+			],
+			"id":14,
+			"name":"ad_add2",
+			"price":[],
+			"type":"广告道具",
+			"unlockLevel":999999
+		},
+		{
+			"addGuide":[],
+			"desc":"广告补牌4张",
+			"effect":[
+				{
+					"effectType":1,
+					"times":4
+				}
+			],
+			"id":15,
+			"name":"ad_add3",
+			"price":[],
+			"type":"广告道具",
+			"unlockLevel":999999
+		},
+		{
+			"addGuide":[],
+			"desc":"广告补牌5张",
+			"effect":[
+				{
+					"effectType":1,
+					"times":5
+				}
+			],
+			"id":16,
+			"name":"ad_add4",
+			"price":[],
+			"type":"广告道具",
+			"unlockLevel":999999
+		},
+		{
+			"addGuide":[],
+			"desc":"广告补牌Joker",
+			"effect":[
+				{
+					"effectType":2,
+					"times":1
+				}
+			],
+			"id":17,
+			"name":"ad_add5",
 			"price":[],
 			"type":"广告道具",
 			"unlockLevel":999999

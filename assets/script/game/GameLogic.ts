@@ -14,56 +14,81 @@ class GameLogic {
      * 生成关卡桌牌
      * @param cards 需要生成的牌列表
      * @param comboRange 连续接龙的牌数范围 
+     * @param ascProb 连续接龙牌升序概率
      * @param minBreakDiff 打断牌差额保底
-     * @param maxComboRedProb 连续接龙牌红色牌占比
-     * @param breakSwitchProb 当打断时，对调maxComboRedProb的概率
+     * @param redProb 连续接龙牌红色牌占比
+     * @param redSwitchProb 当打断时，对调maxComboRedProb的概率
      */
     public generateTableCards(cards: number[],
         comboRange: [number,number],
+        ascProb: number,
         minBreakDiff: number,
-        maxComboRedProb: number,
-        breakSwitchProb: number
+        redProb: number,
+        redSwitchProb: number,
     ) {
+        console.log('===生成桌牌===');
+        console.log('cards',cards);
+        console.log('comboRange',comboRange);
+        console.log('ascProb',ascProb);
+        console.log('minBreakDiff',minBreakDiff);
+        console.log('maxComboRedProb',redProb);
+        console.log('breakSwitchProb',redSwitchProb);
+        console.log('======');
         const newCards: number[] = [];
         let last = 0;
         let combo = 0;
         let range = 0;
         const minRange = comboRange[0];
         const rangeDiff = comboRange[1] - comboRange[0];
-        for (let card of cards) {
+        for (let i = cards.length - 1; i >= 0; i--) {
+            let card = cards[i];
             if (card > 0) {
                 // 当有指定的牌时，不生成新牌
-                newCards.push(card);
+                newCards[i] = card;
                 last = card;
                 combo ++;
+                console.log('指定牌：', this.getCardColor(card)/16, this.getCardValue(card));
                 continue;
             }
             if (!last) {
                 // 如果是首张生成牌，完全随机（后面要考虑maxComboRedProb）
                 card = this.generateRandomCard();
-                newCards.push(card);
+                newCards[i] = card;
                 last = card;
                 combo ++;
+                console.log('首张牌：', this.getCardColor(card)/16, this.getCardValue(card));
                 continue;
             }
             range = range || Math.round(Math.random() * rangeDiff) + minRange;
-            if (combo > range) {
+            // console.log('range',range);
+            if (combo >= range) {
                 // 当超过了range就要生成打断牌
                 // 通过minBreakDiff
-                card = this.generateRandomCard(card, minBreakDiff);
-                newCards.push(card);
-                last = 0;
-                combo = 0;
+                
+                if (Math.random() < redSwitchProb) {
+                    redProb = 1 - redProb;
+                    console.log('打断时颜色反转');
+                }
+                card = this.generateRandomCard(last, minBreakDiff, redProb);
+                console.log('打断牌：', this.getCardColor(card)/16, this.getCardValue(card));
+                newCards[i] = card;
+                last = card;
+                combo = 1;
                 continue;
             } else {
                 // 否则继续生成接龙牌
-                card = this.generateLinkCard(last);
-                newCards.push(card);
+                card = this.generateLinkCard(last, ascProb, redProb);
+                newCards[i] = card;
                 last = card;
                 combo ++;
+                console.log('接龙牌：', this.getCardColor(card)/16, this.getCardValue(card));
                 continue;
             }
         }
+        // console.log('generateTableCards',comboRange,minBreakDiff,ascProb,maxComboRedProb);
+        // for (let card of newCards) {
+        //     console.log('生成牌：', this.getCardColor(card)/16, this.getCardValue(card));
+        // }
         return newCards;
     }
 
@@ -76,26 +101,33 @@ class GameLogic {
             return this.generateRandomCard();
         }
     }
-    private addSuit(card: number) {
-        const num = Math.floor(Math.random() * 3);
+    private addSuit(card: number, redProb = 0.5) {
+        const random = Math.random();
+        let num = 0;
+        if (random < redProb) {
+            num = Math.floor(Math.random() * 2) * 2;
+        } else {
+            num = Math.floor(Math.random() * 2) * 2 + 1;
+        }
+        // const num = Math.floor(Math.random() * 4);
         return this.getCardValue(card) + num * 16;
     }
-    private generateLinkCard(card: number) {
+    private generateLinkCard(card: number, ascProb = 0.5, redProb = 0.5) {
         card = this.getCardValue(card);
-        card += Math.random() > 0.5 ? 1 : -1;
+        card += Math.random() < ascProb ? 1 : -1;
         if (card > 13) {
             card = 1;
         } else if (card == 0) {
             card = 13;
         }
-        card = this.addSuit(card);
+        card = this.addSuit(card, redProb);
         console.log('generateLinkCard',card);
         return card;
     }
-    private generateRandomCard(card?: number, minBreakDiff?: number) {
+    private generateRandomCard(card?: number, minBreakDiff?: number, redProb = 0.5) {
         if (!card || !minBreakDiff) {
             card = Math.floor(Math.random() * 13) + 1;
-            card = this.addSuit(card);
+            card = this.addSuit(card, redProb);
         } else {
             const max = 13 - minBreakDiff * 2;
             const add = Math.round(Math.random() * max);

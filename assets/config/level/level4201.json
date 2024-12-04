@@ -1,0 +1,282 @@
+{
+    "id": 4201,
+    "name": "Level 42",
+    "group": "group1",
+    "tableComboRange": [
+        6,
+        7
+    ],
+    "minBreakDiff": 2,
+    "tableCards": [
+        {
+            "value": 0,
+            "type": 3,
+            "tAngle": 0,
+            "tIdx": 0,
+            "tLayer": 1,
+            "tPos": {
+                "x": 0,
+                "y": -85,
+                "z": 0
+            }
+        },
+        {
+            "value": 0,
+            "type": 3,
+            "tAngle": 0,
+            "tIdx": 1,
+            "tLayer": 1,
+            "tPos": {
+                "x": -66.75,
+                "y": 203.84,
+                "z": 0
+            }
+        },
+        {
+            "value": 0,
+            "type": 3,
+            "tAngle": 0,
+            "tIdx": 2,
+            "tLayer": 1,
+            "tPos": {
+                "x": -66.75,
+                "y": -240,
+                "z": 0
+            }
+        },
+        {
+            "value": 0,
+            "type": 3,
+            "tAngle": 0,
+            "tIdx": 3,
+            "tLayer": 1,
+            "tPos": {
+                "x": -206.75,
+                "y": -240,
+                "z": 0
+            }
+        },
+        {
+            "value": 0,
+            "type": 3,
+            "tAngle": -7.5,
+            "tIdx": 4,
+            "tLayer": 1,
+            "tPos": {
+                "x": -266.75,
+                "y": 82.84,
+                "z": 0
+            }
+        },
+        {
+            "value": 0,
+            "type": 3,
+            "tAngle": 0,
+            "tIdx": 5,
+            "tLayer": 1,
+            "tPos": {
+                "x": 66.75,
+                "y": 203.84,
+                "z": 0
+            }
+        },
+        {
+            "value": 0,
+            "type": 3,
+            "tAngle": 0,
+            "tIdx": 6,
+            "tLayer": 1,
+            "tPos": {
+                "x": 66.75,
+                "y": -240,
+                "z": 0
+            }
+        },
+        {
+            "value": 0,
+            "type": 3,
+            "tAngle": 0,
+            "tIdx": 7,
+            "tLayer": 1,
+            "tPos": {
+                "x": 206.75,
+                "y": -240,
+                "z": 0
+            }
+        },
+        {
+            "value": 0,
+            "type": 3,
+            "tAngle": 7.5,
+            "tIdx": 8,
+            "tLayer": 1,
+            "tPos": {
+                "x": 266.75,
+                "y": 82.84,
+                "z": 0
+            }
+        },
+        {
+            "value": 0,
+            "type": 3,
+            "tAngle": 0,
+            "tIdx": 9,
+            "tLayer": 2,
+            "tPos": {
+                "x": 0,
+                "y": -240,
+                "z": 0
+            }
+        },
+        {
+            "value": 0,
+            "type": 3,
+            "tAngle": 20,
+            "tIdx": 10,
+            "tLayer": 2,
+            "tPos": {
+                "x": -76.75,
+                "y": 32.84,
+                "z": 0
+            }
+        },
+        {
+            "value": 0,
+            "type": 3,
+            "tAngle": 0,
+            "tIdx": 11,
+            "tLayer": 2,
+            "tPos": {
+                "x": 0,
+                "y": 185,
+                "z": 0
+            }
+        },
+        {
+            "value": 0,
+            "type": 3,
+            "tAngle": -7.5,
+            "tIdx": 12,
+            "tLayer": 2,
+            "tPos": {
+                "x": -142.75,
+                "y": -235.16,
+                "z": 0
+            }
+        },
+        {
+            "value": 0,
+            "type": 3,
+            "tAngle": -7.5,
+            "tIdx": 13,
+            "tLayer": 2,
+            "tPos": {
+                "x": -241.75,
+                "y": 162.84,
+                "z": 0
+            }
+        },
+        {
+            "value": 0,
+            "type": 3,
+            "tAngle": -7.5,
+            "tIdx": 14,
+            "tLayer": 2,
+            "tPos": {
+                "x": -266.75,
+                "y": 0.8399999999999999,
+                "z": 0
+            }
+        },
+        {
+            "value": 0,
+            "type": 3,
+            "tAngle": -20,
+            "tIdx": 15,
+            "tLayer": 2,
+            "tPos": {
+                "x": 76.75,
+                "y": 32.84,
+                "z": 0
+            }
+        },
+        {
+            "value": 0,
+            "type": 3,
+            "tAngle": 7.5,
+            "tIdx": 16,
+            "tLayer": 2,
+            "tPos": {
+                "x": 142.75,
+                "y": -235.16,
+                "z": 0
+            }
+        },
+        {
+            "value": 0,
+            "type": 3,
+            "tAngle": 7.5,
+            "tIdx": 17,
+            "tLayer": 2,
+            "tPos": {
+                "x": 241.75,
+                "y": 162.84,
+                "z": 0
+            }
+        },
+        {
+            "value": 0,
+            "type": 3,
+            "tAngle": 7.5,
+            "tIdx": 18,
+            "tLayer": 2,
+            "tPos": {
+                "x": 266.75,
+                "y": 0.84,
+                "z": 0
+            }
+        },
+        {
+            "value": 0,
+            "type": 3,
+            "tAngle": 0,
+            "tIdx": 19,
+            "tLayer": 3,
+            "tPos": {
+                "x": 0,
+                "y": 85,
+                "z": 0
+            }
+        },
+        {
+            "value": 0,
+            "type": 3,
+            "tAngle": -20,
+            "tIdx": 20,
+            "tLayer": 3,
+            "tPos": {
+                "x": -77.75,
+                "y": -166.16,
+                "z": 0
+            }
+        },
+        {
+            "value": 0,
+            "type": 3,
+            "tAngle": 20,
+            "tIdx": 21,
+            "tLayer": 3,
+            "tPos": {
+                "x": 77.75,
+                "y": -166.16,
+                "z": 0
+            }
+        }
+    ],
+    "maxComboRedProb": 0.5,
+    "breakSwitchProb": 0.5,
+    "poolCount": 14,
+    "handCardValue": 0,
+    "minGuarantee": 3,
+    "ascProb": 0.65
+}

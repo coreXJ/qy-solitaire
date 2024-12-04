@@ -1,0 +1,318 @@
+{
+    "id": 5601,
+    "name": "Level 56",
+    "group": "group1",
+    "tableComboRange": [
+        6,
+        7
+    ],
+    "minBreakDiff": 2,
+    "tableCards": [
+        {
+            "value": 0,
+            "type": 3,
+            "tAngle": 0,
+            "tIdx": 0,
+            "tLayer": 1,
+            "tPos": {
+                "x": -51,
+                "y": 0,
+                "z": 0
+            }
+        },
+        {
+            "value": 0,
+            "type": 3,
+            "tAngle": 0,
+            "tIdx": 1,
+            "tLayer": 1,
+            "tPos": {
+                "x": -231.5,
+                "y": 0,
+                "z": 0
+            }
+        },
+        {
+            "value": 0,
+            "type": 3,
+            "tAngle": 30,
+            "tIdx": 2,
+            "tLayer": 1,
+            "tPos": {
+                "x": -117.75,
+                "y": 194.84,
+                "z": 0
+            }
+        },
+        {
+            "value": 0,
+            "type": 3,
+            "tAngle": -30,
+            "tIdx": 3,
+            "tLayer": 1,
+            "tPos": {
+                "x": -117.75,
+                "y": -194.84,
+                "z": 0
+            }
+        },
+        {
+            "value": 0,
+            "type": 3,
+            "tAngle": 0,
+            "tIdx": 4,
+            "tLayer": 1,
+            "tPos": {
+                "x": 51,
+                "y": 0,
+                "z": 0
+            }
+        },
+        {
+            "value": 0,
+            "type": 3,
+            "tAngle": 0,
+            "tIdx": 5,
+            "tLayer": 1,
+            "tPos": {
+                "x": 231.5,
+                "y": 0,
+                "z": 0
+            }
+        },
+        {
+            "value": 0,
+            "type": 3,
+            "tAngle": -30,
+            "tIdx": 6,
+            "tLayer": 1,
+            "tPos": {
+                "x": 117.75,
+                "y": 194.84,
+                "z": 0
+            }
+        },
+        {
+            "value": 0,
+            "type": 3,
+            "tAngle": 30,
+            "tIdx": 7,
+            "tLayer": 1,
+            "tPos": {
+                "x": 117.75,
+                "y": -194.84,
+                "z": 0
+            }
+        },
+        {
+            "value": 0,
+            "type": 3,
+            "tAngle": 30,
+            "tIdx": 8,
+            "tLayer": 2,
+            "tPos": {
+                "x": -234,
+                "y": 142,
+                "z": 0
+            }
+        },
+        {
+            "value": 0,
+            "type": 3,
+            "tAngle": 0,
+            "tIdx": 9,
+            "tLayer": 2,
+            "tPos": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+            }
+        },
+        {
+            "value": 0,
+            "type": 3,
+            "tAngle": -30,
+            "tIdx": 10,
+            "tLayer": 2,
+            "tPos": {
+                "x": -234,
+                "y": -142,
+                "z": 0
+            }
+        },
+        {
+            "value": 0,
+            "type": 3,
+            "tAngle": 15,
+            "tIdx": 11,
+            "tLayer": 2,
+            "tPos": {
+                "x": -70.75,
+                "y": 216.84,
+                "z": 0
+            }
+        },
+        {
+            "value": 0,
+            "type": 3,
+            "tAngle": -15,
+            "tIdx": 12,
+            "tLayer": 2,
+            "tPos": {
+                "x": -70.75,
+                "y": -216.84,
+                "z": 0
+            }
+        },
+        {
+            "value": 0,
+            "type": 3,
+            "tAngle": -30,
+            "tIdx": 13,
+            "tLayer": 2,
+            "tPos": {
+                "x": 234,
+                "y": 142,
+                "z": 0
+            }
+        },
+        {
+            "value": 0,
+            "type": 3,
+            "tAngle": 30,
+            "tIdx": 14,
+            "tLayer": 2,
+            "tPos": {
+                "x": 234,
+                "y": -142,
+                "z": 0
+            }
+        },
+        {
+            "value": 0,
+            "type": 3,
+            "tAngle": -15,
+            "tIdx": 15,
+            "tLayer": 2,
+            "tPos": {
+                "x": 70.75,
+                "y": 216.84,
+                "z": 0
+            }
+        },
+        {
+            "value": 0,
+            "type": 3,
+            "tAngle": 15,
+            "tIdx": 16,
+            "tLayer": 2,
+            "tPos": {
+                "x": 70.75,
+                "y": -216.84,
+                "z": 0
+            }
+        },
+        {
+            "value": 0,
+            "type": 3,
+            "tAngle": 0,
+            "tIdx": 17,
+            "tLayer": 3,
+            "tPos": {
+                "x": 0,
+                "y": -221,
+                "z": 0
+            }
+        },
+        {
+            "value": 0,
+            "type": 3,
+            "tAngle": 0,
+            "tIdx": 18,
+            "tLayer": 3,
+            "tPos": {
+                "x": 0,
+                "y": 221,
+                "z": 0
+            }
+        },
+        {
+            "value": 0,
+            "type": 3,
+            "tAngle": 10,
+            "tIdx": 19,
+            "tLayer": 3,
+            "tPos": {
+                "x": -206.5,
+                "y": 103,
+                "z": 0
+            }
+        },
+        {
+            "value": 0,
+            "type": 3,
+            "tAngle": -10,
+            "tIdx": 20,
+            "tLayer": 3,
+            "tPos": {
+                "x": -206.5,
+                "y": -103,
+                "z": 0
+            }
+        },
+        {
+            "value": 0,
+            "type": 3,
+            "tAngle": -10,
+            "tIdx": 21,
+            "tLayer": 3,
+            "tPos": {
+                "x": 206.5,
+                "y": 103,
+                "z": 0
+            }
+        },
+        {
+            "value": 0,
+            "type": 3,
+            "tAngle": 10,
+            "tIdx": 22,
+            "tLayer": 3,
+            "tPos": {
+                "x": 206.5,
+                "y": -103,
+                "z": 0
+            }
+        },
+        {
+            "value": 0,
+            "type": 3,
+            "tAngle": 0,
+            "tIdx": 23,
+            "tLayer": 4,
+            "tPos": {
+                "x": -196.5,
+                "y": 0,
+                "z": 0
+            }
+        },
+        {
+            "value": 0,
+            "type": 3,
+            "tAngle": 0,
+            "tIdx": 24,
+            "tLayer": 4,
+            "tPos": {
+                "x": 196.5,
+                "y": 0,
+                "z": 0
+            }
+        }
+    ],
+    "maxComboRedProb": 0.5,
+    "breakSwitchProb": 0.5,
+    "poolCount": 13,
+    "handCardValue": 0,
+    "minGuarantee": 3,
+    "ascProb": 0.65
+}

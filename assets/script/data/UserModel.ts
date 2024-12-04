@@ -32,6 +32,11 @@ class UserModel {
             this.saveUserData();
         } else {
             const userData:IUserData = JSON.parse(jsonStr);
+            if (userData.curLevelId < 101) {
+                this.clearUserData();
+                this.loadUserData()
+                return;
+            }
             this._gold = userData.gold;
             this._curLevelId = userData.curLevelId;
             this._winTimes = userData.winTimes;
@@ -61,7 +66,7 @@ class UserModel {
     public nextLevel() {
         const level = GameData.getNextLevel(this.curLevelId);
         if (level) {
-            this._curLevelId = level.id;
+            this._curLevelId = level.getLevelId();
             EventMgr.emit(EventName.onCurLevelChange,this._curLevelId);
             this.saveUserData();
         }

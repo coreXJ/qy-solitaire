@@ -8,11 +8,22 @@ import { LanguageSprite } from '../components/LanguageSprite';
 import { Node } from 'cc';
 import { Component } from 'cc';
 import { ResUtil } from '../comm/ResUtil';
-import { ConfigBoosters } from '../configs/ConfigBoosters';
+import { CfgBoosters } from '../configs/CfgBoosters';
+import { CfgLevel } from '../configs/CfgLevel';
 const { ccclass, property } = _decorator;
 
 @ccclass('ConfigMgr')
 export default class ConfigMgr extends Component {
+    //====================================
+    private _Level: CfgLevel;
+    public get Level() {
+        return this._Level;
+    }
+    private _Boosters: CfgBoosters;
+    public get Boosters() {
+        return this._Boosters;
+    }
+    //====================================
     private static _instance: ConfigMgr = null;
     public static get instance() {
         if (!this._instance) {
@@ -99,9 +110,8 @@ export default class ConfigMgr extends Component {
                 console.log('####  loadAllConfig ', jsonList)
                 for(let i = 0; i < jsonList.length; ++i){
                     ResUtil.assignWith(jsonList[i], this.node, true);
-                    var cls = js.getClassByName('Config'+jsonList[i].name);
-                    console.log('cls','Config'+jsonList[i].name);
-                    
+                    var cls = js.getClassByName('Cfg'+jsonList[i].name);
+                    // console.log('cls','Cfg'+jsonList[i].name);
                     let config:any = new cls();
                     config.initDatas(jsonList[i].json.rows);
                     // dataObj['DataMap'] = jsonList[i].json;  
@@ -119,9 +129,5 @@ export default class ConfigMgr extends Component {
 
     protected onDestroy(): void {
         this._dataObjMap = {}
-    }
-    private _Boosters: ConfigBoosters;
-    public get Boosters() {
-        return this._Boosters;
     }
 }

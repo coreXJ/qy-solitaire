@@ -22,7 +22,7 @@ export enum CardType {
 export class Level {
     id: number;
     name: string;
-    group: string;
+    // group: string;
     /**生成桌牌时，连续接龙的牌数范围 */
     tableComboRange: [number,number];
     minBreakDiff: number;
@@ -32,6 +32,14 @@ export class Level {
     poolCount: number;
     handCardValue: number;
     minGuarantee: number;
+    ascProb: number;
+
+    public getLevelId() {
+        return Math.floor(this.id / 100);
+    }
+    public getDifficult(): 1|2|3|4 {
+        return <any>Math.floor(this.id % 100);
+    }
 }
 
 export class Task {

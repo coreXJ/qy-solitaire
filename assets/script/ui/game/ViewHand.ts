@@ -520,7 +520,7 @@ export default class ViewHand extends Component {
                     this.ndExtraNum.getComponent(UIOpacity).opacity = 255;
                     this.ndExtraNum.active = false;
                 }).start();
-            }, 0.6);
+            }, 0.8);
         });
     }
 
