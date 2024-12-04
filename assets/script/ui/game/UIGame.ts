@@ -40,7 +40,7 @@ export default class UIGame extends UIView {
         GameCtrl.bind(this);
     }
     public bindClick(node: Node, listener: Function, target?:any, ...args:any[]) {
-        XUtils.bindClick(node, () => {
+        XUtils.bindButton(node, () => {
             if (this.isCanTouch) {
                 listener.apply(target, args);
             }

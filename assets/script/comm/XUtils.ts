@@ -172,7 +172,7 @@ export namespace XUtils{
     // * 必须先关闭事件，否则有可能多次注册点击事件
     // */
     // export function onButtonClick(node: Node, listener: Function, thisArg: any = null, soundType: EButtonSoundType = EButtonSoundType.COMMON, playAnimation = true, ...args) {
-    //     const button = XUtils.bindClick(node, listener, thisArg, soundType, ...args)
+    //     const button = XUtils.bindButton(node, listener, thisArg, soundType, ...args)
     //     if(playAnimation){
     //         button.transition = Button.Transition.SCALE;
     //         button.zoomScale = 0.95;
@@ -180,7 +180,13 @@ export namespace XUtils{
     //     }
     //     return button;
     // }
-
+    export function bindButton(node: Node, listener: Function, target = null, ...args:any[]) {
+        const button = XUtils.bindClick(node, listener, target, ...args)
+        button.transition = Button.Transition.SCALE;
+        button.zoomScale = 0.9;
+        button.duration = 0.1;
+        return button;
+    }
     /**
      * 没点击反馈的点击事件
      */

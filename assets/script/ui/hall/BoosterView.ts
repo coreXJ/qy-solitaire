@@ -28,7 +28,7 @@ export default class BoosterView extends Component {
     private data: Booster;
     private bChecked: boolean;
     protected onLoad(): void {
-        XUtils.bindClick(this.node, this.onClick, this);
+        XUtils.bindButton(this.node, this.onClick, this);
     }
     public get dataID() {
         return this.data.id;

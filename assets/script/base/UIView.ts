@@ -32,16 +32,16 @@ export enum UIShowTypes {
 };
 
 export enum UIOpenType {
-    UIOpenNone = 0,   //无动画
-    UIOpenScale,  //缩放动画
+    none = 0,   //无动画
+    scale,  //缩放动画
     UIOpenMoveLeft,  //左移动动画
     UIOpenMoveTop,  //下移动动画
     UIOpenCustom = 99, //自定义动画
 }
 
 export enum UICloseType {
-    UICloseNone = 0,   //无动画
-    UICloseScale,  //缩放动画
+    none = 0,   //无动画
+    scale,  //缩放动画
     UICloseMoveLeft,// 左移收回
     UICloseMoveTop,// 上移收回
     UICloseCustom = 99, //自定义动画
@@ -82,10 +82,10 @@ export class UIView extends ResKeeper {
     // showType: UIShowTypes = UIShowTypes.UISingle;
     /** 界面弹出动画类型 */
     @property({ type: Enum(UIOpenType) })
-    openAniType: UIOpenType = UIOpenType.UIOpenNone;
+    openAniType: UIOpenType = UIOpenType.none;
     /** 界面弹出动画类型 */
     @property({ type: Enum(UICloseType) })
-    closeAniType: UICloseType = UICloseType.UICloseNone;
+    closeAniType: UICloseType = UICloseType.none;
 
     /** 界面id */
     public UIid: number = 0;

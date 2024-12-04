@@ -26,7 +26,7 @@ export default class ViewTop extends Component {
 
     protected start(): void {
         console.log('ViewTop start');
-        XUtils.bindClick(this.btnSetting, this.onClickSetting, this);
+        XUtils.bindButton(this.btnSetting, this.onClickSetting, this);
     }
 
     public setTaskData(task: Task,colors: TaskColor[]) {

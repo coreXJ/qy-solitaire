@@ -12,8 +12,8 @@ export default class ViewZanting extends Component {
     private _callback: Function;
 
     protected start(): void {
-        XUtils.bindClick(this.btnQuit, this.onClickQuit, this);
-        XUtils.bindClick(this.btnPlay, this.onClickPlay, this);
+        XUtils.bindButton(this.btnQuit, this.onClickQuit, this);
+        XUtils.bindButton(this.btnPlay, this.onClickPlay, this);
     }
 
     private onClickPlay() {

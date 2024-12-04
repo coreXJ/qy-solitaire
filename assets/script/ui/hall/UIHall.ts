@@ -1,4 +1,4 @@
-import { _decorator, Node, Label, instantiate, Sprite } from "cc";
+import { _decorator, Node, Label, instantiate, Sprite, view, tween, v3, UITransform } from "cc";
 import { isFullScreen, UIView } from "../../base/UIView";
 import { UIMgr } from "../../manager/UIMgr";
 import { UIID } from "../../data/GameConfig";
@@ -16,7 +16,11 @@ const { ccclass, property } = _decorator;
 @ccclass('UIHall')
 @isFullScreen(true)
 export default class UIHall extends UIView {
-
+    @property(Node)
+    private ndTop: Node = null;
+    @property(Node)
+    private ndBottom: Node = null;
+    
     @property(Node)
     private btnStart: Node = null;
     @property(Node)
@@ -35,7 +39,7 @@ export default class UIHall extends UIView {
     protected onLoad(): void {
         console.log('UIHall onLoad');
         this.initBooster();
-        XUtils.bindClick(this.btnStart, this.toGame, this);
+        XUtils.bindButton(this.btnStart, this.toGame, this);
     }
     private listenEvent(bool: boolean) {
         const func = bool ? 'on' : 'off';
@@ -57,9 +61,41 @@ export default class UIHall extends UIView {
         });
         this.fullBtnStart();
         this.updateGold();
+        this.playAnimEnter();
     }
     protected onDisable(): void {
         this.listenEvent(false);
+    }
+    private playAnimEnter() {
+        // 1.top往下进入、play和booster往上进入
+        // 2.左边右边进入
+        const height = view.getVisibleSize().height;
+        const topY = height / 2;
+        const bottomY = -height / 2;
+        const topHeight = this.ndTop.getComponent(UITransform).height;
+        const bottomHeight = this.ndBottom.getComponent(UITransform).height;
+        tween(this.ndTop).set({position: v3(0,topY + topHeight)})
+            .to(0.3, {position: v3(0,topY)})
+            .start();
+        tween(this.ndBottom).set({position: v3(0,bottomY - bottomHeight)})
+            .to(0.5, {position: v3(0, bottomY)})
+            .start();
+    }
+    private playAnimExit() {
+        return new Promise<void>(resolve => {
+            const height = view.getVisibleSize().height;
+            const topY = height / 2;
+            const bottomY = -height / 2;
+            const topHeight = this.ndTop.getComponent(UITransform).height;
+            const bottomHeight = this.ndBottom.getComponent(UITransform).height;
+            tween(this.ndTop).set({position: v3(0,topY)})
+                .to(0.3, {position: v3(0,topY + topHeight)})
+                .start();
+            tween(this.ndBottom).set({position: v3(0,bottomY)})
+                .to(0.5, {position: v3(0, bottomY - bottomHeight)})
+                .call(()=>resolve())
+                .start();
+        });
     }
     public toGame() {
         const useBoosters: BoosterID[] = [];
@@ -68,9 +104,11 @@ export default class UIHall extends UIView {
                 useBoosters.push(e.dataID);
             }
         }
-        GameCtrl.openGame({
-            level: this.level,
-            useBoosters
+        this.playAnimExit().then(()=>{
+            GameCtrl.openGame({
+                level: this.level,
+                useBoosters
+            });
         });
     }
     public toEditor() {

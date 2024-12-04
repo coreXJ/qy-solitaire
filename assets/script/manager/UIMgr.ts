@@ -159,16 +159,20 @@ export class UIMgr extends Component {
                 uiInfo.uiView.fullScreen();
             }
             switch(uiInfo.uiView.openAniType){
-                case UIOpenType.UIOpenScale:
+                case UIOpenType.scale:
                     tween(target)
-                        .set({ scale: new Vec3(0.7, 0.7, 0.7)})
-                        .to(0.2, { scale: new Vec3(1.1 , 1.1, 1.1) }, { easing: "backOut" })
+                        .set({ scale: new Vec3(0.8, 0.8, 1)})
+                        .to(0.2, { scale: new Vec3(1.1 , 1.1, 1) }, { easing: "backOut" })
                         .to(0.1, { scale: new Vec3(1 , 1, 1) })
+                        .call(aniOverCallback)
                         .start();
+                    let op = target.getComponent(UIOpacity) || target.addComponent(UIOpacity);
+                    tween(op).set({opacity: 0})
+                        .to(0.2, { opacity: MASK_OPACITY }).start();
                     if (mask) {
                         let op = mask.getComponent(UIOpacity) || mask.addComponent(UIOpacity);
                         tween(op).set({opacity: 0})
-                            .to(0.2, { opacity: MASK_OPACITY }).call(aniOverCallback).start();
+                            .to(0.2, { opacity: MASK_OPACITY }).start();
                     }
                     break;
                 case UIOpenType.UIOpenMoveLeft: 
@@ -203,7 +207,7 @@ export class UIMgr extends Component {
         } else if (aniName == 'uiClose') {
             let mask = uiInfo.preventNode;
             switch(uiInfo.uiView.closeAniType){
-                case UICloseType.UICloseScale : {
+                case UICloseType.scale : {
                     target.active = false;
                     if (mask) {
                         let opUI = mask.getComponent(UIOpacity) || mask.addComponent(UIOpacity);

@@ -34,8 +34,8 @@ export class Dialog extends Component {
     private _cancelCallback: Function;
 
     protected start(): void {
-        XUtils.bindClick(this.btnConfirm, this.onClickConfirm, this);
-        XUtils.bindClick(this.btnCancel, this.onClickCancel, this);
+        XUtils.bindButton(this.btnConfirm, this.onClickConfirm, this);
+        XUtils.bindButton(this.btnCancel, this.onClickCancel, this);
         this.node.setSiblingIndex(999);
     }
 

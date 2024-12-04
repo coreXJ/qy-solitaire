@@ -253,7 +253,7 @@ export default class ViewHand extends Component {
     //         const cardView = nd.getComponent(CardView);
     //         cardView.data.value = value;
     //         this.poolCards.push(cardView);
-    //         XUtils.bindClick(cardView.node, this.onClickPoolCard, this, cardView);
+    //         XUtils.bindButton(cardView.node, this.onClickPoolCard, this, cardView);
     //         if (type == 0) { // task
     //             const pos = this.view.top.getTaskCardWorldPosition();
     //             cardView.node.worldPosition = pos;
