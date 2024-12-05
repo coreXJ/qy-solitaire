@@ -4,7 +4,7 @@ import ViewTable from "./ViewTable";
 import ViewHand from "./ViewHand";
 import GameCtrl from "../../game/GameCtrl";
 import ViewTop from "./ViewTop";
-import { BoosterID, Card, Level } from "../../data/GameObjects";
+import { BoosterEffectType, BoosterID, Card, Level } from "../../data/GameObjects";
 import CardView from "./CardView";
 import GameLogic from "../../game/GameLogic";
 import { CardBlow } from "../../data/GameConfig";
@@ -70,9 +70,9 @@ export default class UIGame extends UIView {
      * 游戏开局
      * @param level 关卡数据
      * @param winPoolCards 连胜奖励储备牌
-     * @param boosterIDs 场外道具
+     * @param boosterEffects 场外道具
      */
-    public async startGame(level: Level,winPoolCards: number[],boosterIDs: BoosterID[]) {
+    public async startGame(level: Level,winPoolCards: number[],boosterEffects: Map<BoosterEffectType, number>) {
         this.isStarted = false;
         await Promise.all([
             // 1.发桌牌
@@ -80,18 +80,30 @@ export default class UIGame extends UIView {
             // 2.发储备牌
             this.hand.dealCards(level.poolCount)
         ]);
-        for (const id of boosterIDs) {
-            if (id == BoosterID.hook) {
+        for (const [type,times] of boosterEffects) {
+            if (type == BoosterEffectType.hook) {
                 // 3.场外钩子
-                await this.playBooster1();
-            } else if (id == BoosterID.blow) {
+                await this.playBooster1(times);
+            } else if (type == BoosterEffectType.blow) {
                 // 4.场外风扇
-                await this.playBooster2();
-            } else if (id == BoosterID.joker) {
+                await this.playBooster2(times);
+            } else if (type == BoosterEffectType.joker) {
                 // 5.场外赖子
-                await this.playBooster3();
+                await this.playBooster3(times);
             }
         }
+        // for (const id of boosterIDs) {
+        //     if (id == BoosterID.hook) {
+        //         // 3.场外钩子
+        //         await this.playBooster1();
+        //     } else if (id == BoosterID.blow) {
+        //         // 4.场外风扇
+        //         await this.playBooster2();
+        //     } else if (id == BoosterID.joker) {
+        //         // 5.场外赖子
+        //         await this.playBooster3();
+        //     }
+        // }
         // 6.插入连胜奖励牌
         if (winPoolCards.length) {
             const idxs = GameLogic.randomInsertPoolCardIdxs(this.hand.poolCardCount-1, winPoolCards.length);
@@ -103,7 +115,7 @@ export default class UIGame extends UIView {
         this.isStarted = true;
     }
 
-    private async playBooster1() {
+    private async playBooster1(times: number) {
         console.log('playBooster1');
         // 展示一下，boosterHook
         await new Promise((resolve, reject) => {
@@ -119,20 +131,22 @@ export default class UIGame extends UIView {
                     resolve(null);
                 }).start();
         });
-        for (let i = 0; i < 3; i++) {//读配置（次数）
+        for (let i = 0; i < times; i++) {//读配置（次数）
             await this.table.hookTopCard();
         }
     }
 
-    private async playBooster2() {
+    private async playBooster2(times: number) {
         console.log('playBooster2');
-        const idxs = GameLogic.randomInsertPoolCardIdxs(this.hand.poolCardCount-1, 1);
-        await this.hand.insertBlowPoolCards([CardBlow], idxs);
+        for (let i = 0; i < times; i++) {
+            const idxs = GameLogic.randomInsertPoolCardIdxs(this.hand.poolCardCount-1, 1);
+            await this.hand.insertBlowPoolCards([CardBlow], idxs);
+        }
     }
 
-    private async playBooster3() {
+    private async playBooster3(times: number) {
         console.log('playBooster3');
-        await this.table.insertBoosterJoker(3); //读配置
+        await this.table.insertBoosterJoker(times); //读配置
     }
     public async undoDrawBlowCard(blowCards: Card[]) {
         this.blockTouch(1.3);

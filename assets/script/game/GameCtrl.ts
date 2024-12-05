@@ -1,6 +1,6 @@
 import { CardBlow, CardJoker, UIID } from "../data/GameConfig";
 import GameData from "./GameData";
-import { BoosterID, GameAction, GameActionType, Level, PropID, Task, TaskAwardType, TaskColor } from "../data/GameObjects";
+import { BoosterEffectType, BoosterID, GameAction, GameActionType, Level, PropEffectType, PropID, Task, TaskAwardType, TaskColor } from "../data/GameObjects";
 import { EventMgr, EventName } from "../manager/EventMgr";
 import { UIMgr } from "../manager/UIMgr";
 import CardView from "../ui/game/CardView";
@@ -8,6 +8,8 @@ import UIGame from "../ui/game/UIGame";
 import GameLogic from "./GameLogic";
 import UserModel from "../data/UserModel";
 import GMCtrl from "../GM/GMCtrl";
+import ConfigMgr from "../manager/ConfigMgr";
+import { IBoosterEffect } from "../configs/CfgBoosters";
 
 /**
  * 游戏控制类
@@ -23,6 +25,8 @@ class GameCtrl {
     // private viewTable: GameTable;
     // private viewHand: GameHand;
     private usedBoosters: BoosterID[] = [];
+    private bossterEffects: Map<BoosterEffectType, number> = new Map();
+    private usePropTimes: Map<PropID, number> = new Map();
 
     private bGaming = false;
     public get isGaming() {
@@ -48,6 +52,16 @@ class GameCtrl {
             }
             if (UserModel.useBooster(id)) {
                 this.usedBoosters.push(id);
+            }
+        }
+        this.bossterEffects.clear();
+        for (const id of this.usedBoosters) {
+            const effects = ConfigMgr.Boosters.getBoosterEffect(id);
+            for (const e of effects) {
+                const type = <BoosterEffectType >e.effectType;
+                let times = this.bossterEffects.get(type) || 0;
+                times += e.times;
+                this.bossterEffects.set(type, times);
             }
         }
     }
@@ -85,21 +99,35 @@ class GameCtrl {
         }
         this.newTask();
         const awardCards = this.getWinAwardCardValues();
-        this.view.startGame(this.level,awardCards,this.usedBoosters);
+        this.view.startGame(this.level,awardCards,this.bossterEffects);
         this.actions = [];
         this.bGaming = true;
     }
 
     private getWinAwardCardValues() {
         //读配置 通过UserModel.winTimes 生成对应的奖励牌
-        const times = UserModel.winTimes;
+        const bUnlock = UserModel.isUnlockWinCombo;
         let values: number[] = [];
-        if (times == 1) {
-            values = [0];
-        } else if (times == 2) {
-            values = [0,0,0,];
-        } else if (times >= 3) {
-            values = [0,0,0,0,CardJoker];
+        if (bUnlock) {
+            const config = ConfigMgr.Boosters.getMechAdd(UserModel.winCombo);
+            if (config) {
+                for (const e of config.effect) {
+                    for (let i = 0; i < e.times; i++) {
+                        if (e.effectType == PropEffectType.add) {
+                            values.push(0);
+                        } else if (e.effectType == PropEffectType.joker) {
+                            values.push(CardJoker);
+                        }
+                    }
+                }
+            }
+            // if (winCombo == 1) {
+            //     values = [0];
+            // } else if (winCombo == 2) {
+            //     values = [0,0,0,];
+            // } else if (winCombo >= 3) {
+            //     values = [0,0,0,0,CardJoker];
+            // }
         }
         return values;
     }
@@ -176,9 +204,27 @@ class GameCtrl {
             }
         }
         if (bWin) {
-            await this.view.hand.playWinAnimPool();
+            const config = ConfigMgr.Multiplecoins.getItem(UserModel.curLevelId);
+            let baseGoldMulti = config.levelBouns;
+            let cardGoldMulti = config.cardBonus;
+            let bonusCoin = Math.floor(ConfigMgr.Game.bonusCoin * cardGoldMulti);
+            let bonusGap = Math.floor(ConfigMgr.Game.bonusGap * cardGoldMulti);
+            let baseGold = Math.floor(ConfigMgr.Game.levelCoin * baseGoldMulti);
+            let poolCardCount = this.view.hand.poolCardCount;
+            let sumGold = baseGold;
+            for (let i = 0; i < poolCardCount; i++) {
+                sumGold += bonusCoin + bonusGap * i;
+            }
+            await this.view.hand.playWinAnimPool(bonusCoin, bonusGap);
+            UserModel.addGold(sumGold);
+            UIMgr.instance.open(UIID.UIResult,{
+                bWin,
+                isEditor:this.isEditor,
+                gold: sumGold
+            });
+        } else {
+            UIMgr.instance.replace(UIID.UIHall)
         }
-        UIMgr.instance.open(UIID.UIResult,{bWin,isEditor:this.isEditor});
         // if (this.isEditor) {
         //     return;
         // }
@@ -262,6 +308,8 @@ class GameCtrl {
         this.lisEvents(false);
         this.actions = [];
         this.usedBoosters = [];
+        this.usePropTimes.clear();
+        this.bossterEffects.clear();
     }
 
     public useProp(id: PropID) {
@@ -276,15 +324,20 @@ class GameCtrl {
         if (UserModel.useProp(id)) {
             console.log('使用道具');
             this.onUseProp(id);
-        } else if (UserModel.costGold(200)) { //读配置
-            console.log('花金币使用道具');
-            this.onUseProp(id, 200);
+        } else {
+            const gold = this.getPropPrice(id);
+            if (UserModel.costGold(gold)) {
+                console.log('花金币使用道具');
+                this.onUseProp(id, gold);
+                this.addUsePropTimes(id);
+            }
         }
     }
     
     private onUseProp(id: PropID, gold?: number) {
         if (id == PropID.PropAdd) {
-            this.view.hand.addPropAddCards(5); //读配置
+            const times = ConfigMgr.Boosters.getPropEffect(id)[0].times;
+            this.view.hand.addPropAddCards(times);
         } else if (id == PropID.PropJoker) {
             this.view.table.shakeMissCards();
             const action = new GameAction();
@@ -334,6 +387,22 @@ class GameCtrl {
         setTimeout(() => {
             this.startGame(this.params);
         }, 1000);
+    }
+
+    public getPropPrice(id: PropID) {
+        const times = this.getUsePropTimes(id);
+        const multiple = ConfigMgr.Multiplecoins.getPropPriceMultiple(UserModel.curLevelId);
+        let price = ConfigMgr.Boosters.getPropPrice(id,times);
+        return Math.floor(price * multiple);
+    }
+
+    private addUsePropTimes(id: PropID) {
+        let times = this.getUsePropTimes(id);
+        this.usePropTimes.set(id, times + 1);
+        this.view.hand.refreshProp();
+    }
+    private getUsePropTimes(id: PropID) {
+        return this.usePropTimes.get(id) || 0;
     }
 }
 

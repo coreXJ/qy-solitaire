@@ -70,7 +70,7 @@ export class UIGM extends Component {
         // 填充当前关卡
         this.btnLevel.getComponentInChildren(Label).string = '关卡:'+UserModel.curLevelId.toString();
         // 填充当前连胜
-        this.btnWinTimes.getComponentInChildren(Label).string = '连胜:'+UserModel.winTimes.toString();
+        this.btnWinTimes.getComponentInChildren(Label).string = '连胜:'+UserModel.winCombo.toString();
         // 填充当前金币
         this.btnGold.getComponentInChildren(Label).string = '金币\n'+UserModel.gold.toString();
         // 填充PropJoker
@@ -122,7 +122,7 @@ export class UIGM extends Component {
         }).catch(()=>{});
     }
     public onClickWinTimes() {
-        this.editNumber(UserModel.winTimes).then(([num]) => {
+        this.editNumber(UserModel.winCombo).then(([num]) => {
             UserModel.setWinTimes(num);
             this.fullContent();
         }).catch(()=>{});

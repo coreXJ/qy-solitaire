@@ -143,9 +143,9 @@ export default class UIHall extends UIView {
     //-------------end-------------
     private fullBtnStart() {
         // console.log('fullBtnStart',UserModel.winTimes);
-        this.mspWinAwards.spriteFrameIdx = Math.min(3,UserModel.winTimes) - 1;
+        this.mspWinAwards.spriteFrameIdx = Math.min(3,UserModel.winCombo) - 1;
         const spWinTimes = this.btnStart.getChildByName('winbar').getComponent(Sprite);
-        spWinTimes.fillRange = UserModel.winTimes / 3;
+        spWinTimes.fillRange = UserModel.winCombo / 3;
     }
     private updateGold() {
         // this.view.top.setGold(UserModel.gold);

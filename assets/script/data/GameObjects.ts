@@ -102,3 +102,15 @@ export enum PropID {
     PropAdd = 2,
     PropUndo = 3,
 }
+
+export enum PropEffectType {
+    add = 1,
+    joker = 2,
+    undo = 4,
+}
+
+export enum BoosterEffectType {
+    hook = 5,
+    blow = 3,
+    joker = 2,
+}

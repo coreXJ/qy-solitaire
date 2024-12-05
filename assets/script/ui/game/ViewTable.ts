@@ -368,7 +368,7 @@ export default class ViewTable extends Component {
                 }).delay(0.1);
                 tws.push(tw);
             }
-            tws[count-1].call(() => {
+            tws[count-1].delay(0.6).call(() => {
                 resolve();
             })
             for (const e of tws) {

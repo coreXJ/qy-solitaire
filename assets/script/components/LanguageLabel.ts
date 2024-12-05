@@ -21,7 +21,7 @@ export class LanguageLabel extends Component {
     }
 
     get string(): string {
-        let _string = ConfigMgr.instance.getLangTextByID(this._dataID)
+        let _string = ConfigMgr.getLangTextByID(this._dataID)
         if (!_string) {
             console.warn("[LanguageLabel] 未找到语言标识，使用dataID替换")
             _string = this._dataID

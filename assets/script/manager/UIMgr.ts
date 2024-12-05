@@ -1,6 +1,4 @@
 import { _decorator, Component, Node, director, UITransform, instantiate, isValid, Prefab, Tween, Vec3, UIOpacity, v3, view, tween, NodePool } from 'cc';
-import { AutoPopViewMgr } from './AutoPopViewMgr';
-import LocalConfigMgr from './ConfigMgr';
 import { UICloseType, UIOpenType, UIView } from '../base/UIView';
 import { ResMgr } from './ResMgr';
 import { GameConfig, IUiConf, MASK_OPACITY, UIID } from '../data/GameConfig';

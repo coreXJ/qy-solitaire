@@ -5,8 +5,32 @@
 			"dataType":"int32",
 			"desc":"基础金币数量",
 			"id":1,
-			"name":"InitialCoin",
-			"type":"Basic"
+			"name":"initialCoin",
+			"type":"基础"
+		},
+		{
+			"config":"100",
+			"dataType":"int32",
+			"desc":"默认关卡金币奖励数量",
+			"id":2,
+			"name":"levelCoin",
+			"type":"基础"
+		},
+		{
+			"config":"20",
+			"dataType":"int32",
+			"desc":"结算单张卡牌基础奖励金币数量",
+			"id":3,
+			"name":"bonusCoin",
+			"type":"基础"
+		},
+		{
+			"config":"10",
+			"dataType":"int32",
+			"desc":"结算卡牌奖励金币数量差值",
+			"id":4,
+			"name":"bonusGap",
+			"type":"基础"
 		}
 	],
 	"server_use":[]

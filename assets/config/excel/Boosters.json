@@ -14,7 +14,8 @@
 			"price":[
 				1000
 			],
-			"type":"局内道具"
+			"type":"局内道具",
+			"unlockLevel":2
 		},
 		{
 			"addGuide":[
@@ -36,7 +37,8 @@
 				4000,
 				8000
 			],
-			"type":"局内道具"
+			"type":"局内道具",
+			"unlockLevel":2
 		},
 		{
 			"addGuide":[],
@@ -69,9 +71,7 @@
 			],
 			"id":4,
 			"name":"booster_elimate",
-			"price":[
-				1000
-			],
+			"price":[],
 			"type":"场外道具",
 			"unlockLevel":10
 		},
@@ -85,10 +85,8 @@
 				}
 			],
 			"id":5,
-			"name":"booster_elimate",
-			"price":[
-				1000
-			],
+			"name":"booster_slot",
+			"price":[],
 			"type":"场外道具",
 			"unlockLevel":15
 		},
@@ -102,10 +100,8 @@
 				}
 			],
 			"id":6,
-			"name":"booster_elimate",
-			"price":[
-				1000
-			],
+			"name":"booster_joker",
+			"price":[],
 			"type":"场外道具",
 			"unlockLevel":20
 		},
@@ -167,11 +163,11 @@
 					"times":2
 				}
 			],
-			"guideLevel":3,
 			"id":11,
-			"name":"mech_reward",
+			"name":"mech_reward_add",
 			"price":[],
-			"type":"机制道具"
+			"type":"机制道具",
+			"unlockLevel":3
 		},
 		{
 			"addGuide":[],
@@ -183,9 +179,10 @@
 				}
 			],
 			"id":12,
-			"name":"mech_reward",
+			"name":"mech_reward_joker",
 			"price":[],
-			"type":"机制道具"
+			"type":"机制道具",
+			"unlockLevel":3
 		},
 		{
 			"addGuide":[],

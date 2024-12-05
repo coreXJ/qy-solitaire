@@ -129,6 +129,7 @@ class GameLogic {
             card = Math.floor(Math.random() * 13) + 1;
             card = this.addSuit(card, redProb);
         } else {
+            card = this.getCardValue(card);
             const max = 13 - minBreakDiff * 2;
             const add = Math.round(Math.random() * max);
             card += add;

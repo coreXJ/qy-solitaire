@@ -1,4 +1,5 @@
 import GameData from "../game/GameData";
+import ConfigMgr from "../manager/ConfigMgr";
 import { EventMgr, EventName } from "../manager/EventMgr";
 import { Booster, BoosterID, Prop, PropID } from "./GameObjects";
 
@@ -16,27 +17,22 @@ class UserModel {
         // 从local读取用户数据，目前用写死的数据
         const jsonStr = localStorage.getItem('userData');
         if (!jsonStr) {
-            this._gold = 1000;
+            this._gold = ConfigMgr.Game.initialCoin;
             this._curLevelId = GameData.firstLevelId;
             this._winTimes = 0;
             this._props = [
-                {id:PropID.PropAdd,count:3},
-                {id:PropID.PropJoker,count:3},
-                {id:PropID.PropUndo,count:3}
+                {id:PropID.PropAdd,count:0},
+                {id:PropID.PropJoker,count:0},
+                {id:PropID.PropUndo,count:0}
             ];
             this._boosters = [
-                {id:BoosterID.hook,count:3,freetime:0},
-                {id:BoosterID.blow,count:3,freetime:Date.now() + 10*60*1000},
-                {id:BoosterID.joker,count:3,freetime:0},
+                {id:BoosterID.hook,count:0,freetime:0},
+                {id:BoosterID.blow,count:0,freetime:0},
+                {id:BoosterID.joker,count:0,freetime:0},
             ];
             this.saveUserData();
         } else {
             const userData:IUserData = JSON.parse(jsonStr);
-            if (userData.curLevelId < 101) {
-                this.clearUserData();
-                this.loadUserData()
-                return;
-            }
             this._gold = userData.gold;
             this._curLevelId = userData.curLevelId;
             this._winTimes = userData.winTimes;
@@ -57,9 +53,11 @@ class UserModel {
                 boosters: this._boosters
             };
             localStorage.setItem('userData',JSON.stringify(userData));
+            console.log('saveUserData');
         }, 500);
     }
     public clearUserData() {
+        console.log('clearUserData');
         localStorage.removeItem('userData');
     }
     public get curLevelId() { return this._curLevelId; }
@@ -123,7 +121,7 @@ class UserModel {
         EventMgr.emit(EventName.onWinTimesChange, this._winTimes);
         this.saveUserData();
     }
-    public get winTimes() {
+    public get winCombo() {
         return this._winTimes;
     }
     public useProp(propId: PropID) {
@@ -223,6 +221,11 @@ class UserModel {
     }
     public getFreeBoosters() {
         return this._boosters.filter(e=>e.freetime > Date.now()).map(e=>e.id);
+    }
+
+    public get isUnlockWinCombo() {
+        return true;
+        return ConfigMgr.Boosters.getMechAddUnlock(this.curLevelId, this.winCombo);
     }
 }
 

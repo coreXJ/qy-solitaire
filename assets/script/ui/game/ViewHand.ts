@@ -411,7 +411,7 @@ export default class ViewHand extends Component {
             const lbNum = nd.getChildByPath('ndNum/lbNum').getComponent(Label);
             lbGold.node.parent.active = count == 0;
             lbNum.node.parent.active = count > 0;
-            lbGold.string = '200'; //读配置
+            lbGold.string = GameCtrl.getPropPrice(id) + '';
             lbNum.string = count.toString();
         }
     }
@@ -485,13 +485,16 @@ export default class ViewHand extends Component {
     }
 
     /**通关时的算分动画 */
-    public playWinAnimPool() {
+    public playWinAnimPool(coin: number, add: number) {
         const cards = [...this.poolCards].reverse();
         return new Promise<void>(resolve=>{
             let idx = 0;
             let addMs = 0.25;
             const next = ()=>{
                 const cardView = cards[idx];
+                if (!cardView) {
+                    return resolve();
+                }
                 CardTweens.fadeOutTop(cardView, addMs, ()=>{
                     idx ++;
                     if (idx < cards.length) {
@@ -505,6 +508,9 @@ export default class ViewHand extends Component {
                     const ndGoldAnim = GameLoader.addWinPoolGold(this.prebWinGold);
                     ndGoldAnim.parent = this.node;
                     ndGoldAnim.worldPosition = v3(x, startY);
+                    let finalGold = coin + add * (idx-1);
+                    console.log('finalGold',finalGold);
+                    ndGoldAnim.getComponentInChildren(Label).string = finalGold + '';
                     CardTweens.fadeOutWinPoolGold(ndGoldAnim)
                         .call(()=>{
                             GameLoader.removeWinPoolGold(ndGoldAnim);

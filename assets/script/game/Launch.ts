@@ -58,7 +58,7 @@ export class Launch extends Component {
 
     private initGame(){
         Promise.all([
-            ConfigMgr.instance.loadAllConfig(),
+            ConfigMgr.loadAllConfig(),
             GameData.loadAllLevelData(),
             GameLoader.loadAllGameRes(),
             // this.initServerConfig(),

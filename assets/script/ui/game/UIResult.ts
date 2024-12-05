@@ -1,4 +1,4 @@
-import { _decorator, Node } from "cc";
+import { _decorator, Label, Node } from "cc";
 import { isFullScreen, UIView } from "../../base/UIView";
 import { XUtils } from "../../comm/XUtils";
 import { UIMgr } from "../../manager/UIMgr";
@@ -7,9 +7,12 @@ const { ccclass, property } = _decorator;
 
 @ccclass('UIResult')
 export default class UIResult extends UIView {
+    @property(Label)
+    private lbGold: Label;
     private isEditor: boolean;
     public init(params: IOpenParams): void {
         console.log('UIResult init',params);
+        this.lbGold.string = XUtils.formatGold(params.gold);
         this.isEditor = params.isEditor;
         XUtils.bindClick(this.node, this.close.bind(this))
     }
@@ -27,5 +30,6 @@ export default class UIResult extends UIView {
 
 interface IOpenParams {
     bWin: boolean,
-    isEditor: boolean
+    isEditor: boolean,
+    gold: number
 }

@@ -32,7 +32,7 @@ export class LanguageSprite extends Component {
 
     updateSprite() {
         let self = this
-        let lang = ConfigMgr.instance.current
+        let lang = ConfigMgr.language
         let path = `texture/${lang}/${this.path}/spriteFrame`
         ResMgr.instance.load<SpriteFrame>(this.bundleName, path, SpriteFrame, null, (err, frame: SpriteFrame) => {
             if (err) {
