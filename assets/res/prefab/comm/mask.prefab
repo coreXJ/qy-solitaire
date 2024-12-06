@@ -36,8 +36,8 @@
     },
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 375,
-      "y": 667,
+      "x": 0,
+      "y": 0,
       "z": 0
     },
     "_lrot": {
@@ -164,7 +164,7 @@
       "r": 0,
       "g": 0,
       "b": 0,
-      "a": 130
+      "a": 204
     },
     "_spriteFrame": {
       "__uuid__": "7d8f9b89-4fd1-4c9f-a3ab-38ec7cded7ca@f9941",
@@ -234,8 +234,6 @@
       "__id__": 0
     },
     "fileId": "2dEtKDrVpAK6GlHDypG9EK",
-    "instance": null,
-    "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
   },
   {

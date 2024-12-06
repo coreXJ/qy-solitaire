@@ -2,6 +2,7 @@ import GameData from "../game/GameData";
 import ConfigMgr from "../manager/ConfigMgr";
 import { EventMgr, EventName } from "../manager/EventMgr";
 import { Booster, BoosterID, Prop, PropID } from "./GameObjects";
+import LocalValues, { LocalKey } from "./LocalValues";
 
 /**
  * 玩家数据
@@ -15,8 +16,8 @@ class UserModel {
     
     public loadUserData() {
         // 从local读取用户数据，目前用写死的数据
-        const jsonStr = localStorage.getItem('userData');
-        if (!jsonStr) {
+        const userData = LocalValues.getUserData();
+        if (!userData) {
             this._gold = ConfigMgr.Game.initialCoin;
             this._curLevelId = GameData.firstLevelId;
             this._winTimes = 0;
@@ -32,7 +33,6 @@ class UserModel {
             ];
             this.saveUserData();
         } else {
-            const userData:IUserData = JSON.parse(jsonStr);
             this._gold = userData.gold;
             this._curLevelId = userData.curLevelId;
             this._winTimes = userData.winTimes;
@@ -52,13 +52,13 @@ class UserModel {
                 props: this._props,
                 boosters: this._boosters
             };
-            localStorage.setItem('userData',JSON.stringify(userData));
+            LocalValues.setUserData(userData);
             console.log('saveUserData');
         }, 500);
     }
     public clearUserData() {
         console.log('clearUserData');
-        localStorage.removeItem('userData');
+        LocalValues.removeItem(LocalKey.userData);
     }
     public get curLevelId() { return this._curLevelId; }
     public nextLevel() {
@@ -231,7 +231,7 @@ class UserModel {
 
 export default new UserModel();
 
-interface IUserData {
+export interface IUserData {
     gold: number;
     curLevelId: number;
     winTimes: number;

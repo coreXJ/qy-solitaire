@@ -63,6 +63,7 @@ export enum UIID {
     UIGame,
     UIResult,
     UIEditor,
+    UISetting,
 }
 
 
@@ -75,6 +76,7 @@ export interface IUiConf {
 export const UIConfig: { [key: number]: IUiConf } = {
     [UIID.UILoading]: { prefab: 'prefab/load/UILoading', bundle: 'res'},
     [UIID.UIHall]: { prefab: 'prefab/hall/UIHall', bundle: 'res'},
+    [UIID.UISetting]: { prefab: 'prefab/hall/UISetting', bundle: 'res'},
     [UIID.UIGame]: { prefab: 'prefab/game/UIGame', bundle: 'res'},
     [UIID.UIResult]: { prefab: 'prefab/game/UIResult', bundle: 'res'},
     [UIID.UIEditor]: { prefab: 'prefab/editor/UIEditor', bundle: 'res'},

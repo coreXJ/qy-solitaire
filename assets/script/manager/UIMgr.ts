@@ -98,7 +98,7 @@ export class UIMgr extends Component {
         if(!isValid(viewNode)){
             throw new Error(`uiview ${uiInfo.uiId} is no valid.`);
         }
-        const prefab = GameConfig.UIMaskPrefab || await ResMgr.instance.load('prefab/comm/UIMask',Prefab); 
+        const prefab = GameConfig.UIMaskPrefab || await ResMgr.instance.load('prefab/comm/mask',Prefab); 
         const node = instantiate(prefab);
         node.name = `preventTouch${uiInfo.uiId}`;
         node.targetOff(Node.EventType.TOUCH_START);
@@ -160,17 +160,17 @@ export class UIMgr extends Component {
                 case UIOpenType.scale:
                     tween(target)
                         .set({ scale: new Vec3(0.8, 0.8, 1)})
-                        .to(0.2, { scale: new Vec3(1.1 , 1.1, 1) }, { easing: "backOut" })
+                        .to(0.2, { scale: new Vec3(1.05 , 1.05, 1) }, { easing: "backOut" })
                         .to(0.1, { scale: new Vec3(1 , 1, 1) })
                         .call(aniOverCallback)
                         .start();
                     let op = target.getComponent(UIOpacity) || target.addComponent(UIOpacity);
                     tween(op).set({opacity: 0})
-                        .to(0.2, { opacity: MASK_OPACITY }).start();
+                        .to(0.2, { opacity: 255 }).start();
                     if (mask) {
                         let op = mask.getComponent(UIOpacity) || mask.addComponent(UIOpacity);
                         tween(op).set({opacity: 0})
-                            .to(0.2, { opacity: MASK_OPACITY }).start();
+                            .to(0.2, { opacity: 255 }).start();
                     }
                     break;
                 case UIOpenType.UIOpenMoveLeft: 
@@ -206,7 +206,20 @@ export class UIMgr extends Component {
             let mask = uiInfo.preventNode;
             switch(uiInfo.uiView.closeAniType){
                 case UICloseType.scale : {
-                    target.active = false;
+                    tween(target)
+                        .set({ scale: new Vec3(1 , 1, 1)})
+                        .to(0.1, { scale: new Vec3(1.05 , 1.05, 1) }, { easing: "backOut" })
+                        .to(0.2, { scale: new Vec3(0.8 , 0.8, 1) })
+                        .call(aniOverCallback)
+                        .start();
+                    let op = target.getComponent(UIOpacity) || target.addComponent(UIOpacity);
+                    tween(op).set({opacity: 255})
+                        .to(0.2, { opacity: 0 }).start();
+                    if (mask) {
+                        let op = mask.getComponent(UIOpacity) || mask.addComponent(UIOpacity);
+                        tween(op).set({opacity: 0})
+                            .to(0.2, { opacity: 255 }).start();
+                    }
                     if (mask) {
                         let opUI = mask.getComponent(UIOpacity) || mask.addComponent(UIOpacity);
                         tween(opUI).set({ opacity: MASK_OPACITY }).to(0.2,{opacity:0}).call(aniOverCallback).start();
