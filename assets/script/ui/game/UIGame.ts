@@ -1,4 +1,4 @@
-import { _decorator, instantiate, Node, tween, v3 } from "cc";
+import { _decorator, instantiate, Node, tween, v3, view } from "cc";
 import { isFullScreen, UIView } from "../../base/UIView";
 import ViewTable from "./ViewTable";
 import ViewHand from "./ViewHand";
@@ -10,6 +10,7 @@ import GameLogic from "../../game/GameLogic";
 import { CardBlow } from "../../data/GameConfig";
 import { XUtils } from "../../comm/XUtils";
 import ViewZanting from "./ViewZanting";
+import { ViewHallMenu } from "../hall/ViewHallMenu";
 const { ccclass, property } = _decorator;
 
 @ccclass('UIGame')
@@ -20,7 +21,7 @@ export default class UIGame extends UIView {
     public table: ViewTable;
     public hand: ViewHand;
     public zanting: ViewZanting;
-
+    public menu: ViewHallMenu;
     public isStarted: boolean = false;
     // public isAniming: boolean = false;
     private _canTouchTime = 0;
@@ -61,9 +62,11 @@ export default class UIGame extends UIView {
         this.hand = this.content.getComponentInChildren(ViewHand);
         this.top = this.content.getComponentInChildren(ViewTop);
         this.zanting = this.getComponentInChildren(ViewZanting);
+        this.menu = this.getComponentInChildren(ViewHallMenu);
         this.table.view = this;
         this.hand.view = this;
         this.top.view = this;
+        this.menu.view = this;
     }
 
     /**
@@ -190,6 +193,7 @@ export default class UIGame extends UIView {
     public showZanting() {
         this.zanting.show(() => {
             this.isStarted = false;
+            this.tweenExit();
             this.table.fallCards().then(() => {
                 GameCtrl.onGameEnd(false);
             });
@@ -201,5 +205,41 @@ export default class UIGame extends UIView {
         this.top.reset();
         this.hand.reset();
         this.table.reset();
+    }
+
+    private tweenEnter() {
+        const size = view.getVisibleSize();
+        const height = size.height;
+        const width = size.width;
+        const x = width/2;
+        const y = height/2;
+        const moveDistance = 160;
+        const topHeight = this.top.height;
+        const endY = y - topHeight / 2;
+        const startY = endY + moveDistance;
+        tween(this.top.node)
+            .set({position: v3(0, startY)})
+            .to(0.5, {position: v3(0, endY)},{easing:'backOut'})
+            .start();
+    }
+    public tweenExit() {
+        console.log('tweenExit');
+        const size = view.getVisibleSize();
+        const height = size.height;
+        const width = size.width;
+        const x = width/2;
+        const y = height/2;
+        const moveDistance = 160;
+        const topHeight = this.top.height;
+        const startY = y - topHeight / 2;
+        const endY = startY + moveDistance;
+        tween(this.top.node)
+            .set({position: v3(0, startY)})
+            .to(0.5, {position: v3(0, endY)},{easing:'backIn'})
+            .start();
+    }
+
+    protected start(): void {
+        this.tweenEnter();
     }
 }

@@ -23,10 +23,12 @@ export default class ViewTop extends Component {
     private mspCard: MySprite;
     @property(Node)
     private ndMul2: Node;
-
+    public get height() {
+        return this.getComponent(UITransform).height;
+    }
     protected start(): void {
         console.log('ViewTop start');
-        XUtils.bindButton(this.btnSetting, this.onClickSetting, this);
+        this.view.bindClick(this.btnSetting, this.onClickSetting, this);
     }
 
     public setTaskData(task: Task,colors: TaskColor[]) {
@@ -87,6 +89,6 @@ export default class ViewTop extends Component {
     }
 
     private onClickSetting() {
-        this.view.showZanting();
+        this.view.menu.show();
     }
 }
