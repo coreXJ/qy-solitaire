@@ -5,6 +5,7 @@
  * 可以考虑把事件上报队列放这里。
  */
 
+import NativeHelper from "../comm/NativeHelper";
 import HttpApi from "../net/HttpApi";
 import MyFetch from "../net/MyFetch";
 import { LoginTypeID } from "./GameConfig";
@@ -15,8 +16,12 @@ class UserCtrl {
     private timeoutLogin: any;
     public async login() {
         clearTimeout(this.timeoutLogin);
+        if (!NativeHelper.deviceId) {
+            this.retryLogin(1);
+            return;
+        }
         HttpApi.login({
-            openId: 123, // 设备id
+            openId: NativeHelper.deviceId, // 设备id
             platform: LoginTypeID.Guest,
             token: '',
             version: 0
@@ -33,10 +38,10 @@ class UserCtrl {
         });
     }
 
-    private retryLogin() {
+    private retryLogin(sec = 60) {
         this.timeoutLogin = setTimeout(() => {
             this.login();
-        }, 60 * 1000); // 每60s尝试一次登录
+        }, sec * 1000); // 每60s尝试一次登录
     }
 
     private onLogin(data: any) {

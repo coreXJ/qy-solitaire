@@ -16,7 +16,7 @@ class MyFetch {
         }
         return response.json();
     }
-  
+
     public static async get<T>(endpoint: string, params?: Record<string, any>): Promise<T> {
         const url = new URL(this.baseUrl + endpoint);
         if (params) {
@@ -25,7 +25,7 @@ class MyFetch {
         const response = await fetch(url.toString());
         return this.handleResponse(response);
     }
-  
+
     // public static async post<T>(endpoint: string, body: Record<string, any>): Promise<T> {
     //     const response = await fetch(this.baseUrl + endpoint, {
     //         method: 'POST',
@@ -43,23 +43,28 @@ class MyFetch {
             s: this.sessionId, // SessionId 登录后有
             f: 'json', // 消息格式[json|pbuf]
         }
-        const formData = new URLSearchParams(body);
+        const formData = this.objectToFormData(body);
         const response = await fetch(this.baseUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
             },
-            body: formData.toString()
+            body: formData
         });
 
         return this.handleResponse(response);
     }
-  }
-  
-  export default MyFetch;
+    private static objectToFormData(params: Record<string, any>): string {
+        return Object.keys(params)
+            .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`)
+            .join('&');
+    }
+}
+
+export default MyFetch;
 
 
-  export interface IResp<T> {
+export interface IResp<T> {
     code: number;
     data: T;
     msg: string;

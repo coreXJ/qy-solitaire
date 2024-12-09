@@ -13,12 +13,14 @@ import UserModel from '../data/UserModel';
 import UserCtrl from '../data/UserCtrl';
 import { Toast } from '../components/Toast';
 import { Dialog } from '../components/Dialog';
+import NativeHelper from '../comm/NativeHelper';
 const { ccclass, property } = _decorator;
 
 @ccclass('Launch')
 export class Launch extends Component {
     private _hideTime = 0;
     protected onLoad(): void {
+        game.frameRate = 90;
         game.on(Game.EVENT_SHOW, this.onGameShow, this);
         game.on(Game.EVENT_HIDE, this.onGameHide, this);
     }
@@ -32,7 +34,7 @@ export class Launch extends Component {
         this._hideTime = Date.now();
     }
     start() {
-        game.frameRate = 90;
+        NativeHelper.init();
         HotUpdateMgr.instance.checkMainVersion();
         //初始化UI配置表
         UIMgr.instance.initUIConf(UIConfig);
@@ -40,7 +42,6 @@ export class Launch extends Component {
         this.initGame();
         // //播放背景音乐
         // AudioMgr.instance.playHallBgm();
-        UserCtrl.login();
     }
 
 
@@ -67,6 +68,7 @@ export class Launch extends Component {
             Dialog.init(),
             this.initUIMask()
         ]).then(()=>{
+            UserCtrl.login();
             UserModel.loadUserData()
         }).then(this.enterApp.bind(this));
     }

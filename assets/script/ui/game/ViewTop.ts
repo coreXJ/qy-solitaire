@@ -1,9 +1,7 @@
 import { _decorator, Component, Label, Node, UITransform, v3 } from "cc";
 import { MySprite } from "../../components/MySprite";
 import { Task, TaskColor } from "../../data/GameObjects";
-import GameCtrl from "../../game/GameCtrl";
 import { XUtils } from "../../comm/XUtils";
-import ViewZanting from "./ViewZanting";
 import UIGame from "./UIGame";
 const { ccclass, property } = _decorator;
 
