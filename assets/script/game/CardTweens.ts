@@ -249,7 +249,7 @@ export namespace CardTweens {
         const toPos = v3(nd.position).add(v3(0, CardView.HEIGHT / 3, 0));
         nd.active = false;
         return tween(nd)
-            .delay(FrameUnit * 2)
+            .delay(FrameUnit * 6)
             .set({active: true})
             .call(()=>{
                 const op = nd.getComponent(UIOpacity) || nd.addComponent(UIOpacity);
@@ -261,7 +261,7 @@ export namespace CardTweens {
             }).to(FrameUnit * 8, {
                 position: toPos
             }, { easing: 'cubicOut' })
-            .delay(FrameUnit * 4)
+            .delay(FrameUnit * 0)
     }
     export function fadeOutNode(nd: Node) {
         const op = nd.getComponent(UIOpacity) || nd.addComponent(UIOpacity);

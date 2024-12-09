@@ -327,7 +327,8 @@ export default class ViewTable extends Component {
         if (idx >= 0) {
             this.cardViews.splice(idx, 1);
             cardView.node.removeFromParent();
-            XUtils.unbindClick(cardView.node);
+            this.view.unbindCardTouch(cardView);
+            console.log('removeCard!!',cardView);
             const underCards = this.underCardsMap.get(cardView);
             if (underCards) {
                 this.underCardsMap.delete(cardView);

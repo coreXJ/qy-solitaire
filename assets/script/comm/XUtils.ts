@@ -207,6 +207,7 @@ export namespace XUtils{
     }
     export function unbindClick(node: Node) {
         node.off('click');
+        node.getComponent(Button)?.destroy();
     }
     
     let LastClickPosition: Vec3;

@@ -56,6 +56,10 @@ export default class UIGame extends UIView {
             }
         });
     }
+    public unbindCardTouch(cardView: CardView) {
+        XUtils.unbindClick(cardView.node);
+        cardView.node.off(Node.EventType.TOUCH_START);
+    }
     private bindNodes() {
         this.content = this.node.getChildByName('content');
         this.table = this.content.getComponentInChildren(ViewTable);

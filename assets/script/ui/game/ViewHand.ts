@@ -371,7 +371,7 @@ export default class ViewHand extends Component {
         const cardView = this.handCards.pop();
         if (cardView) {
             cardView.node.removeFromParent();
-            XUtils.unbindClick(cardView.node);
+            this.view.unbindCardTouch(cardView);
             cardView.vWorldPosition = this.ndHandRoot.worldPosition;
             return cardView;
         }
@@ -383,7 +383,7 @@ export default class ViewHand extends Component {
         if (this.poolCards.length > 0) {
             const cardView = this.poolCards.pop();
             cardView.node.removeFromParent();
-            XUtils.unbindClick(cardView.node);
+            this.view.unbindCardTouch(cardView);
             this.tweenMovePoolCards();
             // this.checkPoolEmpty();
             return cardView;
@@ -489,6 +489,7 @@ export default class ViewHand extends Component {
         const cards = [...this.poolCards].reverse();
         return new Promise<void>(resolve=>{
             let idx = 0;
+            let idx1 = 0;
             let addMs = 0.25;
             const next = ()=>{
                 const cardView = cards[idx];
@@ -514,7 +515,8 @@ export default class ViewHand extends Component {
                     CardTweens.fadeOutWinPoolGold(ndGoldAnim)
                         .call(()=>{
                             GameLoader.removeWinPoolGold(ndGoldAnim);
-                            if (idx >= cards.length) {
+                            console.log('__idx',idx1);
+                            if ((++idx1) >= cards.length) {
                                 resolve();
                             }
                         }).start();
@@ -526,7 +528,7 @@ export default class ViewHand extends Component {
                     this.ndExtraNum.getComponent(UIOpacity).opacity = 255;
                     this.ndExtraNum.active = false;
                 }).start();
-            }, 0.8);
+            }, 0.5);
         });
     }
 

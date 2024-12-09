@@ -1,6 +1,7 @@
 {
 	"rows":[
 		{
+			"argsArray":[],
 			"config":"1000",
 			"dataType":"int32",
 			"desc":"基础金币数量",
@@ -9,6 +10,7 @@
 			"type":"基础"
 		},
 		{
+			"argsArray":[],
 			"config":"100",
 			"dataType":"int32",
 			"desc":"默认关卡金币奖励数量",
@@ -17,6 +19,7 @@
 			"type":"基础"
 		},
 		{
+			"argsArray":[],
 			"config":"20",
 			"dataType":"int32",
 			"desc":"结算单张卡牌基础奖励金币数量",
@@ -25,12 +28,43 @@
 			"type":"基础"
 		},
 		{
+			"argsArray":[],
 			"config":"10",
 			"dataType":"int32",
 			"desc":"结算卡牌奖励金币数量差值",
 			"id":4,
 			"name":"bonusGap",
 			"type":"基础"
+		},
+		{
+			"argsArray":[],
+			"config":"10",
+			"dataType":"int32",
+			"desc":"追赶机制解锁关卡",
+			"id":5,
+			"name":"catchupLevel",
+			"type":"关卡"
+		},
+		{
+			"argsArray":[
+				{
+					"arg1":3,
+					"arg2":5
+				},
+				{
+					"arg1":2,
+					"arg2":4
+				},
+				{
+					"arg1":1,
+					"arg2":3
+				}
+			],
+			"dataType":"catchRule",
+			"desc":"追赶机制规则",
+			"id":6,
+			"name":"catchupRule",
+			"type":"关卡"
 		}
 	],
 	"server_use":[]

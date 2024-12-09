@@ -50,7 +50,6 @@ export default class UIHall extends UIView {
     protected onLoad(): void {
         console.log('UIHall onLoad');
         this.initBooster();
-        XUtils.bindButton(this.btnStart, this.toGame, this);
         XUtils.bindButton(this.btnSetting, this.openSetting, this);
     }
     private listenEvent(bool: boolean) {
@@ -85,6 +84,7 @@ export default class UIHall extends UIView {
         return HallTween.exit(this.bg,this.ndTop,this.ndBottom,this.ndLeft,this.ndRight,this.ndLevel);
     }
     public toGame() {
+        XUtils.unbindClick(this.btnStart);
         const useBoosters: BoosterID[] = [];
         for (const e of this.compBoosters) {
             if (e.isChecked) {
@@ -133,6 +133,7 @@ export default class UIHall extends UIView {
         this.mspWinAwards.spriteFrameIdx = Math.min(3,UserModel.winCombo) - 1;
         const spWinTimes = this.btnStart.getChildByName('winbar').getComponent(Sprite);
         spWinTimes.fillRange = UserModel.winCombo / 3;
+        XUtils.bindButton(this.btnStart, this.toGame, this);
     }
     private updateGold() {
         // this.view.top.setGold(UserModel.gold);
