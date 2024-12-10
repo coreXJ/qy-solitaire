@@ -6,6 +6,7 @@ import android.util.Log;
 import com.adjust.sdk.Adjust;
 import com.adjust.sdk.AdjustConfig;
 import com.adjust.sdk.LogLevel;
+import com.google.firebase.FirebaseApp;
 
 public class MyApplication extends Application {
 
@@ -16,7 +17,7 @@ public class MyApplication extends Application {
         super.onCreate();
         // 在这里进行全局初始化操作
         Log.d(TAG, "Application created");
-
+        FirebaseApp.initializeApp(this);
         initAdjust();
     }
 

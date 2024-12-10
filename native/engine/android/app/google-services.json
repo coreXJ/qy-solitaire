@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "24029014312",
+    "project_id": "solitairefrenzycardgames",
+    "storage_bucket": "solitairefrenzycardgames.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:24029014312:android:39ce554c98bb3983dd481d",
+        "android_client_info": {
+          "package_name": "classic.card.fun.casual.solitaire.game.patience"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDj-GjmdT5VkKFFoEr0Ri9oHaR3tlFzU7E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

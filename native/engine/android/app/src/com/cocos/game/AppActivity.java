@@ -24,9 +24,22 @@ THE SOFTWARE.
 ****************************************************************************/
 package com.cocos.game;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.provider.Settings;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
 import com.cocos.service.SDKWrapper;
 import com.cocos.lib.CocosActivity;
 
@@ -34,12 +47,27 @@ public class AppActivity extends CocosActivity {
 
     private static final String TAG = "AppActivity";
 
+    private static final int NOTIFICATION_PERMISSION_REQUEST_CODE = 1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // DO OTHER INITIALIZATION BELOW
         SDKWrapper.shared().init(this);
         JsbHelper.act = this;
+        requestPostNotifications();
+        FirebaseHelper.init(this);
+
+//        Button crashButton = new Button(this);
+//        crashButton.setText("Test Crash");
+//        crashButton.setOnClickListener(new View.OnClickListener() {
+//            public void onClick(View view) {
+//                throw new RuntimeException("Test Crash"); // Force a crash
+//            }
+//        });
+//        addContentView(crashButton, new ViewGroup.LayoutParams(
+//                ViewGroup.LayoutParams.MATCH_PARENT,
+//                ViewGroup.LayoutParams.WRAP_CONTENT));
     }
 
     @Override
@@ -122,5 +150,34 @@ public class AppActivity extends CocosActivity {
     public void onLowMemory() {
         SDKWrapper.shared().onLowMemory();
         super.onLowMemory();
+    }
+
+    private void requestPostNotifications() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                    != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.POST_NOTIFICATIONS},
+                        NOTIFICATION_PERMISSION_REQUEST_CODE);
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == NOTIFICATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // 用户授予了通知权限
+                // 在这里执行需要通知权限的操作
+            } else {
+                // 用户拒绝了通知权限
+                // 处理用户拒绝的情况
+                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                Uri uri = Uri.fromParts("package", getPackageName(), null);
+                intent.setData(uri);
+                startActivity(intent);
+            }
+        }
     }
 }

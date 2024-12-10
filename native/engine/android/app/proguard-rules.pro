@@ -65,3 +65,5 @@
    boolean isLimitAdTrackingEnabled();
 }
 -keep public class com.android.installreferrer.** { *; }
+
+-dontwarn java.lang.reflect.AnnotatedType

@@ -3,6 +3,7 @@
   <uses-permission android:name="android.permission.INTERNET"/>
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
   <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+  <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
   <application android:name="com.cocos.game.MyApplication" android:extractNativeLibs="true" android:allowBackup="true" android:label="@string/app_name" android:usesCleartextTraffic="true" android:icon="@mipmap/ic_launcher" android:resizeableActivity="true">
     <meta-data android:name="android.app.lib_name" android:value="cocos"/>
     <activity android:name="com.cocos.game.AppActivity" android:screenOrientation="portrait" android:configChanges="orientation|keyboardHidden|screenSize|screenLayout|smallestScreenSize" android:label="@string/app_name" android:theme="@android:style/Theme.NoTitleBar.Fullscreen" android:launchMode="singleTask" android:exported="true">
@@ -12,5 +13,10 @@
       </intent-filter>
     </activity>
     <activity android:name="com.cocos.lib.CocosEditBoxActivity" android:configChanges="orientation|keyboardHidden|screenSize|screenLayout|smallestScreenSize" android:screenOrientation="behind" android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen"/>
+    <service android:name="com.cocos.game.MyFirebaseMessagingService" android:exported="false">
+      <intent-filter>
+        <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+      </intent-filter>
+    </service>
   </application>
 </manifest>

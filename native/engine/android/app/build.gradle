@@ -1,8 +1,10 @@
 import org.apache.tools.ant.taskdefs.condition.Os
 
 apply plugin: 'com.android.application'
+apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.google.firebase.crashlytics'
 
-RES_PATH = RES_PATH.replace("\\", "/")
+        RES_PATH = RES_PATH.replace("\\", "/")
 COCOS_ENGINE_PATH = COCOS_ENGINE_PATH.replace("\\", "/")
 
 buildDir = "${RES_PATH}/proj/build/${project.name ==~ /^[_a-zA-Z0-9-]+$/ ? project.name : 'CocosGame'}"
@@ -115,4 +117,11 @@ dependencies {
     implementation 'com.adjust.sdk:adjust-android:5.0.2'
     implementation 'com.android.installreferrer:installreferrer:2.2'
     implementation 'com.google.android.gms:play-services-ads-identifier:18.0.1'
+
+    // firebase
+    implementation(platform("com.google.firebase:firebase-bom:33.6.0"))
+    implementation("com.google.firebase:firebase-analytics") // 事件上报及分析
+    implementation("com.google.firebase:firebase-crashlytics") // 崩溃报告
+    implementation("com.google.firebase:firebase-messaging") // 云推送
+
 }
